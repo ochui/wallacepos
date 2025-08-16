@@ -40,43 +40,49 @@ function WPOSKitchen() {
         }
     };
     var cacheloaded = 1;
+    var swManager = null;
+    
     this.checkCacheUpdate = function(){
-        // check if cache exists, if the app is loaded for the first time, we don't need to wait for an update
-        if (window.applicationCache.status == window.applicationCache.UNCACHED){
-            console.log("Application cache not yet loaded.");
+        // Initialize Service Worker Manager
+        swManager = new ServiceWorkerManager();
+        
+        swManager.init({
+            onCacheReady: function() {
+                console.log("Service Worker cache loaded for the first time, no need for reload.");
+                WPOS.initLogin();
+            },
+            onUpdateAvailable: function() {
+                console.log("Service Worker update available, applying...");
+                setLoadingBar(100, "Loading...");
+                swManager.applyUpdate();
+            },
+            onUpdateApplied: function() {
+                console.log("Service Worker update applied, reloading...");
+                location.reload(true);
+            },
+            onProgress: function(message) {
+                if (message.includes('Installing')) {
+                    setLoadingBar(1, "Installing application...");
+                } else if (message.includes('Updating')) {
+                    setLoadingBar(50, "Updating application...");
+                }
+            },
+            onError: function(error) {
+                console.error("Service Worker error:", error);
+                // Fallback to normal initialization if SW fails
+                WPOS.initLogin();
+            }
+        }).then(function() {
+            // If service worker is already active, proceed with login
+            if (navigator.serviceWorker.controller) {
+                console.log("Service Worker already active");
+                WPOS.initLogin();
+            }
+        }).catch(function(error) {
+            console.error("Service Worker initialization failed:", error);
+            // Fallback to normal initialization
             WPOS.initLogin();
-            return;
-        }
-        // For chrome, the UNCACHED status is never seen, instead listen for the cached event, cache has finished loading the first time
-        window.applicationCache.addEventListener('cached', function(e) {
-            console.log("Cache loaded for the first time, no need for reload.");
-            WPOS.initLogin();
         });
-        // wait for update to finish: check after applying event listener aswell, we may have missed the event.
-        window.applicationCache.addEventListener('updateready', function(e) {
-            console.log("Appcache update finished, reloading...");
-            setLoadingBar(100, "Loading...");
-            location.reload(true);
-        });
-        window.applicationCache.addEventListener('noupdate', function(e) {
-            console.log("No appcache update found");
-            WPOS.initLogin();
-        });
-        window.applicationCache.addEventListener('progress', function(e) {
-            var loaded = parseInt((100/ e.total)*e.loaded);
-            cacheloaded = isNaN(loaded)?(cacheloaded+1):loaded;
-            //console.log(cacheloaded);
-            setLoadingBar(cacheloaded, "Updating application...");
-        });
-        window.applicationCache.addEventListener('downloading', function(e) {
-            console.log("Updating appcache");
-            setLoadingBar(1, "Updating application...");
-        });
-        if (window.applicationCache.status == window.applicationCache.UPDATEREADY){
-            console.log("Appcache update finished, reloading...");
-            setLoadingBar(100, "Loading...");
-            location.reload(true);
-        }
     };
     // Check for device UUID & present Login, initial setup is triggered if the device UUID is not present
     this.initLogin = function(){
