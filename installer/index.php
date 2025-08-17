@@ -25,7 +25,17 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 $_SERVER['APP_ROOT'] = "/";
-require($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'vendor/autoload.php'); //Autoload all the classes.
+
+// Check if vendor/autoload.php exists before requiring it
+$autoloadPath = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'vendor/autoload.php';
+if (!file_exists($autoloadPath)) {
+    echo "Error: Composer dependencies not found.\n";
+    echo "Please run 'composer install' to install the required dependencies, or reproduce vendor files.\n";
+    echo "The file '{$autoloadPath}' is missing.\n";
+    exit(1);
+}
+
+require_once($autoloadPath); //Autoload all the classes.
 
 function checkDependencies(){
     $result = [
@@ -191,25 +201,12 @@ function writeDatabaseConfig(){
     return true;
 }
 
-function addAnalytics($type){
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://admin.wallaceit.com.au/customerapi/stats/add/'.$type.'?hostname='.$_SERVER['SERVER_NAME'].'&version='.(isset($_REQUEST['version']) ? $_REQUEST['version'] : DbUpdater::getLatestVersionName()),
-        CURLOPT_USERAGENT => 'WallacePOS_Installer'
-    ));
-    curl_exec($curl);
-    curl_close($curl);
-}
-
 session_start();
 // installer scripts
 // update
 if (isset($_REQUEST['upgrade'])){
     $dbUpdater = new DbUpdater();
     $result = $dbUpdater->upgrade((isset($_REQUEST['version']) ? $_REQUEST['version'] : null));
-    // register analytics
-    addAnalytics("upgrade");
     echo($result);
     exit;
 }
@@ -219,8 +216,6 @@ if (isset($_REQUEST['install'])){
         $_REQUEST['setupvars'] = $_SESSION['setupvars'];
     $dbUpdater = new DbUpdater();
     $result = $dbUpdater->install();
-    // register analytics
-    addAnalytics("install");
     echo($result);
     exit;
 }
