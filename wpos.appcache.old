@@ -35,8 +35,8 @@ function create_manifest() {
             $hashes.= md5_file($_SERVER['DOCUMENT_ROOT'].$file);
         }
     }
-    // Iterate through docs
-    $iterator = new RecursiveDirectoryIterator("docs");
+    // Iterate through storage
+    $iterator = new RecursiveDirectoryIterator("storage");
     // Iterate through all the files/folders in the current directory
     foreach ($iterator as $file) {
         $info = pathinfo($file);

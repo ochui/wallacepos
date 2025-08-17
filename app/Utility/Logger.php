@@ -34,7 +34,7 @@ class Logger
     /**
      * @var string the directory to store logs relative to project root (doc+app root).
      */
-    private static $directory = "docs/logs";
+    private static $directory = "storage/logs";
 
     /**
      * Log an event into the log file
@@ -44,6 +44,10 @@ class Logger
      */
     public static function write($msg, $type = "Misc", $data = null, $showUser = true)
     {
+        $logDir = __DIR__ . '/../../../' . self::$directory;
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
 
         if ($showUser) {
             if (php_sapi_name() === 'cli') {
@@ -53,11 +57,11 @@ class Logger
                 $user = $auth->isLoggedIn() ? $auth->getUserId() . ":" . $auth->getUsername() : ($auth->isCustomerLoggedIn() ? $auth->getCustomerId() . ":" . $auth->getCustomerUsername() : 'system');
             }
         }
-        // open file
-        $fd = fopen(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . "wpos_log_" . date("y-m-d") . ".txt", "a");
-        // write string
+        $fd = fopen($logDir . DIRECTORY_SEPARATOR . "wpos_log_" . date("y-m-d") . ".txt", "a");
+        if ($fd === false) {
+            return;
+        }
         fwrite($fd, "[" . date("y-m-d H:i:s") . "] (" . $type . (isset($user) ? ' - ' . $user . ') ' : ') ') . $msg . ($data != null ? "\nData: " . $data : "") . "\n");
-        // close file
         fclose($fd);
     }
 

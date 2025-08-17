@@ -13,7 +13,7 @@ var http = require('http');
 var app = http.createServer(wshandler);
 var fs = require('fs');
 var config = null;
-var configpath = __dirname+'/../docs/.config.json';
+var configpath = __dirname+'/../storage/.config.json';
 
 if (fs.existsSync(configpath))
     config = JSON.parse(fs.readFileSync(configpath, 'utf8'));

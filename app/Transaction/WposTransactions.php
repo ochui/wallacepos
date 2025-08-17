@@ -498,7 +498,7 @@ class WposTransactions
     public function savetemplate($type, $template)
     {
         // open file
-        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/docs/templates/" . $type . ".php", "w");
+        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/" . $type . ".php", "w");
         // write data
         fwrite($file, $template);
     }
@@ -509,9 +509,9 @@ class WposTransactions
     public function resettemplate($type)
     {
         // get original file in string
-        $template = file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/docs-template/templates/" . $type . ".php");
+        $template = file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/storage-template/templates/" . $type . ".php");
         // open file
-        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/docs/templates/" . $type . ".php", "w");
+        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/" . $type . ".php", "w");
         // write data
         fwrite($file, $template);
     }

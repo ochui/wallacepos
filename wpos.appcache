@@ -2,7 +2,7 @@
 /**
  * DEPRECATED: Application Cache Manifest
  * This file has been deprecated in favor of Service Workers
- * See: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
+ * See: https://developer.mozilla.org/en-US/storage/Web/API/Service_Worker_API
  */
 
 // Return 410 Gone to indicate this resource is no longer available

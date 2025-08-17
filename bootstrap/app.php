@@ -13,7 +13,7 @@ if (file_exists(__DIR__.'/../.env')) {
 }
 
 // Load configuration
-require_once __DIR__.'/../app/wpos/config.php';
+require_once __DIR__.'/../config/app.php';
 
 // Return the application instance
 return new App\Core\Application();

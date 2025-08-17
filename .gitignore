@@ -2,7 +2,8 @@
 .jshintrc
 nbproject
 library/wpos/.dbconfig.json
-docs/
+storage/backup/
+storage/logs/
 test-sw.html
 vendor/
 

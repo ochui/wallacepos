@@ -199,7 +199,7 @@ class WposTemplateData
             $this->header_line3  = $config['pos']->recline3;
             $this->logo_url  = ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . $config['pos']->recemaillogo;
             $this->footer  = $config['pos']->recfooter;
-            $this->qrcode_url = $config['pos']->recqrcode != "" ? ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . "/docs/qrcode.png" : null;
+            $this->qrcode_url = $config['pos']->recqrcode != "" ? ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . "/storage/qrcode.png" : null;
 
             // format refunds
             if (isset($data->refunddata)) {

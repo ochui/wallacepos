@@ -282,7 +282,7 @@ class WposAdminSettings
      */
     public static function getConfigFileValues($includeServerside = false)
     {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
         $config = new \stdClass();
         if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])) {
             $config = $GLOBALS['config'];
@@ -309,7 +309,7 @@ class WposAdminSettings
      */
     private function updateConfigFileValues($config)
     {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
         $curconfig = new \stdClass();
         if (file_exists($path)) {
             $curconfig = json_decode(file_get_contents($path));
@@ -333,7 +333,7 @@ class WposAdminSettings
      */
     public static function setConfigFileValue($key, $value)
     {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
         if (file_exists($path)) {
             $curconfig = json_decode(file_get_contents($path));
             if ($curconfig) {
@@ -351,7 +351,7 @@ class WposAdminSettings
     public function generateQRCode()
     {
         //echo("Creating QR code");
-        $path = "/docs/qrcode.png";
+        $path = "/storage/qrcode.png";
         $qrCode = new \Endroid\QrCode\QrCode($this->data->recqrcode);
         $qrCode->setSize(300);
         $qrCode->setErrorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Low);

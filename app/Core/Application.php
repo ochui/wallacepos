@@ -837,7 +837,7 @@ class Application
             case "file/upload":
                 if (isset($_FILES['file'])) {
 
-                    $uploaddir = 'docs';
+                    $uploaddir = 'storage';
 
                     $file_type = $_FILES['foreign_character_upload']['type']; //returns the mimetype
 
