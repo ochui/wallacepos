@@ -44,7 +44,7 @@ class Logger
      */
     public static function write($msg, $type = "Misc", $data = null, $showUser = true)
     {
-        $logDir = __DIR__ . '/../../../' . self::$directory;
+        $logDir = function_exists('storage_path') ? storage_path('logs') : __DIR__ . '/../../../' . self::$directory;
         if (!is_dir($logDir)) {
             mkdir($logDir, 0777, true);
         }
@@ -72,7 +72,7 @@ class Logger
      */
     public static function read($filename)
     {
-        return file_get_contents(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . $filename);
+        return file_get_contents(function_exists('storage_path') ? storage_path('logs' . DIRECTORY_SEPARATOR . $filename) : __DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . $filename);
     }
 
     /**
@@ -81,7 +81,8 @@ class Logger
      */
     public static function ls()
     {
-        $dir = scandir(__DIR__ . '/../../../' . self::$directory);
+        $logDir = function_exists('storage_path') ? storage_path('logs') : __DIR__ . '/../../../' . self::$directory;
+        $dir = scandir($logDir);
         unset($dir[0]);
         unset($dir[1]);
         return $dir;

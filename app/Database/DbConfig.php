@@ -109,8 +109,8 @@ class DbConfig
     static function getConf()
     {
         // Try to load .env file for local development
-        $envPath = __DIR__ . '/../../../';
-        if (!file_exists($envPath . '.env')) {
+        $envPath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        if (!file_exists($envPath . '/.env')) {
             throw new \Exception('Missing .env file');
         }
 

@@ -94,7 +94,7 @@ class WposTemplates
         unset($template->template);
         WposAdminSettings::putValue('templates', $this->data->id, $template);
 
-        if (!file_put_contents(__DIR__ . '/../../../' . "storage/templates/" . $template->filename, $this->data->template)) {
+        if (!file_put_contents(function_exists('storage_path') ? storage_path("templates/" . $template->filename) : __DIR__ . '/../../../' . "storage/templates/" . $template->filename, $this->data->template)) {
             $result['error'] = "Error saving template file";
         }
 
@@ -139,7 +139,7 @@ class WposTemplates
      */
     private static function getTemplateData($filename)
     {
-        return file_get_contents(__DIR__ . '/../../../' . "storage/templates/" . $filename);
+        return file_get_contents(function_exists('storage_path') ? storage_path("templates/" . $filename) : __DIR__ . '/../../../' . "storage/templates/" . $filename);
     }
 
     /**
@@ -148,13 +148,16 @@ class WposTemplates
      */
     public static function restoreDefaults($filename = null)
     {
+        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        
         if ($filename != null) {
-            if (file_exists(__DIR__ . '/../../../' . "storage-template/templates/" . $filename))
-                copy(__DIR__ . '/../../../' . "storage-template/templates/" . $filename, __DIR__ . '/../../../' . "storage/templates/" . $filename);
+            if (file_exists($basePath . "storage-template/templates/" . $filename))
+                copy($basePath . "storage-template/templates/" . $filename, $storagePath . "templates/" . $filename);
             return;
         }
-        foreach (glob(__DIR__ . '/../../../' . "storage-template/templates/*") as $file) {
-            copy($file, __DIR__ . '/../../../' . "storage/templates/" . basename($file));
+        foreach (glob($basePath . "storage-template/templates/*") as $file) {
+            copy($file, $storagePath . "templates/" . basename($file));
         }
     }
 }

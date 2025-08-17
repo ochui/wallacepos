@@ -62,7 +62,7 @@ class DbUpdater
             return "Database detected, skipping full installation.";
         }
         // Install database
-        $schemapath = __DIR__ . '/../../../' . "library/installer/schemas/install.sql";
+        $schemapath = function_exists('base_path') ? base_path("library/installer/schemas/install.sql") : __DIR__ . '/../../../' . "library/installer/schemas/install.sql";
         if (!file_exists($schemapath)) {
             return "Schema does not exist";
         }
@@ -96,20 +96,23 @@ class DbUpdater
     public function checkStorageTemplate()
     {
         // set permissions
+        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            if (file_exists(__DIR__ . '/../../../' . 'storage/logs') == false) {
-                exec('ROBOCOPY "' . __DIR__ . '/../../../' . 'storage-template/." "' . __DIR__ . '/../../../' . 'storage/" /E');
+            if (file_exists($storagePath . 'logs') == false) {
+                exec('ROBOCOPY "' . $basePath . 'storage-template/." "' . $storagePath . '" /E');
             }
         } else { //  Assume Linux
             // copy storage template if it doesn't exist
-            if (file_exists(__DIR__ . '/../../../' . 'storage/logs') == false) {
-                exec('cp -arn "' . __DIR__ . '/../../../' . 'storage-template/." "' . __DIR__ . '/../../../' . 'storage/"');
+            if (file_exists($storagePath . 'logs') == false) {
+                exec('cp -arn "' . $basePath . 'storage-template/." "' . $storagePath . '"');
             }
             // copy static config file from template if it doesn't exist
-            if (file_exists(__DIR__ . '/../../../' . 'storage/.config.json') == false)
-                copy(__DIR__ . '/../../../' . 'storage-template/templates/.config.json', __DIR__ . '/../../../' . 'storage/.config.json');
-            exec('chmod -R 774 ' . __DIR__ . '/../../../' . 'storage/');
-            exec('chmod -R 774 ' . __DIR__ . '/../../../' . 'storage/.config.json');
+            if (file_exists($storagePath . '.config.json') == false)
+                copy($basePath . 'storage-template/templates/.config.json', $storagePath . '.config.json');
+            exec('chmod -R 774 ' . $storagePath);
+            exec('chmod -R 774 ' . $storagePath . '.config.json');
             $socket = new WposSocketIO();
             $socket->generateHashKey();
         }
@@ -201,7 +204,7 @@ class DbUpdater
         try {
             if ($versionInfo['db']) {
                 echo ("Updating database...\n");
-                $path = __DIR__ . '/../../../' . "library/installer/schemas/update" . $versionInfo['name'] . ".sql";
+                $path = function_exists('base_path') ? base_path("library/installer/schemas/update" . $versionInfo['name'] . ".sql") : __DIR__ . '/../../../' . "library/installer/schemas/update" . $versionInfo['name'] . ".sql";
                 if (!file_exists($path)) {
                     return "Schema does not exist";
                 }
@@ -271,9 +274,12 @@ class DbUpdater
     private function upgradeVersion1_4_3()
     {
         // copy new templates
-        copy(__DIR__ . '/../../../' . 'storage-template/templates/receipt.mustache', __DIR__ . '/../../../' . 'storage/receipt.mustache');
-        copy(__DIR__ . '/../../../' . 'storage-template/templates/receipt_alt.mustache', __DIR__ . '/../../../' . 'storage/receipt_alt.mustache');
-        copy(__DIR__ . '/../../../' . 'storage-template/templates/receipt_mixed.mustache', __DIR__ . '/../../../' . 'storage/receipt_mixed.mustache');
+        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        
+        copy($basePath . 'storage-template/templates/receipt.mustache', $storagePath . 'receipt.mustache');
+        copy($basePath . 'storage-template/templates/receipt_alt.mustache', $storagePath . 'receipt_alt.mustache');
+        copy($basePath . 'storage-template/templates/receipt_mixed.mustache', $storagePath . 'receipt_mixed.mustache');
         // extract data for new sale_items fields
         $itemsMdl = new SaleItemsModel();
         $items = $itemsMdl->get();
@@ -290,14 +296,17 @@ class DbUpdater
     {
         WposAdminSettings::putValue('pos', 'negative_items', false);
         // copy static config file if it doesn't exist
-        if (file_exists(__DIR__ . '/../../../' . 'storage/.config.json') == false) {
+        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        
+        if (file_exists($storagePath . '.config.json') == false) {
             // copy current version or use template
-            if (file_exists(__DIR__ . '/../../../' . 'app/wpos/.config.json')) {
-                copy(__DIR__ . '/../../../' . 'app/wpos/.config.json', __DIR__ . '/../../../' . 'storage/.config.json');
+            if (file_exists($basePath . 'app/wpos/.config.json')) {
+                copy($basePath . 'app/wpos/.config.json', $storagePath . '.config.json');
             } else {
-                copy(__DIR__ . '/../../../' . 'storage-template/templates/.config.json', __DIR__ . '/../../../' . 'storage/.config.json');
+                copy($basePath . 'storage-template/templates/.config.json', $storagePath . '.config.json');
             }
-            copy(__DIR__ . '/../../../' . 'storage-template/.htaccess', __DIR__ . '/../../../' . 'storage/.htaccess');
+            copy($basePath . 'storage-template/.htaccess', $storagePath . '.htaccess');
         }
         $socket = new WposSocketIO();
         $socket->generateHashKey();
@@ -308,8 +317,8 @@ class DbUpdater
         // set default template values & copy templates
         WposAdminSettings::putValue('pos', 'rectemplate', 'receipt');
         WposAdminSettings::putValue('invoice', 'defaulttemplate', 'invoice');
-        if (!file_exists(__DIR__ . '/../../../' . "storage/templates/"))
-            mkdir(__DIR__ . '/../../../' . "storage/templates/");
+        if (!file_exists(function_exists('storage_path') ? storage_path('templates') : __DIR__ . '/../../../' . "storage/templates/"))
+            mkdir(function_exists('storage_path') ? storage_path('templates') : __DIR__ . '/../../../' . "storage/templates/");
         WposTemplates::restoreDefaults();
         // put alternate language values
         $labels = json_decode('{"cash":"Cash","credit":"Credit","eftpos":"Eftpos","cheque":"Cheque","deposit":"Deposit","tendered":"Tendered","change":"Change","transaction-ref":"Transaction Ref","sale-time":"Sale Time","subtotal":"Subtotal","total":"Total","item":"Item","items":"Items","refund":"Refund","void-transaction":"Void Transaction"}}');
@@ -463,7 +472,9 @@ class DbUpdater
         WposAdminSettings::putValue('general', 'gcontacttoken', '');
         WposAdminSettings::putValue('pos', 'priceedit', 'blank');
         // copy new templates
-        copy(__DIR__ . '/../../../' . 'storage-template/templates', __DIR__ . '/../../../' . 'storage/');
+        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        copy($basePath . 'storage-template/templates', $storagePath);
 
         return true;
     }
