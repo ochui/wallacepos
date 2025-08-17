@@ -1,4 +1,11 @@
 <?php
+
+namespace App\Invoice;
+
+use Mustache_Engine;
+use App\Admin\WposAdminSettings;
+use App\Utility\JsonValidate;
+
 /**
  * WposTemplates is part of Wallace Point of Sale system (WPOS) API
  *
@@ -48,14 +55,15 @@ class WposTemplates
      * @param $result
      * @return mixed
      */
-    public static function getTemplates($result = ['error'=>'OK']){
+    public static function getTemplates($result = ['error' => 'OK'])
+    {
         $templates = WposAdminSettings::getSettingsObject('templates');
-        if (!$templates){
+        if (!$templates) {
             $result['error'] = "Failed to load templates";
             return $result;
         }
         // append template data
-        foreach ($templates as $key=>$template){
+        foreach ($templates as $key => $template) {
             $templates->{$key}->template = self::getTemplateData($template->filename);
         }
         $result['data'] = $templates;
@@ -67,24 +75,26 @@ class WposTemplates
      * @param array $result
      * @return array
      */
-    public function editTemplate($result = ['error'=>'OK']){
+    public function editTemplate($result = ['error' => 'OK'])
+    {
         // validate input
         $jsonval = new JsonValidate($this->data, '{"id":"", "name":"", "template":""}');
-        if (($errors = $jsonval->validate())!==true){
+        if (($errors = $jsonval->validate()) !== true) {
             $result['error'] = $errors;
             return $result;
         }
 
         $template = $this->getTemplate($this->data->id);
-        if (!$template){
+        if (!$template) {
             $result['error'] = "Failed to load template";
             return $result;
         }
+        assert(is_object($template));
         $template->name = $this->data->name;
         unset($template->template);
         WposAdminSettings::putValue('templates', $this->data->id, $template);
 
-        if (!file_put_contents(__DIR__ . '/../../../'."docs/templates/".$template->filename, $this->data->template)){
+        if (!file_put_contents(__DIR__ . '/../../../' . "docs/templates/" . $template->filename, $this->data->template)) {
             $result['error'] = "Error saving template file";
         }
 
@@ -97,10 +107,12 @@ class WposTemplates
      * @param $data
      * @return null
      */
-    public function renderTemplate($id, $data){
+    public function renderTemplate($id, $data)
+    {
         $template = $this->getTemplate($id);
         if (!$template) return null;
         $m = new Mustache_Engine;
+        assert(is_object($template));
         return $m->render($template->template, $data);
     }
 
@@ -109,9 +121,10 @@ class WposTemplates
      * @param $id
      * @return bool
      */
-    private function getTemplate($id){
+    private function getTemplate($id)
+    {
         $templates = WposAdminSettings::getSettingsObject('templates');
-        if (isset($templates->{$id})){
+        if (isset($templates->{$id})) {
             $template = $templates->{$id};
             $template->template = $this->getTemplateData($template->filename);
             return $template;
@@ -124,22 +137,24 @@ class WposTemplates
      * @param $filename
      * @return string
      */
-    private static function getTemplateData($filename){
-        return file_get_contents(__DIR__ . '/../../../'."docs/templates/".$filename);
+    private static function getTemplateData($filename)
+    {
+        return file_get_contents(__DIR__ . '/../../../' . "docs/templates/" . $filename);
     }
 
     /**
      * Restore default templates
      * @return string
      */
-    public static function restoreDefaults($filename=null){
-        if ($filename!=null){
-            if (file_exists(__DIR__ . '/../../../'."docs-template/templates/".$filename))
-                copy(__DIR__ . '/../../../'."docs-template/templates/".$filename, __DIR__ . '/../../../'."docs/templates/".$filename);
+    public static function restoreDefaults($filename = null)
+    {
+        if ($filename != null) {
+            if (file_exists(__DIR__ . '/../../../' . "docs-template/templates/" . $filename))
+                copy(__DIR__ . '/../../../' . "docs-template/templates/" . $filename, __DIR__ . '/../../../' . "docs/templates/" . $filename);
             return;
         }
-        foreach (glob(__DIR__ . '/../../../'."docs-template/templates/*") as $file) {
-            copy($file, __DIR__ . '/../../../'."docs/templates/".basename($file));
+        foreach (glob(__DIR__ . '/../../../' . "docs-template/templates/*") as $file) {
+            copy($file, __DIR__ . '/../../../' . "docs/templates/" . basename($file));
         }
     }
 }

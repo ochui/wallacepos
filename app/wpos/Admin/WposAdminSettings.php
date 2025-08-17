@@ -1,4 +1,12 @@
 <?php
+
+namespace App\Admin;
+
+use App\Communication\WposSocketIO;
+use App\Database\ConfigModel;
+use App\Integration\GoogleIntegration;
+use App\Utility\Logger;
+
 /**
  * WposAdminSettings is part of Wallace Point of Sale system (WPOS) API
  *
@@ -21,7 +29,8 @@
  * @author     Michael B Wallace <micwallace@gmx.com>
  * @since      File available since 12/04/14 3:44 PM
  */
-class WposAdminSettings {
+class WposAdminSettings
+{
     /**
      * @var stdClass provided data (updated config)
      */
@@ -43,23 +52,24 @@ class WposAdminSettings {
      * Init object with any provided data
      * @param null $data
      */
-    function __construct($data = null){
-        if ($data !== null){
+    function __construct($data = null)
+    {
+        if ($data !== null) {
             // parse the data and put it into an object
             $this->data = $data;
-            $this->name = (isset($this->data->name)?$this->data->name:null);
+            $this->name = (isset($this->data->name) ? $this->data->name : null);
             unset($this->data->name);
         } else {
-            $this->data = new stdClass();
+            $this->data = new \stdClass();
         }
-
     }
 
     /**
      * Set the name of the configuration set to update.
      * @param $name
      */
-    public function setName($name){
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
@@ -68,14 +78,15 @@ class WposAdminSettings {
      * @param $name
      * @return bool|mixed
      */
-    public static function getSettingsObject($name){
+    public static function getSettingsObject($name)
+    {
         $configMdl = new ConfigModel();
         $data = $configMdl->get($name);
-        if ($data===false){
+        if ($data === false) {
             return false;
         }
 
-        if (!$result = json_decode($data[0]['data'])){
+        if (!$result = json_decode($data[0]['data'])) {
             return false;
         }
 
@@ -89,20 +100,21 @@ class WposAdminSettings {
      * @param $value
      * @return bool|mixed
      */
-    public static function putValue($name, $key, $value){
+    public static function putValue($name, $key, $value)
+    {
         $configMdl = new ConfigModel();
         $data = $configMdl->get($name);
-        if ($data===false){
+        if ($data === false) {
             return false;
         }
-        if (!$result = json_decode($data[0]['data'])){
+        if (!$result = json_decode($data[0]['data'])) {
             return false;
         }
 
         $result->{$key} = $value;
 
-        if ($configMdl->edit($name, json_encode($result))===false){
-           return false;
+        if ($configMdl->edit($name, json_encode($result)) === false) {
+            return false;
         }
 
         return true;
@@ -112,23 +124,24 @@ class WposAdminSettings {
      * Get all config values as an array
      * @return bool|mixed
      */
-    public function getAllSettings($getServersideValues=false){
+    public function getAllSettings($getServersideValues = false)
+    {
         $this->configMdl = new ConfigModel();
         $data = $this->configMdl->get();
-        if ($data===false){
+        if ($data === false) {
             return false;
         }
         $settings = [];
-        foreach ($data as $setting){
+        foreach ($data as $setting) {
             $settings[$setting['name']] = json_decode($setting['data']);
-            if ($setting['name']=="general") {
+            if ($setting['name'] == "general") {
                 $settings["general"]->gcontactaval = $settings["general"]->gcontacttoken != '';
                 unset($settings["general"]->gcontacttoken);
                 // get file-stored config values
                 $filesettings = $this->getConfigFileValues($getServersideValues);
                 $settings["general"] = (object) array_merge((array) $settings["general"], (array) $filesettings);
-            } elseif ($setting['name']=="accounting"){
-                $settings[$setting['name']]->xeroaval = $settings[$setting['name']]->xerotoken!='';
+            } elseif ($setting['name'] == "accounting") {
+                $settings[$setting['name']]->xeroaval = $settings[$setting['name']]->xerotoken != '';
                 unset($settings[$setting['name']]->xerotoken);
             }
         }
@@ -141,31 +154,32 @@ class WposAdminSettings {
      * @param $result
      * @return mixed
      */
-    public function getSettings($result){
-        if (!isset($this->name)){
+    public function getSettings($result)
+    {
+        if (!isset($this->name)) {
             $result['error'] = "A config-set name must be supplied";
             return $result;
         }
         $this->configMdl = new ConfigModel();
         $data = $this->configMdl->get($this->name);
-        if ($data!==false){
+        if ($data !== false) {
             $data = json_decode($data[0]['data']);
-            if ($this->name=="general"){
+            if ($this->name == "general") {
                 $fileconfig = $this->getConfigFileValues(true);
                 $data = (object) array_merge((array) $data, (array) $fileconfig);
-                $data->gcontactaval = $data->gcontacttoken!='';
+                $data->gcontactaval = $data->gcontacttoken != '';
                 unset($data->gcontacttoken);
-            } else if ($this->name=="accounting"){
+            } else if ($this->name == "accounting") {
                 // check xero token expiry TODO: Remove when we become xero partner
-                if ($data->xerotoken!='' && $data->xerotoken->expiredt<time()){
-                    $data->xerotoken='';
+                if ($data->xerotoken != '' && $data->xerotoken->expiredt < time()) {
+                    $data->xerotoken = '';
                 }
-                $data->xeroaval = $data->xerotoken!='';
+                $data->xeroaval = $data->xerotoken != '';
                 unset($data->xerotoken);
             }
             $result['data'] = $data;
         } else {
-            $result['error'] = "Could not retrive the selected config record: ".$this->configMdl->errorInfo;
+            $result['error'] = "Could not retrive the selected config record: " . $this->configMdl->errorInfo;
         }
 
         return $result;
@@ -176,23 +190,24 @@ class WposAdminSettings {
      * @param $result
      * @return mixed
      */
-    public function saveSettings($result){
-        if (!isset($this->name)){
+    public function saveSettings($result)
+    {
+        if (!isset($this->name)) {
             $result['error'] = "A config-set name must be supplied";
             return $result;
         }
         $this->configMdl = new ConfigModel();
         $config = $this->configMdl->get($this->name);
-        if ($config!==false){
-            if (sizeof($config)>0){
+        if ($config !== false) {
+            if (sizeof($config) > 0) {
 
                 $this->curconfig = json_decode($config[0]['data']); // get the json object
                 $configbk = $this->curconfig;
 
-                if (isset($this->data->gcontactcode) && $this->data->gcontactcode!=''){
+                if (isset($this->data->gcontactcode) && $this->data->gcontactcode != '') {
                     // Get google access token
                     $tokens = GoogleIntegration::processGoogleAuthCode($this->data->gcontactcode);
-                    if ($tokens){
+                    if ($tokens) {
                         $tokens = json_decode($tokens);
                         $this->data->gcontacttoken = $tokens;
                         $this->data->gcontact = 1;
@@ -201,25 +216,25 @@ class WposAdminSettings {
                 }
 
                 // generate new qr code
-                if ($this->name == "pos"){
-                    if ($this->data->recqrcode !== $configbk->recqrcode && $this->data->recqrcode!=""){
+                if ($this->name == "pos") {
+                    if ($this->data->recqrcode !== $configbk->recqrcode && $this->data->recqrcode != "") {
                         $this->generateQRCode();
                     }
                     $this->curconfig->{"negative_items"} = false;
                 }
 
-                foreach ($this->curconfig as $key=>$value){
-                    if (isset($this->data->{$key})){ // update the config value if specified in the data
+                foreach ($this->curconfig as $key => $value) {
+                    if (isset($this->data->{$key})) { // update the config value if specified in the data
                         $this->curconfig->{$key} = $this->data->{$key};
                     }
                 }
 
-                if ($this->configMdl->edit($this->name, json_encode($this->curconfig))===false){
-                    $result['error'] = "Could not update config record: ".$this->configMdl->errorInfo;
+                if ($this->configMdl->edit($this->name, json_encode($this->curconfig)) === false) {
+                    $result['error'] = "Could not update config record: " . $this->configMdl->errorInfo;
                 } else {
 
                     $conf = $this->curconfig;
-                    if ($this->name=="general"){
+                    if ($this->name == "general") {
                         unset($conf->gcontacttoken);
                         // update file config values
                         $fileconfig = $this->updateConfigFileValues($this->data);
@@ -227,8 +242,7 @@ class WposAdminSettings {
                         $conf->timezone = $fileconfig->timezone;
                         $conf->feedserver_port = $fileconfig->feedserver_port;
                         $conf->feedserver_proxy = $fileconfig->feedserver_proxy;
-
-                    } else if ($this->name=="accounting"){
+                    } else if ($this->name == "accounting") {
                         unset($conf->xerotoken);
                     }
 
@@ -237,12 +251,12 @@ class WposAdminSettings {
                     $socket->sendConfigUpdate($conf, $this->name);
 
                     // Success; log data
-                    Logger::write("System configuration updated:".$this->name, "CONFIG", json_encode($conf));
+                    Logger::write("System configuration updated:" . $this->name, "CONFIG", json_encode($conf));
 
                     // Return config including server side value; remove sensitive tokens
-                    if ($this->name=="general"){
+                    if ($this->name == "general") {
                         unset($this->curconfig);
-                    } else if ($this->name=="accounting"){
+                    } else if ($this->name == "accounting") {
                         unset($this->curconfig);
                     }
 
@@ -250,12 +264,12 @@ class WposAdminSettings {
                 }
             } else {
                 // if current settings are null, create a new record with the specified name
-                if ($this->configMdl->create($this->name, json_encode($this->data))===false){
-                    $result['error'] = "Could not insert new config record: ".$this->configMdl->errorInfo;
+                if ($this->configMdl->create($this->name, json_encode($this->data)) === false) {
+                    $result['error'] = "Could not insert new config record: " . $this->configMdl->errorInfo;
                 }
             }
         } else {
-            $result['error'] = "Could not retrieve the selected config record: ".$this->configMdl->errorInfo;
+            $result['error'] = "Could not retrieve the selected config record: " . $this->configMdl->errorInfo;
         }
 
         return $result;
@@ -266,16 +280,17 @@ class WposAdminSettings {
      * @param bool $includeServerside
      * @return mixed|stdClass
      */
-    public static function getConfigFileValues($includeServerside = false){
-        $path = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/.config.json";
-        $config = new stdClass();
-        if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])){
+    public static function getConfigFileValues($includeServerside = false)
+    {
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        $config = new \stdClass();
+        if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])) {
             $config = $GLOBALS['config'];
-        } else if (file_exists($path)){
+        } else if (file_exists($path)) {
             $config = json_decode(file_get_contents($path));
         }
 
-        if (!$includeServerside){
+        if (!$includeServerside) {
             unset($config->email_host);
             unset($config->email_port);
             unset($config->email_tls);
@@ -292,13 +307,14 @@ class WposAdminSettings {
      * @param $config
      * @return mixed|stdClass updated config values
      */
-    private function updateConfigFileValues($config){
-        $path = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/.config.json";
-        $curconfig = new stdClass();
-        if (file_exists($path)){
+    private function updateConfigFileValues($config)
+    {
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        $curconfig = new \stdClass();
+        if (file_exists($path)) {
             $curconfig = json_decode(file_get_contents($path));
             if ($curconfig) {
-                foreach ($curconfig as $key=>$value){
+                foreach ($curconfig as $key => $value) {
                     if (isset($config->{$key}))
                         $curconfig->{$key} = $config->{$key};
                 }
@@ -315,9 +331,10 @@ class WposAdminSettings {
      * @param $value
      * @return mixed|stdClass updated config values
      */
-    public static function setConfigFileValue($key, $value){
-        $path = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/.config.json";
-        if (file_exists($path)){
+    public static function setConfigFileValue($key, $value)
+    {
+        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "docs/.config.json";
+        if (file_exists($path)) {
             $curconfig = json_decode(file_get_contents($path));
             if ($curconfig) {
                 $curconfig->{$key} = $value;
@@ -331,18 +348,15 @@ class WposAdminSettings {
     /**
      * Generate a QR code, executed if qrcode text has changed
      */
-    public function generateQRCode(){
+    public function generateQRCode()
+    {
         //echo("Creating QR code");
         $path = "/docs/qrcode.png";
-        $qrCode = new Endroid\QrCode\QrCode($this->data->recqrcode);
+        $qrCode = new \Endroid\QrCode\QrCode($this->data->recqrcode);
         $qrCode->setSize(300);
-        $qrCode->setErrorCorrectionLevel(Endroid\QrCode\ErrorCorrectionLevel::Low);
-        $writer = new Endroid\QrCode\Writer\PngWriter();
+        $qrCode->setErrorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Low);
+        $writer = new \Endroid\QrCode\Writer\PngWriter();
         $result = $writer->write($qrCode);
-        file_put_contents($_SERVER['DOCUMENT_ROOT'].$path, $result->getString());
+        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $path, $result->getString());
     }
-
 }
-
-
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AutoLoader is part of Wallace Point of Sale system (WPOS) API
  *
@@ -22,7 +23,8 @@
  * @author     Michael B Wallace <micwallace@gmx.com>, Adam Jacquier-Parr <aljparr0@gmail.com>
  * @since      File available since 11/24/13 12:17 PM
  */
-namespace wpos; //I am using a namespace here because the function name "modelLoader" could be used again and that would break the script and be hard to debug, better safe than sorry
+
+namespace App;
 
 /*** nullify any existing autoloads ***/
 spl_autoload_register(null);
@@ -47,7 +49,7 @@ function autoLoadDirectory($path, $class)
         $dirList = scandir($path);
         foreach ($dirList as $dirListing) {
             if ($dirListing !== '.' && $dirListing !== '..' && is_dir($path . DIRECTORY_SEPARATOR . $dirListing)) {
-                if (autoLoadDirectory($path . DIRECTORY_SEPARATOR . $dirListing, $class)===true){
+                if (autoLoadDirectory($path . DIRECTORY_SEPARATOR . $dirListing, $class) === true) {
                     return true;
                 }
             }

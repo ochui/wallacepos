@@ -1,4 +1,20 @@
 <?php
+
+namespace App\Utility;
+
+use App\Admin\WposAdminUtilities;
+use App\Database\AuthModel;
+use App\Database\CategoriesModel;
+use App\Database\CustomerModel;
+use App\Database\DbConfig;
+use App\Database\DevicesModel;
+use App\Database\LocationsModel;
+use App\Database\StoredItemsModel;
+use App\Database\SuppliersModel;
+use App\Invoice\WposInvoices;
+use App\Pos\WposPosData;
+use App\Pos\WposPosSale;
+
 /**
  * Test Data is part of Wallace Point of Sale system (WPOS) API
  *
@@ -61,7 +77,7 @@ class TestData {
 
         for ($i = 0; $i < $numtransactions; $i++) {
             // contruct JSON test data
-            $saleobj = new stdClass();
+            $saleobj = new \stdClass();
             $saleobj->processdt = $curprocessdt;
             // pick a random device if  pos sale
             if ($type=='sale'){
@@ -116,7 +132,7 @@ class TestData {
                     }
                 }
 
-                $itemObj = new stdClass();
+                $itemObj = new \stdClass();
                 $itemObj->ref=$inum+1;
                 $itemObj->sitemid=$item['id'];
                 $itemObj->qty=$qty;
@@ -149,7 +165,7 @@ class TestData {
             }
             // add payment to the sale
             if ($type=='sale'){ // leave a few invoices unpaid.
-                $payment = new stdClass(); $payment->method=$paymethod; $payment->amount=number_format($total, 2, '.', '');
+                $payment = new \stdClass(); $payment->method=$paymethod; $payment->amount=number_format($total, 2, '.', '');
                 if ($paymethod=="cash"){
                     $tender = (round($total)%5 === 0) ? round($total) : round(($total+5/2)/5)*5;
                     $payment->tender=number_format($tender, 2, '.', '');
@@ -160,7 +176,7 @@ class TestData {
                 if ($i<2 || $i==60){
                     $saleobj->payments = [];
                 } else {
-                    $payment = new stdClass(); $payment->method=($paymethod=='cash'?'eftpos':$paymethod); $payment->amount=number_format($total, 2, '.', '');
+                    $payment = new \stdClass(); $payment->method=($paymethod=='cash'?'eftpos':$paymethod); $payment->amount=number_format($total, 2, '.', '');
                     $saleobj->payments = [$payment];
 
                 }
@@ -176,7 +192,7 @@ class TestData {
 
             // randomly add a void/refund to the sale
             if ($type=='sale' && (rand(1, 30) == 1)) {
-                $voidobj = new stdClass();
+                $voidobj = new \stdClass();
                 // pick another random device
                 $device = $this->devices[rand(0, sizeof($this->devices) - 1)];
                 $voidobj->deviceid = $device['id'];
@@ -193,7 +209,7 @@ class TestData {
                     $voidobj->method = $this->paymentMethods[rand(0, sizeof($this->paymentMethods) - 1)];
                     // pick item to return
                     $retitem = $items[rand(0, sizeof($items) - 1)];
-                    $itemdata = new stdClass();
+                    $itemdata = new \stdClass();
                     $itemdata->numreturned = 1;
                     $itemdata->ref = $retitem->ref;
                     $voidobj->items = [$itemdata];

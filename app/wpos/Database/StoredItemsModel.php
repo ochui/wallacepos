@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * StoredItemsModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -29,7 +32,7 @@ class StoredItemsModel extends DbConfig
     /**
      * @var array available columns
      */
-    protected $_columns = ['id' ,'data', 'supplierid', 'categoryid', 'code', 'name', 'price'];
+    protected $_columns = ['id', 'data', 'supplierid', 'categoryid', 'code', 'name', 'price'];
 
     /**
      * Init DB
@@ -46,7 +49,7 @@ class StoredItemsModel extends DbConfig
     public function create($data)
     {
         $sql          = "INSERT INTO stored_items (`data`, `supplierid`, `categoryid`, `code`, `name`, `price`) VALUES (:data, :supplierid, :categoryid, :code, :name, :price);";
-        $placeholders = [":data"=>json_encode($data),":supplierid"=>$data->supplierid, ":categoryid"=>$data->categoryid, ":code"=>$data->code, ":name"=>$data->name, ":price"=>$data->price];
+        $placeholders = [":data" => json_encode($data), ":supplierid" => $data->supplierid, ":categoryid" => $data->categoryid, ":code" => $data->code, ":name" => $data->name, ":price" => $data->price];
 
         return $this->insert($sql, $placeholders);
     }
@@ -56,7 +59,8 @@ class StoredItemsModel extends DbConfig
      * @param null $code
      * @return array|bool Returns false on an unexpected failure or an array of selected rows
      */
-    public function get($Id = null, $code = null) {
+    public function get($Id = null, $code = null)
+    {
         $sql = 'SELECT * FROM stored_items';
         $placeholders = [];
         if ($Id !== null) {
@@ -75,10 +79,10 @@ class StoredItemsModel extends DbConfig
         }
 
         $items = $this->select($sql, $placeholders);
-        if ($items===false)
+        if ($items === false)
             return false;
 
-        foreach($items as $key=>$item){
+        foreach ($items as $key => $item) {
             $data = json_decode($item['data'], true);
             $data['id'] = $item['id'];
             $items[$key] = $data;
@@ -92,10 +96,11 @@ class StoredItemsModel extends DbConfig
      * @param $data
      * @return bool|int Returns false on an unexpected failure or the number of rows affected by the update operation
      */
-    public function edit($id, $data){
+    public function edit($id, $data)
+    {
 
         $sql = "UPDATE stored_items SET data= :data, supplierid= :supplierid, categoryid= :categoryid, code= :code, name= :name, price= :price WHERE id= :id;";
-        $placeholders = [":id"=>$id, ":data"=>json_encode($data), ":supplierid"=>$data->supplierid, ":categoryid"=>$data->categoryid, ":code"=>$data->code, ":name"=>$data->name, ":price"=>$data->price];
+        $placeholders = [":id" => $id, ":data" => json_encode($data), ":supplierid" => $data->supplierid, ":categoryid" => $data->categoryid, ":code" => $data->code, ":name" => $data->name, ":price" => $data->price];
 
         return $this->update($sql, $placeholders);
     }
@@ -104,11 +109,12 @@ class StoredItemsModel extends DbConfig
      * @param integer|array $id
      * @return bool|int Returns false on an unexpected failure or the number of rows affected by the delete operation
      */
-    public function remove($id){
+    public function remove($id)
+    {
 
         $placeholders = [];
         $sql = "DELETE FROM stored_items WHERE";
-        if (is_numeric($id)){
+        if (is_numeric($id)) {
             $sql .= " `id`=:id;";
             $placeholders[":id"] = $id;
         } else if (is_array($id)) {
@@ -120,5 +126,4 @@ class StoredItemsModel extends DbConfig
 
         return $this->delete($sql, $placeholders);
     }
-
 }

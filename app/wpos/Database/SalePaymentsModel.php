@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * SalePaymentsModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -89,7 +92,7 @@ class SalePaymentsModel extends DbConfig
      *
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function get($limit = 0, $offset = 0, $saleid=null)
+    public function get($limit = 0, $offset = 0, $saleid = null)
     {
         $sql = 'SELECT * FROM sale_payments';
         $placeholders = [];
@@ -123,9 +126,10 @@ class SalePaymentsModel extends DbConfig
      *
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function edit($itemid, $method, $amount, $processdt){
+    public function edit($itemid, $method, $amount, $processdt)
+    {
         $sql = 'UPDATE sale_payments SET method=:method, amount=:amount, processdt=:processdt WHERE id= :id';
-        $placeholders = [":id"=>$itemid, ":method"=>$method, ":amount"=>$amount, ":processdt"=>$processdt];
+        $placeholders = [":id" => $itemid, ":method" => $method, ":amount" => $amount, ":processdt" => $processdt];
 
         return $this->update($sql, $placeholders);
     }
@@ -139,9 +143,10 @@ class SalePaymentsModel extends DbConfig
      * @param bool $statparity
      * @return array|bool A range of sales on success, false on failure
      */
-    public function getRange($stime, $etime, $deviceid=null, $status=null, $statparity= true){
+    public function getRange($stime, $etime, $deviceid = null, $status = null, $statparity = true)
+    {
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
         $sql = 'SELECT s.*, p.method as method FROM sale_payments as p LEFT JOIN sales as s ON p.saleid=s.id WHERE (s.processdt>= :stime AND s.processdt<= :etime)';
 
         if ($deviceid !== null) {
@@ -150,7 +155,7 @@ class SalePaymentsModel extends DbConfig
         }
 
         if ($status !== null) {
-            $sql .= ' AND s.status'.($statparity?'=':'!=').' :status';
+            $sql .= ' AND s.status' . ($statparity ? '=' : '!=') . ' :status';
             $placeholders[':status'] = $status;
         }
 
@@ -170,25 +175,26 @@ class SalePaymentsModel extends DbConfig
      * @param null $ttype
      * @return array|bool A range of sales on success, false on failure
      */
-    public function getTotals($stime, $etime, $status=null, $statparity= true, $groupmethod=false, $ttype=null){
+    public function getTotals($stime, $etime, $status = null, $statparity = true, $groupmethod = false, $ttype = null)
+    {
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
         $sql = "SELECT s.*, p.method as method, COALESCE(SUM(p.amount), 0) as stotal, COUNT(p.id) as snum, COALESCE(GROUP_CONCAT(s.ref SEPARATOR ','),'') as refs FROM sale_payments as p LEFT JOIN sales as s ON p.saleid=s.id WHERE (s.processdt>= :stime AND s.processdt<= :etime)";
 
         if ($status !== null) {
-            $sql .= ' AND s.status'.($statparity?'=':'!=').' :status';
+            $sql .= ' AND s.status' . ($statparity ? '=' : '!=') . ' :status';
             $placeholders[':status'] = $status;
         }
 
         // do not return orders
         $sql .= ' AND s.status!=0';
 
-        if ($ttype!=null){
+        if ($ttype != null) {
             $sql .= ' AND s.type=:type';
             $placeholders[':type'] = $ttype;
         }
 
-        if ($groupmethod){
+        if ($groupmethod) {
             $sql .= ' GROUP BY method';
         }
 
@@ -199,8 +205,9 @@ class SalePaymentsModel extends DbConfig
      * @param null $saleid
      * @return bool|int Returns false on failure, the number of rows affected on successs
      */
-    public function removeBySale($saleid=null){
-        if ($saleid===null){
+    public function removeBySale($saleid = null)
+    {
+        if ($saleid === null) {
             return false;
         }
 
@@ -214,8 +221,9 @@ class SalePaymentsModel extends DbConfig
      * @param null $id
      * @return bool|int Returns false on failure, the number of rows affected on successs
      */
-    public function removeById($id=null){
-        if ($id===null){
+    public function removeById($id = null)
+    {
+        if ($id === null) {
             return false;
         }
 
@@ -224,5 +232,4 @@ class SalePaymentsModel extends DbConfig
 
         return $this->delete($sql, $placeholders);
     }
-
 }

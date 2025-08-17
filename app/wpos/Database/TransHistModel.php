@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Database;
+
+
+
 /**
  * DevicesModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -48,7 +53,7 @@ class TransHistModel extends DbConfig
     public function create($saleid, $userid, $type, $desc)
     {
         $sql = "INSERT INTO sale_history (saleid, userid, type, description, dt) VALUES (:saleid, :userid, :type, :desc, :dt)";
-        $placeholders = [':saleid'=>$saleid, ":userid"=>$userid, ":type"=>$type, ":desc"=>$desc, ":dt"=>date("Y-m-d H:i:s")];
+        $placeholders = [':saleid' => $saleid, ":userid" => $userid, ":type" => $type, ":desc" => $desc, ":dt" => date("Y-m-d H:i:s")];
 
         return $this->insert($sql, $placeholders);
     }
@@ -83,16 +88,16 @@ class TransHistModel extends DbConfig
     }
 
     /**
-    * @param $id
-    * @return bool|int Returns false on an unexpected failure or the number of rows affected by the operation
-    */
+     * @param $id
+     * @return bool|int Returns false on an unexpected failure or the number of rows affected by the operation
+     */
     public function removeBySale($id)
     {
         if ($id === null) {
             return false;
         }
         $sql          = "DELETE FROM sale_history WHERE saleid= :id;";
-        $placeholders = [":id"=>$id];
+        $placeholders = [":id" => $id];
 
         return $this->delete($sql, $placeholders);
     }

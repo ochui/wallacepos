@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Utility;
+
+use App\Auth;
+
 /**
  * Logger is part of Wallace Point of Sale system (WPOS) API
  *
@@ -23,7 +28,8 @@
  * @since      File available since 18/07/14 5:20 PM
  */
 
-class Logger {
+class Logger
+{
 
     /**
      * @var string the directory to store logs relative to project root (doc+app root).
@@ -36,10 +42,11 @@ class Logger {
      * @param string $type
      * @param null $data
      */
-    public static function write($msg, $type="Misc", $data=null, $showUser=true){
+    public static function write($msg, $type = "Misc", $data = null, $showUser = true)
+    {
 
         if ($showUser) {
-            if (php_sapi_name() === 'cli'){
+            if (php_sapi_name() === 'cli') {
                 $user = "system:cli";
             } else {
                 $auth = new Auth();
@@ -49,7 +56,7 @@ class Logger {
         // open file
         $fd = fopen(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . "wpos_log_" . date("y-m-d") . ".txt", "a");
         // write string
-        fwrite($fd, "[".date("y-m-d H:i:s")."] (".$type.(isset($user)?' - '.$user.') ':') ').$msg.($data!=null?"\nData: ".$data:"")."\n");
+        fwrite($fd, "[" . date("y-m-d H:i:s") . "] (" . $type . (isset($user) ? ' - ' . $user . ') ' : ') ') . $msg . ($data != null ? "\nData: " . $data : "") . "\n");
         // close file
         fclose($fd);
     }
@@ -59,7 +66,8 @@ class Logger {
      * @param $filename
      * @return string
      */
-    public static function read($filename){
+    public static function read($filename)
+    {
         return file_get_contents(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . $filename);
     }
 
@@ -67,7 +75,8 @@ class Logger {
      * List the contents of the log dir
      * @return array
      */
-    public static function ls(){
+    public static function ls()
+    {
         $dir = scandir(__DIR__ . '/../../../' . self::$directory);
         unset($dir[0]);
         unset($dir[1]);

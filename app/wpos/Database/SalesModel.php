@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * SalesModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -54,7 +57,7 @@ class SalesModel extends TransactionsModel
      */
     public function create($ref, $data, $status, $userId, $deviceId, $locationId, $custId, $discount, $rounding, $cost, $total, $processdt)
     {
-        $sql = "INSERT INTO sales (ref, type, channel, data, userid, deviceid, locationid, custid, discount, rounding, cost, total, status, processdt, dt) VALUES (:ref, 'sale', 'pos', :data, :userid, :deviceid, :locationid, :custid, :discount, :rounding, :cost, :total, :status, :processdt, '".date("Y-m-d H:i:s")."')";
+        $sql = "INSERT INTO sales (ref, type, channel, data, userid, deviceid, locationid, custid, discount, rounding, cost, total, status, processdt, dt) VALUES (:ref, 'sale', 'pos', :data, :userid, :deviceid, :locationid, :custid, :discount, :rounding, :cost, :total, :status, :processdt, '" . date("Y-m-d H:i:s") . "')";
         $placeholders = [
             ':ref'        => $ref,
             ':data'       => $data,
@@ -94,14 +97,13 @@ class SalesModel extends TransactionsModel
             } else {
                 $sql .= ' AND';
             }
-            if ($searchref){
+            if ($searchref) {
                 $sql .= ' ref LIKE :ref';
-                $placeholders[':ref'] = '%'.$ref.'%';
+                $placeholders[':ref'] = '%' . $ref . '%';
             } else {
                 $sql .= ' ref= :ref';
                 $placeholders[':ref'] = $ref;
             }
-
         }
         if ($userId !== null) {
             if (empty($placeholders)) {
@@ -169,21 +171,22 @@ class SalesModel extends TransactionsModel
      * @param bool $includeorders
      * @return array|bool Returns false on failure or an array with sales or totals on success
      */
-    public function getRange($stime, $etime, $deviceids=null, $status=null, $statparity= true, $includeorders=true){
+    public function getRange($stime, $etime, $deviceids = null, $status = null, $statparity = true, $includeorders = true)
+    {
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
         $sql = 'SELECT * FROM sales WHERE (processdt>= :stime AND processdt<= :etime)';
 
         if ($deviceids !== null) {
-            if (is_array($deviceids)){
+            if (is_array($deviceids)) {
                 $deviceids = implode(",", $deviceids);
             }
             $sql .= " AND (INSTR(:deviceid, s.deviceid) OR INSTR(:deviceid, v.deviceid))";
-            $placeholders[':deviceid'] = "%".$deviceids."%";
+            $placeholders[':deviceid'] = "%" . $deviceids . "%";
         }
 
         if ($status !== null) {
-            $sql .= ' AND status'.($statparity?'=':'!=').' :status';
+            $sql .= ' AND status' . ($statparity ? '=' : '!=') . ' :status';
             $placeholders[':status'] = $status;
         }
 
@@ -191,7 +194,7 @@ class SalesModel extends TransactionsModel
         $sql .= " AND type='sale'";
 
         // do not total orders & invoices for reporting functions
-        if ($includeorders==false){
+        if ($includeorders == false) {
             $sql .= ' AND status!=0';
         }
 
@@ -208,23 +211,24 @@ class SalesModel extends TransactionsModel
      * @param bool $includeorders
      * @return array|bool Returns false on failure or an array with sales on success
      */
-    public function getRangeWithRefunds($stime, $etime=null, $deviceids=null, $status=null, $statparity=true, $includeorders=true){
+    public function getRangeWithRefunds($stime, $etime = null, $deviceids = null, $status = null, $statparity = true, $includeorders = true)
+    {
 
-        $placeholders = [":stime"=>$stime];
-        if ($etime!=null)
+        $placeholders = [":stime" => $stime];
+        if ($etime != null)
             $placeholders[":etime"] = $etime;
-        $sql = 'SELECT s.* FROM sales as s LEFT JOIN sale_voids as v ON s.id=v.saleid WHERE ((s.processdt>= :stime'.($etime!=null?' AND s.processdt<= :etime':'').') OR (v.processdt>= :stime'.($etime!==null?' AND v.processdt<= :etime':'').'))';
+        $sql = 'SELECT s.* FROM sales as s LEFT JOIN sale_voids as v ON s.id=v.saleid WHERE ((s.processdt>= :stime' . ($etime != null ? ' AND s.processdt<= :etime' : '') . ') OR (v.processdt>= :stime' . ($etime !== null ? ' AND v.processdt<= :etime' : '') . '))';
 
         if ($deviceids !== null) {
-            if (is_array($deviceids)){
+            if (is_array($deviceids)) {
                 $deviceids = implode(",", $deviceids);
             }
             $sql .= " AND (INSTR(:deviceid, s.deviceid) OR INSTR(:deviceid, v.deviceid))";
-            $placeholders[':deviceid'] = "%".$deviceids."%";
+            $placeholders[':deviceid'] = "%" . $deviceids . "%";
         }
 
         if ($status !== null) {
-            $sql .= ' AND status'.($statparity?'=':'!=').' :status';
+            $sql .= ' AND status' . ($statparity ? '=' : '!=') . ' :status';
             $placeholders[':status'] = $status;
         }
 
@@ -232,7 +236,7 @@ class SalesModel extends TransactionsModel
         $sql .= " AND type= 'sale'";
 
         // do not total orders for reporting functions
-        if ($includeorders==false){
+        if ($includeorders == false) {
             $sql .= ' AND status!=0';
         }
 
@@ -248,12 +252,13 @@ class SalesModel extends TransactionsModel
      * @param string $grouptype
      * @return array|bool Returns false on failure or an array with totals on success
      */
-    public function getGroupedTotals($stime, $etime, $status=null, $statparity= true, $grouptype = "device"){
+    public function getGroupedTotals($stime, $etime, $status = null, $statparity = true, $grouptype = "device")
+    {
 
         $joinsql = "devices as d ON s.deviceid=d.id LEFT JOIN locations as l ON d.locationid=l.id";
         $groupsql = " GROUP BY s.deviceid";
 
-        switch($grouptype){
+        switch ($grouptype) {
             case "device":
                 break;
             case "location":
@@ -266,18 +271,18 @@ class SalesModel extends TransactionsModel
                 break;
         }
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
-        $sql = 'SELECT *, d.id as groupid, '.($grouptype=='device'?"CONCAT(d.name, ' (', l.name, ')')":'d.name').' as name, SUM(s.total) as stotal, COUNT(s.id) as snum FROM sales as s LEFT JOIN '.$joinsql.' WHERE (processdt>= :stime AND processdt<= :etime)';
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
+        $sql = 'SELECT *, d.id as groupid, ' . ($grouptype == 'device' ? "CONCAT(d.name, ' (', l.name, ')')" : 'd.name') . ' as name, SUM(s.total) as stotal, COUNT(s.id) as snum FROM sales as s LEFT JOIN ' . $joinsql . ' WHERE (processdt>= :stime AND processdt<= :etime)';
 
         if ($status !== null) {
-            $sql .= ' AND status'.($statparity?'=':'!=').' :status';
+            $sql .= ' AND status' . ($statparity ? '=' : '!=') . ' :status';
             $placeholders[':status'] = $status;
         }
 
         // do not total orders
         $sql .= " AND status!=0";
 
-        $sql.= $groupsql;
+        $sql .= $groupsql;
 
         return $this->select($sql, $placeholders);
     }
@@ -296,12 +301,15 @@ class SalesModel extends TransactionsModel
      * @param null $processdt
      * @return bool|int Returns false on failure or number of rows affected on success
      */
-    public function edit($saleid=null, $saleref=null, $data, $status = null, $userid=null, $devid=null, $locid=null, $custid=null, $discount=null, $rounding=null, $cost=null, $total=null, $processdt=null){
-        if (!is_numeric($saleid) && ($saleref==null || $saleref=="")){ return false; }
+    public function edit($saleid = null, $saleref = null, $data, $status = null, $userid = null, $devid = null, $locid = null, $custid = null, $discount = null, $rounding = null, $cost = null, $total = null, $processdt = null)
+    {
+        if (!is_numeric($saleid) && ($saleref == null || $saleref == "")) {
+            return false;
+        }
         $sql = "UPDATE sales SET data= :data";
         $sqlcond = ""; // conditions to preprend
         $placeholders = [];
-        if ($saleid==null && $saleref==null){
+        if ($saleid == null && $saleref == null) {
             return false; // we would not want that!
         }
         if ($saleref !== null) {
@@ -309,10 +317,10 @@ class SalesModel extends TransactionsModel
             $sqlcond .= ' ref= :ref';
             $placeholders[':ref'] = $saleref;
         } else {
-            if (empty($placeholders)){
-               $sqlcond .= ' WHERE';
+            if (empty($placeholders)) {
+                $sqlcond .= ' WHERE';
             } else {
-               $sqlcond .= ' AND';
+                $sqlcond .= ' AND';
             }
             $sqlcond .= ' id= :saleid';
             $placeholders[':saleid'] = $saleid;
@@ -360,7 +368,7 @@ class SalesModel extends TransactionsModel
 
         $placeholders[':data'] = $data;
 
-        return $this->update($sql.$sqlcond, $placeholders);
+        return $this->update($sql . $sqlcond, $placeholders);
     }
 
     /**
@@ -368,11 +376,11 @@ class SalesModel extends TransactionsModel
      * @param $ref
      * @return bool|int Returns false on failure or number of rows affected on success
      */
-    public function removeOrder($ref){
+    public function removeOrder($ref)
+    {
         $sql = "DELETE FROM `sales` WHERE `ref` = :ref AND `status`=0";
         $placeholders = [":ref" => $ref];
 
         return $this->delete($sql, $placeholders);
     }
-
 }

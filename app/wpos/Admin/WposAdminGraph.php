@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Admin;
+
+use App\Utility\JsonValidate;
+
 /**
  * WposAdminGraph is part of Wallace Point of Sale system (WPOS) API
  *
@@ -23,7 +28,8 @@
  * @author     Michael B Wallace <micwallace@gmx.com>
  * @since      File available since 14/04/14 9:42 PM
  */
-class WposAdminGraph {
+class WposAdminGraph
+{
     /**
      * @var mixed provided paramters decoded from JSON
      */
@@ -32,12 +38,13 @@ class WposAdminGraph {
     /**
      * @param $data
      */
-    function __construct($data=null){
+    function __construct($data = null)
+    {
         // parse the data if needed and put it into an object
-        if ($data!==null){
+        if ($data !== null) {
             $this->data = $data;
         } else {
-            $this->data = new stdClass();
+            $this->data = new \stdClass();
         }
     }
 
@@ -47,10 +54,11 @@ class WposAdminGraph {
      * @param $graphtype
      * @return mixed
      */
-    private function getGraph($result, $graphtype){
+    private function getGraph($result, $graphtype)
+    {
         // validate input
         $jsonval = new JsonValidate($this->data, '{"stime":1, "etime":1, "interval":1}');
-        if (($errors = $jsonval->validate())!==true){
+        if (($errors = $jsonval->validate()) !== true) {
             $result['error'] = $errors;
             return $result;
         }
@@ -58,51 +66,55 @@ class WposAdminGraph {
         $stats = new WposAdminStats(null);
         $graph = [];
         $serieslist = [];
-        $interval = isset($this->data->interval)?$this->data->interval:(86400000); // default interval is one day
-        $curstime = isset($this->data->stime)?$this->data->stime:(strtotime('-1 week')*1000);
+        $interval = isset($this->data->interval) ? $this->data->interval : (86400000); // default interval is one day
+        $curstime = isset($this->data->stime) ? $this->data->stime : (strtotime('-1 week') * 1000);
         $curetime = $curstime + $interval;
-        $stopetime = isset($this->data->etime)?$this->data->etime:(time()*1000);
+        $stopetime = isset($this->data->etime) ? $this->data->etime : (time() * 1000);
         $tempstats = null;
-        while ($curstime<=$stopetime){
+        while ($curstime <= $stopetime) {
             $stats->setRange($curstime, $curetime);
-            switch($graphtype){
-                case 1: $tempstats=$stats->getOverviewStats($result);
-                   break;
-                case 2: $tempstats=$stats->getCountTakingsStats($result);
-                   break;
-                case 3: $tempstats=$stats->getDeviceBreakdownStats($result);
+            switch ($graphtype) {
+                case 1:
+                    $tempstats = $stats->getOverviewStats($result);
                     break;
-                case 4: $tempstats=$stats->getDeviceBreakdownStats($result, 'location');
+                case 2:
+                    $tempstats = $stats->getCountTakingsStats($result);
+                    break;
+                case 3:
+                    $tempstats = $stats->getDeviceBreakdownStats($result);
+                    break;
+                case 4:
+                    $tempstats = $stats->getDeviceBreakdownStats($result, 'location');
                     break;
             }
-            if ($tempstats['error']=="OK"){
+            if ($tempstats['error'] == "OK") {
                 // put into series list
-                foreach ($tempstats['data'] as $key => $value){
+                foreach ($tempstats['data'] as $key => $value) {
                     $serieslist[$key] = $key;
                 }
                 // put into array
                 $graph[$curstime] = $tempstats['data'];
             } else {
-                $result['error'].= $tempstats['error'];
+                $result['error'] .= $tempstats['error'];
                 break;
             }
             // move to the next segment
-            $curstime+=$interval;
-            $curetime+=$interval;
+            $curstime += $interval;
+            $curetime += $interval;
         }
         // if it's not the general graph we need to loop through and fill in null data
-        if ($graphtype!=1){
-            $defaultobj = new stdClass();
+        if ($graphtype != 1) {
+            $defaultobj = new \stdClass();
             $defaultobj->balance = 0;
             // loop through each series value and add 0 values for null data
-            foreach ($graph as $ykey => $yvals){
+            foreach ($graph as $ykey => $yvals) {
                 //$result['error'].="\n".json_encode($yvals);
-                foreach ($serieslist as $value){ // use serieslist to spot null values
-                        if ($yvals[$value] == null || empty($yvals)){ // check if series key exists in current timeset
-                            //$result['error'].="\nInserting default";
-                            $yvals[$value] = $defaultobj;
-                            $graph[$ykey] = $yvals;
-                        }
+                foreach ($serieslist as $value) { // use serieslist to spot null values
+                    if ($yvals[$value] == null || empty($yvals)) { // check if series key exists in current timeset
+                        //$result['error'].="\nInserting default";
+                        $yvals[$value] = $defaultobj;
+                        $graph[$ykey] = $yvals;
+                    }
                 }
             }
         }
@@ -117,7 +129,8 @@ class WposAdminGraph {
      * @param $result
      * @return mixed
      */
-    public function getOverviewGraph($result){
+    public function getOverviewGraph($result)
+    {
         return $this->getGraph($result, 1);
     }
 
@@ -126,7 +139,8 @@ class WposAdminGraph {
      * @param $result
      * @return mixed
      */
-    public function getMethodGraph($result){
+    public function getMethodGraph($result)
+    {
         return $this->getGraph($result, 2);
     }
 
@@ -135,7 +149,8 @@ class WposAdminGraph {
      * @param $result
      * @return mixed
      */
-    public function getDeviceGraph($result){
+    public function getDeviceGraph($result)
+    {
         return $this->getGraph($result, 3);
     }
 
@@ -144,8 +159,8 @@ class WposAdminGraph {
      * @param $result
      * @return mixed
      */
-    public function getLocationGraph($result){
+    public function getLocationGraph($result)
+    {
         return $this->getGraph($result, 4);
     }
-
 }

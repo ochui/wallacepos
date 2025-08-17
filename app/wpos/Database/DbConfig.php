@@ -88,26 +88,26 @@ class DbConfig
         $dsn = self::$_dsnPrefix . ':host=' . self::$_hostname . ';port=' . self::$_port . ';dbname=' . self::$_database;
 
         try {
-            if (!$this->_db = new PDO($dsn, self::$_username, self::$_password)){
-                throw new PDOException('Failed to connect to database, php PDO extension may not be installed', 0, 0);
+            if (!$this->_db = new PDO($dsn, self::$_username, self::$_password)) {
+                throw new \Exception('Failed to connect to database');
             }
 
             $this->_db->query("SET time_zone = '+00:00'"); //Set timezone to GMT, previous statement didnt work (Australia/Sydney), and GMT preserved daylight savings.
             //var_dump($this->_db->query("SELECT now()")->fetchAll());exit;
             //var_dump($this->_db->query("SELECT @@session.time_zone, @@global.time_zone")->fetchAll(PDO::FETCH_ASSOC));exit;
-            $this->_db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-
+            $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            throw new PDOException('Failed to connect to database: '.$e->getMessage(), 0, $e);
+            error_log('Failed to connect to database: ' . $e->getMessage());
+            throw new \Exception('Failed to connect to database: ' . $e->getMessage(), 0, $e);
         }
-
     }
 
     /**
      * Returns the appropriate database configuration
      * @return array
      */
-    static function getConf(){
+    static function getConf()
+    {
         // Try to load .env file for local development
         $envPath = __DIR__ . '/../../../';
         if (file_exists($envPath . '.env')) {
@@ -115,12 +115,12 @@ class DbConfig
             $dotenv->load();
         }
 
-        if (($url=getenv("DATABASE_URL"))!==false) {
+        if (($url = getenv("DATABASE_URL")) !== false) {
             // dokku / heroku
-            $url=parse_url($url);
+            $url = parse_url($url);
             self::$_username = $url['user'];
             self::$_password = $url['pass'];
-            self::$_database = substr($url["path"],1);
+            self::$_database = substr($url["path"], 1);
             self::$_hostname = $url['host'];
             self::$_port = $url["port"];
         } else if (!empty($_ENV['DATABASE_HOST']) && !empty($_ENV['DATABASE_NAME'])) {
@@ -130,7 +130,7 @@ class DbConfig
             self::$_database = $_ENV['DATABASE_NAME'];
             self::$_hostname = $_ENV['DATABASE_HOST'];
             self::$_port = $_ENV['DATABASE_PORT'] ?? '3306';
-        } else if (file_exists(__DIR__ . '/../dbconfig.php')){
+        } else if (file_exists(__DIR__ . '/../dbconfig.php')) {
             // legacy config (still used for alpha/demo versions)
             require(__DIR__ . '/../dbconfig.php');
             self::$_username = $dbConfig['user'];
@@ -138,7 +138,7 @@ class DbConfig
             self::$_database = $dbConfig["database"];
             self::$_hostname = $dbConfig['host'];
             self::$_port = $dbConfig["port"];
-        } else if (file_exists(__DIR__ . '/../.dbconfig.json')){
+        } else if (file_exists(__DIR__ . '/../.dbconfig.json')) {
             // json config
             $dbConfig = json_decode(file_get_contents(__DIR__ . '/../.dbconfig.json'), true);
             self::$_username = $dbConfig['user'];
@@ -148,11 +148,12 @@ class DbConfig
             self::$_port = $dbConfig["port"];
         }
 
-        $conf = ["host"=>self::$_hostname, "port"=>self::$_port, "user"=>self::$_username, "pass"=>self::$_password, "db"=>self::$_database,];
+        $conf = ["host" => self::$_hostname, "port" => self::$_port, "user" => self::$_username, "pass" => self::$_password, "db" => self::$_database,];
         return $conf;
     }
 
-    public static function testConf($host, $port, $database, $user, $pass){
+    public static function testConf($host, $port, $database, $user, $pass)
+    {
         self::$_username = $user;
         self::$_password = $pass;
         self::$_database = $database;
@@ -161,7 +162,7 @@ class DbConfig
         self::$_loadConfig = false; // prevent config from being loaded, used for testing database connection
         try {
             $db = new DbConfig();
-        } catch (Exception $ex){
+        } catch (\Exception $ex) {
             self::$_loadConfig = true;
             return $ex->getMessage();
         }
@@ -178,9 +179,9 @@ class DbConfig
     public function insert($sql, $placeholders = null)
     {
         try {
-            if (!$stmt = $this->_db->prepare($sql)){
+            if (!$stmt = $this->_db->prepare($sql)) {
                 $errorInfo = $this->_db->errorInfo();
-                throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             if (is_array($placeholders)) {
@@ -190,13 +191,13 @@ class DbConfig
                     }
                     if (!$stmt->bindParam($key, $placeholders[$key])) {
                         $errorInfo = $stmt->errorInfo();
-                        throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                        throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
                     }
                 }
             }
             if (!$stmt->execute()) {
                 $errorInfo = $stmt->errorInfo();
-                throw new PDOException("Execute Failed: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Execute Failed: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
             return $this->_db->lastInsertId();
         } catch (PDOException $e) {
@@ -214,9 +215,9 @@ class DbConfig
     public function delete($sql, $placeholders = null)
     {
         try {
-            if (!$stmt = $this->_db->prepare($sql)){
+            if (!$stmt = $this->_db->prepare($sql)) {
                 $errorInfo = $this->_db->errorInfo();
-                throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             if (is_array($placeholders)) {
@@ -226,14 +227,14 @@ class DbConfig
                     }
                     if (!$stmt->bindParam($key, $placeholders[$key])) {
                         $errorInfo = $stmt->errorInfo();
-                        throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                        throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
                     }
                 }
             }
 
             if (!$stmt->execute()) {
                 $errorInfo = $stmt->errorInfo();
-                throw new PDOException("Execute Failed: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Execute Failed: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             return $stmt->rowCount();
@@ -253,9 +254,9 @@ class DbConfig
     public function update($sql, $placeholders = null)
     {
         try {
-            if (!$stmt = $this->_db->prepare($sql)){
+            if (!$stmt = $this->_db->prepare($sql)) {
                 $errorInfo = $this->_db->errorInfo();
-                throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             if (is_array($placeholders)) {
@@ -265,13 +266,13 @@ class DbConfig
                     }
                     if (!$stmt->bindParam($key, $placeholders[$key])) {
                         $errorInfo = $stmt->errorInfo();
-                        throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                        throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
                     }
                 }
             }
             if (!$stmt->execute()) {
                 $errorInfo = $stmt->errorInfo();
-                throw new PDOException("Execute Failed: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Execute Failed: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             return $stmt->rowCount();
@@ -292,9 +293,9 @@ class DbConfig
     public function select($sql, $placeholders = null, $fetchStyle = PDO::FETCH_ASSOC)
     {
         try {
-            if (!$stmt = $this->_db->prepare($sql)){
+            if (!$stmt = $this->_db->prepare($sql)) {
                 $errorInfo = $this->_db->errorInfo();
-                throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             if (is_array($placeholders)) {
@@ -304,14 +305,14 @@ class DbConfig
                     }
                     if (!$stmt->bindParam($key, $placeholders[$key])) {
                         $errorInfo = $stmt->errorInfo();
-                        throw new PDOException("Bind Error: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                        throw new PDOException("Bind Error: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
                     }
                 }
             }
 
             if (!$stmt->execute()) {
                 $errorInfo = $stmt->errorInfo();
-                throw new PDOException("Execute Failed: ".$errorInfo[0]." (". $errorInfo[0] .")", 0);
+                throw new PDOException("Execute Failed: " . $errorInfo[0] . " (" . $errorInfo[0] . ")", 0);
             }
 
             return $stmt->fetchAll($fetchStyle);
@@ -321,4 +322,4 @@ class DbConfig
             return false;
         }
     }
-} 
+}

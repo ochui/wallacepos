@@ -1,4 +1,8 @@
 <?php
+
+namespace App\Database;
+
+
 /**
  * StockModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -48,7 +52,7 @@ class StockModel extends DbConfig
     public function create($storeditemid, $locationid, $stocklevel)
     {
         $sql          = "INSERT INTO stock_levels (`storeditemid`, `locationid`, `stocklevel`, `dt`) VALUES (:storeditemid, :locationid, :stocklevel, now());";
-        $placeholders = [":storeditemid"=>$storeditemid, ":locationid"=>$locationid, ":stocklevel"=>$stocklevel];
+        $placeholders = [":storeditemid" => $storeditemid, ":locationid" => $locationid, ":stocklevel" => $stocklevel];
 
         return $this->insert($sql, $placeholders);
     }
@@ -59,15 +63,16 @@ class StockModel extends DbConfig
      * @param $stocklevel
      * @return bool|int|string Returns false on failure, number of rows affected or a newly inserted id.
      */
-    public function setStockLevel($storeditemid, $locationid, $stocklevel){
+    public function setStockLevel($storeditemid, $locationid, $stocklevel)
+    {
 
         $sql = "UPDATE stock_levels SET `stocklevel`=:stocklevel WHERE `storeditemid`=:storeditemid AND `locationid`=:locationid";
-        $placeholders = [":storeditemid"=>$storeditemid, ":locationid"=>$locationid, ":stocklevel"=>$stocklevel];
-        $result=$this->update($sql, $placeholders);
-        if ($result>0) // if row has been updated, return
+        $placeholders = [":storeditemid" => $storeditemid, ":locationid" => $locationid, ":stocklevel" => $stocklevel];
+        $result = $this->update($sql, $placeholders);
+        if ($result > 0) // if row has been updated, return
             return $result;
 
-        if ($result===false) // if error occured return
+        if ($result === false) // if error occured return
             return false;
 
         // Otherwise add a new stock record, none exists
@@ -81,16 +86,17 @@ class StockModel extends DbConfig
      * @param bool $decrement
      * @return bool|int|string Returns false on failure, number of rows affected or a newly inserted id.
      */
-    public function incrementStockLevel($storeditemid, $locationid, $amount, $decrement = false){
-        $sql = "UPDATE stock_levels SET `stocklevel`= (`stocklevel` ".($decrement==true?'-':'+')." :stocklevel) WHERE `storeditemid`=:storeditemid AND `locationid`=:locationid";
-        $placeholders = [":storeditemid"=>$storeditemid, ":locationid"=>$locationid, ":stocklevel"=>$amount];
+    public function incrementStockLevel($storeditemid, $locationid, $amount, $decrement = false)
+    {
+        $sql = "UPDATE stock_levels SET `stocklevel`= (`stocklevel` " . ($decrement == true ? '-' : '+') . " :stocklevel) WHERE `storeditemid`=:storeditemid AND `locationid`=:locationid";
+        $placeholders = [":storeditemid" => $storeditemid, ":locationid" => $locationid, ":stocklevel" => $amount];
 
         $result = $this->update($sql, $placeholders);
-        if ($result>0) return $result;
+        if ($result > 0) return $result;
 
-        if ($result===false) return false;
+        if ($result === false) return false;
 
-        if ($decrement===false){ // if adding stock and no record exists, create it
+        if ($decrement === false) { // if adding stock and no record exists, create it
             return $this->create($storeditemid, $locationid, $amount);
         }
 
@@ -104,9 +110,10 @@ class StockModel extends DbConfig
      * @param bool $report
      * @return array|bool Returns false on failure, or an array of stock records
      */
-    public function get($storeditemid= null, $locationid= null, $report=false){
+    public function get($storeditemid = null, $locationid = null, $report = false)
+    {
 
-        $sql = 'SELECT s.*, i.name AS name, COALESCE(p.name, "Misc") AS supplier'.($report?', l.name AS location, i.price*s.stocklevel as stockvalue':'').' FROM stock_levels as s LEFT JOIN stored_items as i ON s.storeditemid=i.id LEFT JOIN stored_suppliers as p ON i.supplierid=p.id'.($report?' LEFT JOIN locations as l ON s.locationid=l.id':'');
+        $sql = 'SELECT s.*, i.name AS name, COALESCE(p.name, "Misc") AS supplier' . ($report ? ', l.name AS location, i.price*s.stocklevel as stockvalue' : '') . ' FROM stock_levels as s LEFT JOIN stored_items as i ON s.storeditemid=i.id LEFT JOIN stored_suppliers as p ON i.supplierid=p.id' . ($report ? ' LEFT JOIN locations as l ON s.locationid=l.id' : '');
         $placeholders = [];
         if ($storeditemid !== null) {
             if (empty($placeholders)) {
@@ -133,12 +140,13 @@ class StockModel extends DbConfig
      * @param $itemid
      * @return bool|int Returns false on failure, or number of records deleted
      */
-    public function removeByItemId($itemid){
+    public function removeByItemId($itemid)
+    {
         if ($itemid === null) {
             return false;
         }
         $sql          = "DELETE FROM stock_levels WHERE itemid=:itemid;";
-        $placeholders = [":itemid"=>$itemid];
+        $placeholders = [":itemid" => $itemid];
 
         return $this->delete($sql, $placeholders);
     }
@@ -148,14 +156,14 @@ class StockModel extends DbConfig
      * @param $locationid
      * @return bool|int Returns false on failure, or number of records deleted
      */
-    public function removeByLocationId($locationid){
+    public function removeByLocationId($locationid)
+    {
         if ($locationid === null) {
             return false;
         }
         $sql          = "DELETE FROM stock_levels WHERE locationid=:locationid;";
-        $placeholders = [":locationid"=>$locationid];
+        $placeholders = [":locationid" => $locationid];
 
         return $this->delete($sql, $placeholders);
     }
-
 }

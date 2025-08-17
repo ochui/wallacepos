@@ -1,4 +1,11 @@
 <?php
+
+namespace App\Invoice;
+
+use Mustache_LambdaHelper;
+use App\Admin\WposAdminCustomers;
+use App\Admin\WposAdminUtilities;
+
 /**
  * WposTemplateData is part of Wallace Point of Sale system (WPOS) API
  *
@@ -26,6 +33,7 @@ class WposTemplateData
 
     public $ref;
     public $sale_ref;
+    public $sale_id;
     public $sale_dt;
     public $sale_items;
     public $sale_numitems;
@@ -46,6 +54,7 @@ class WposTemplateData
     public $footer;
     public $thermalprint = false;
     public $showqrcode;
+    public $qrcode_url;
     public $eftpos_receipts = '';
 
     public $business_name;
@@ -56,7 +65,12 @@ class WposTemplateData
     public $business_country;
     public $business_number;
     public $invoice_duedt;
+    public $invoice_paid;
+    public $invoice_balance;
     public $customer = false;
+
+    public $payment_instructions;
+
 
     public $Utils;
 
@@ -64,21 +78,23 @@ class WposTemplateData
      * Format currency for mustache template
      * @return function
      */
-    public function currency(){
-        return function($text, Mustache_LambdaHelper $helper){
+    public function currency()
+    {
+        return function ($text, Mustache_LambdaHelper $helper) {
             return $this->Utils->currencyFormat($helper->render($text));
         };
     }
 
     private $taxitems;
-    private function getTaxArray($taxdata){
+    private function getTaxArray($taxdata)
+    {
         $taxArr = [];
         if (!isset($this->taxitems))
             $this->taxitems = WposAdminUtilities::getTaxTable()['items'];
 
-        foreach ($taxdata as $key=>$value) {
+        foreach ($taxdata as $key => $value) {
             $tax = $this->taxitems[$key];
-            $taxObj = new stdClass();
+            $taxObj = new \stdClass();
             $taxObj->label = $tax['name'] . ' (' . $tax['value'] . '%)';
             $taxObj->altlabel = $tax['altname'] . ' (' . $tax['value'] . '%)';
             $taxObj->value = $value;
@@ -93,7 +109,8 @@ class WposTemplateData
      * @param array $config
      * @param bool $invoice
      */
-    public function WposTemplateData($data, $config=[], $invoice = false){
+    public function WposTemplateData($data, $config = [], $invoice = false)
+    {
         $this->Utils = new WposAdminUtilities();
         $this->Utils->setCurrencyFormat($config['general']->currencyformat);
 
@@ -131,20 +148,20 @@ class WposTemplateData
                     $amount = (-$amount);
                 }
             }
-            $obj = new stdClass();
-            $obj->altlabel = isset($altlabels->{$method})?$altlabels->{$method}:ucfirst($method);
+            $obj = new \stdClass();
+            $obj->altlabel = isset($altlabels->{$method}) ? $altlabels->{$method} : ucfirst($method);
             $obj->label = ucfirst($method);
             $obj->amount = $amount;
 
             $this->sale_payments[] = $obj;
             if ($method == 'cash') {
                 // If cash print tender & change.
-                $obj = new stdClass();
+                $obj = new \stdClass();
                 $obj->label = "Tendered";
                 $obj->altlabel = $altlabels->tendered;
                 $obj->amount = $payment->tender;
                 $this->sale_payments[] = $obj;
-                $obj = new stdClass();
+                $obj = new \stdClass();
                 $obj->label = "Change";
                 $obj->altlabel = $altlabels->change;
                 $obj->amount = $payment->change;
@@ -153,8 +170,8 @@ class WposTemplateData
         }
 
         // invoice only fields
-        if ($invoice){
-            $this->logo_url  = ($_SERVER['HTTPS']!==""?"https://":"http://").$_SERVER['SERVER_NAME'].$config['general']->bizlogo;
+        if ($invoice) {
+            $this->logo_url  = ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . $config['general']->bizlogo;
             $this->business_name  = $config['general']->bizname;
             $this->business_address  = $config['general']->bizaddress;
             $this->business_suburb  = $config['general']->bizsuburb;
@@ -165,13 +182,13 @@ class WposTemplateData
             $this->invoice_duedt = $this->Utils->getDateFromTimestamp($data->duedt, $config['general']->dateformat);
             $this->invoice_paid = $data->total - $data->balance;
             $this->invoice_balance = $data->balance;
-            if (isset($data->custid) && $data->custid>0) {
+            if (isset($data->custid) && $data->custid > 0) {
                 $custMdl = new WposAdminCustomers();
                 $this->customer = $custMdl->getCustomerData($data->custid);
             }
             $this->payment_instructions = $config['invoice']->payinst;
             // invoice needs item tax calculated
-            foreach ($this->sale_items as $key=>$value){
+            foreach ($this->sale_items as $key => $value) {
                 $value->tax->items = $this->getTaxArray($value->tax->values);
                 $this->sale_items[$key] = $value;
             }
@@ -180,24 +197,25 @@ class WposTemplateData
             $this->header_line1  = $config['general']->bizname;
             $this->header_line2  = $config['pos']->recline2;
             $this->header_line3  = $config['pos']->recline3;
-            $this->logo_url  = ($_SERVER['HTTPS']!==""?"https://":"http://").$_SERVER['SERVER_NAME'].$config['pos']->recemaillogo;
+            $this->logo_url  = ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . $config['pos']->recemaillogo;
             $this->footer  = $config['pos']->recfooter;
-            $this->qrcode_url = $config['pos']->recqrcode!=""?($_SERVER['HTTPS']!==""?"https://":"http://").$_SERVER['SERVER_NAME']."/docs/qrcode.png":null;
+            $this->qrcode_url = $config['pos']->recqrcode != "" ? ($_SERVER['HTTPS'] !== "" ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . "/docs/qrcode.png" : null;
 
             // format refunds
             if (isset($data->refunddata)) {
                 $this->sale_refunds = [];
-                $lastrefindex = 0; $lastreftime = 0;
-                foreach ($data->refunddata as $key=>$refund) {
+                $lastrefindex = 0;
+                $lastreftime = 0;
+                foreach ($data->refunddata as $key => $refund) {
                     // find last refund for integrated eftpos receipt
                     if ($refund->processdt > $lastreftime) {
                         $lastrefindex = $key;
                     }
-                    $obj = new stdClass();
+                    $obj = new \stdClass();
                     $obj->datetime = $this->Utils->getDateFromTimestamp($refund->processdt, $config['general']->dateformat);
                     $obj->numitems = count($refund->items);
                     $obj->method =  ucfirst($refund->method);
-                    $obj->altmethod = isset($altlabels->{$refund->method})?$altlabels->{$refund->method}:ucfirst($refund->method);
+                    $obj->altmethod = isset($altlabels->{$refund->method}) ? $altlabels->{$refund->method} : ucfirst($refund->method);
                     $obj->amount = $this->Utils->currencyFormat($refund->amount);
 
                     $this->sale_refunds[] = $obj;

@@ -2,11 +2,10 @@
 
 namespace App\Communication;
 
-require __DIR__ . '/../../../vendor/autoload.php';
-
 use ElephantIO\Client as Client;
 use ElephantIO\Engine\SocketIO\Version1X as Version1X;
 use App\Admin\WposAdminSettings;
+use App\Admin\WposAdminUtilities;
 
 /**
  * WposSocketIO is part of Wallace Point of Sale system (WPOS) API
@@ -31,7 +30,8 @@ use App\Admin\WposAdminSettings;
  * @author     Michael B Wallace <micwallace@gmx.com>
  * @since      File available since 30/04/14 9:28 PM
  */
-class WposSocketIO {
+class WposSocketIO
+{
 
     /**
      * @var ElephantIO\Client|null The elephant IO client
@@ -45,12 +45,13 @@ class WposSocketIO {
     /**
      * Initialise the elephantIO object and set the hashkey
      */
-    function __construct(){
+    function __construct()
+    {
         $conf = WposAdminSettings::getConfigFileValues(true);
         if (isset($conf->feedserver_key))
             $this->hashkey = $conf->feedserver_key;
 
-        $this->elephant = new Client(new Version1X('http://127.0.0.1:'.$conf->feedserver_port.'/?hashkey='.$this->hashkey));
+        $this->elephant = new Client(new Version1X('http://127.0.0.1:' . $conf->feedserver_port . '/?hashkey=' . $this->hashkey));
     }
 
     /**
@@ -59,13 +60,15 @@ class WposSocketIO {
      * @param $data
      * @return bool
      */
-    private function sendData($event, $data){
-        set_error_handler(function() { /* ignore warnings */ }, E_WARNING);
+    private function sendData($event, $data)
+    {
+        set_error_handler(function () { /* ignore warnings */
+        }, E_WARNING);
         try {
             $this->elephant->initialize();
             $this->elephant->emit($event, $data);
             $this->elephant->close();
-        } catch(Exception $e){
+        } catch (\Exception $e) {
             restore_error_handler();
             return $e->getMessage();
         }
@@ -79,22 +82,24 @@ class WposSocketIO {
      * @param bool $remove
      * @return bool
      */
-    public function sendSessionData($data, $remove = false){
+    public function sendSessionData($data, $remove = false)
+    {
 
-        return $this->sendData('session', ['hashkey'=>$this->hashkey, 'data'=>$data, 'remove'=>$remove]);
+        return $this->sendData('session', ['hashkey' => $this->hashkey, 'data' => $data, 'remove' => $remove]);
     }
 
     /**
      * Generate a random hashkey for php -> node.js authentication
      * @return bool
      */
-    public function generateHashKey(){
+    public function generateHashKey()
+    {
         $key = hash('sha256', WposAdminUtilities::getToken(256));
         WposAdminSettings::setConfigFileValue('feedserver_key', $key);
 
         $socket = new WposSocketControl();
         if ($socket->isServerRunning())
-            $this->sendData('hashkey', ['hashkey'=>$this->hashkey, 'newhashkey'=>$key]);
+            $this->sendData('hashkey', ['hashkey' => $this->hashkey, 'newhashkey' => $key]);
 
         return;
     }
@@ -104,9 +109,10 @@ class WposSocketIO {
      * @param null $devices
      * @return bool
      */
-    public function sendResetCommand($devices=null){
+    public function sendResetCommand($devices = null)
+    {
 
-        return $this->sendDataToDevices(['a'=>'reset'], $devices);
+        return $this->sendDataToDevices(['a' => 'reset'], $devices);
     }
 
     /**
@@ -115,9 +121,10 @@ class WposSocketIO {
      * @param null $devices
      * @return bool
      */
-    private function sendDataToDevices($data, $devices=null){
+    private function sendDataToDevices($data, $devices = null)
+    {
         // sends message to all authenticated devices
-        return $this->sendData('send', ['hashkey'=>$this->hashkey, 'include'=>$devices, 'data'=>$data]);
+        return $this->sendData('send', ['hashkey' => $this->hashkey, 'include' => $devices, 'data' => $data]);
     }
 
     /**
@@ -126,7 +133,8 @@ class WposSocketIO {
      * @param $message
      * @return bool
      */
-    public function sendMessageToDevices($devices, $message){
+    public function sendMessageToDevices($devices, $message)
+    {
         // send message to specified devices
         return $this->sendDataToDevices(['a' => 'msg', 'data' => $message], $devices);
     }
@@ -136,7 +144,8 @@ class WposSocketIO {
      * @param $item
      * @return bool
      */
-    public function sendItemUpdate($item){
+    public function sendItemUpdate($item)
+    {
         // item updates get sent to all authenticated clients
         return $this->sendDataToDevices(['a' => 'item', 'data' => $item], null);
     }
@@ -146,7 +155,8 @@ class WposSocketIO {
      * @param $customer
      * @return bool
      */
-    public function sendCustomerUpdate($customer){
+    public function sendCustomerUpdate($customer)
+    {
 
         return $this->sendDataToDevices(['a' => 'customer', 'data' => $customer], null);
     }
@@ -157,7 +167,8 @@ class WposSocketIO {
      * @param null $devices
      * @return bool
      */
-    public function sendSaleUpdate($sale, $devices=null){ // device that the record was updated on
+    public function sendSaleUpdate($sale, $devices = null)
+    { // device that the record was updated on
 
         return $this->sendDataToDevices(['a' => 'sale', 'data' => $sale], $devices);
     }
@@ -168,7 +179,8 @@ class WposSocketIO {
      * @param $configset; the set name for the values
      * @return bool
      */
-    public function sendConfigUpdate($newconfig, $configset){
+    public function sendConfigUpdate($newconfig, $configset)
+    {
         return $this->sendDataToDevices(['a' => 'config', 'type' => $configset, 'data' => $newconfig], null);
     }
 
@@ -177,7 +189,8 @@ class WposSocketIO {
      * @param $newconfig
      * @return bool
      */
-    public function sendDeviceConfigUpdate($newconfig){
+    public function sendDeviceConfigUpdate($newconfig)
+    {
         return $this->sendDataToDevices(['a' => 'config', 'type' => 'deviceconfig', 'data' => $newconfig], null);
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * StoredItemsModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -45,7 +48,7 @@ class CategoriesModel extends DbConfig
     public function create($name)
     {
         $sql          = "INSERT INTO stored_categories (`name`, `dt`) VALUES (:name, now());";
-        $placeholders = [":name"=>$name];
+        $placeholders = [":name" => $name];
 
         return $this->insert($sql, $placeholders);
     }
@@ -54,7 +57,8 @@ class CategoriesModel extends DbConfig
      * @param null $Id
      * @return array|bool Returns false on an unexpected failure or an array of selected rows
      */
-    public function get($Id = null) {
+    public function get($Id = null)
+    {
         $sql = 'SELECT s.*, COUNT(i.id) as numitems FROM stored_categories as s LEFT OUTER JOIN stored_items as i ON s.id=i.categoryid';
         $placeholders = [];
         if ($Id !== null) {
@@ -64,7 +68,7 @@ class CategoriesModel extends DbConfig
             $sql .= ' s.id =:id';
             $placeholders[':id'] = $Id;
         }
-        $sql.=" GROUP BY s.id";
+        $sql .= " GROUP BY s.id";
 
         return $this->select($sql, $placeholders);
     }
@@ -78,7 +82,7 @@ class CategoriesModel extends DbConfig
     {
 
         $sql = "UPDATE stored_categories SET name= :name WHERE id= :id;";
-        $placeholders = [":id"=>$id, ":name"=>$name];
+        $placeholders = [":id" => $id, ":name" => $name];
 
         return $this->update($sql, $placeholders);
     }
@@ -91,7 +95,7 @@ class CategoriesModel extends DbConfig
     {
         $placeholders = [];
         $sql = "DELETE FROM stored_categories WHERE";
-        if (is_numeric($id)){
+        if (is_numeric($id)) {
             $sql .= " `id`=:id;";
             $placeholders[":id"] = $id;
         } else if (is_array($id)) {
@@ -102,7 +106,5 @@ class CategoriesModel extends DbConfig
         }
 
         return $this->delete($sql, $placeholders);
-
     }
-
 }

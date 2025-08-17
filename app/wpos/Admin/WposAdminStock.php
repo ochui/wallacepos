@@ -1,4 +1,12 @@
 <?php
+
+namespace App\Admin;
+
+use App\Database\StockHistoryModel;
+use App\Database\StockModel;
+use App\Utility\JsonValidate;
+use App\Utility\Logger;
+
 /**
  * WposAdminStock is part of Wallace Point of Sale system (WPOS) API
  *
@@ -21,7 +29,8 @@
  * @author     Michael B Wallace <micwallace@gmx.com>
  * @since      File available since 12/04/14 3:44 PM
  */
-class WposAdminStock {
+class WposAdminStock
+{
     /**
      * @var stdClass provided params
      */
@@ -39,12 +48,13 @@ class WposAdminStock {
      * Decode provided input
      * @param $data
      */
-    function __construct($data=null){
+    function __construct($data = null)
+    {
         // parse the data and put it into an object
-        if ($data!==null){
+        if ($data !== null) {
             $this->data = $data;
         } else {
-            $this->data = new stdClass();
+            $this->data = new \stdClass();
         }
         // setup objects
         $this->histMdl = new StockHistoryModel();
@@ -59,8 +69,9 @@ class WposAdminStock {
      * @param bool $decrement
      * @return bool
      */
-    public function incrementStockLevel($storeditemid, $locationid, $amount, $decrement = false){
-        if ($this->stockMdl->incrementStockLevel($storeditemid, $locationid, $amount, $decrement)!==false){
+    public function incrementStockLevel($storeditemid, $locationid, $amount, $decrement = false)
+    {
+        if ($this->stockMdl->incrementStockLevel($storeditemid, $locationid, $amount, $decrement) !== false) {
             return true;
         }
         return false;
@@ -71,43 +82,44 @@ class WposAdminStock {
      * @param $result
      * @return mixed
      */
-    public function transferStock($result){
+    public function transferStock($result)
+    {
         // validate input
         $jsonval = new JsonValidate($this->data, '{"storeditemid":1, "locationid":1, "newlocationid":1, "amount":">=1"}');
-        if (($errors = $jsonval->validate())!==true){
+        if (($errors = $jsonval->validate()) !== true) {
             $result['error'] = $errors;
             return $result;
         }
-        if ($this->data->locationid == $this->data->newlocationid){
+        if ($this->data->locationid == $this->data->newlocationid) {
             $result['error'] = "Cannot transfer stock to the same location, pick a different one.";
             return $result;
         }
         // check if theres enough stock at source location
-        if (($stock=$this->stockMdl->get($this->data->storeditemid, $this->data->locationid))===false){
-            $result['error'] = "Could not fetch current stock level: ".$this->stockMdl->errorInfo;
+        if (($stock = $this->stockMdl->get($this->data->storeditemid, $this->data->locationid)) === false) {
+            $result['error'] = "Could not fetch current stock level: " . $this->stockMdl->errorInfo;
             return $result;
         }
-        if ($stock[0]['stocklevel']<$this->data->amount){
+        if ($stock[0]['stocklevel'] < $this->data->amount) {
             $result['error'] = "Not enough stock at the source location, add some first";
             return $result;
         }
         // create history record for removed stock
-        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Transfer', -$this->data->amount, $this->data->newlocationid, 0)===false){ // stock history created with minus
+        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Transfer', -$this->data->amount, $this->data->newlocationid, 0) === false) { // stock history created with minus
             $result['error'] = "Could not create stock history record";
             return $result;
         }
         // remove stock amount from current location
-        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount, true)===false){
+        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount, true) === false) {
             $result['error'] = "Could not decrement stock from current location";
             return $result;
         }
         // create history record for added stockd
-        if ($this->createStockHistory($this->data->storeditemid, $this->data->newlocationid, 'Stock Transfer', $this->data->amount, $this->data->locationid, 1)===false){
+        if ($this->createStockHistory($this->data->storeditemid, $this->data->newlocationid, 'Stock Transfer', $this->data->amount, $this->data->locationid, 1) === false) {
             $result['error'] = "Could not create stock history record";
             return $result;
         }
         // add stock amount to new location
-        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->newlocationid, $this->data->amount, false)===false){
+        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->newlocationid, $this->data->amount, false) === false) {
             $result['error'] = "Could not add stock to the new location";
             return $result;
         }
@@ -123,19 +135,20 @@ class WposAdminStock {
      * @param $result
      * @return mixed
      */
-    public function setStockLevel($result){
+    public function setStockLevel($result)
+    {
         // validate input
         $jsonval = new JsonValidate($this->data, '{"storeditemid":1, "locationid":1, "amount":">=1"}');
-        if (($errors = $jsonval->validate())!==true){
+        if (($errors = $jsonval->validate()) !== true) {
             $result['error'] = $errors;
             return $result;
         }
         // create history record for added stock
-        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Added', $this->data->amount)===false){
+        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Added', $this->data->amount) === false) {
             $result['error'] = "Could not create stock history record";
             return $result;
         }
-        if ($this->stockMdl->setStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount)===false){
+        if ($this->stockMdl->setStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount) === false) {
             $result['error'] = "Could not add stock to the location";
         }
 
@@ -150,20 +163,21 @@ class WposAdminStock {
      * @param $result
      * @return mixed
      */
-    public function addStock($result){
+    public function addStock($result)
+    {
         // validate input
         $jsonval = new JsonValidate($this->data, '{"storeditemid":1, "locationid":1, "amount":">=1"}');
-        if (($errors = $jsonval->validate())!==true){
+        if (($errors = $jsonval->validate()) !== true) {
             $result['error'] = $errors;
             return $result;
         }
         // create history record for added stock
-        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Added', $this->data->amount)===false){
+        if ($this->createStockHistory($this->data->storeditemid, $this->data->locationid, 'Stock Added', $this->data->amount) === false) {
             $result['error'] = "Could not create stock history record";
             return $result;
         }
         // add stock amount to new location
-        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount, false)===false){
+        if ($this->incrementStockLevel($this->data->storeditemid, $this->data->locationid, $this->data->amount, false) === false) {
             $result['error'] = "Could not add stock to the new location";
             return $result;
         }
@@ -177,11 +191,12 @@ class WposAdminStock {
      * @param $result
      * @return mixed
      */
-    public function getStockHistory($result){
-        if (($stockHist = $this->histMdl->get($this->data->storeditemid, $this->data->locationid))===false){
-            $result['error']="Could not retrieve stock history";
+    public function getStockHistory($result)
+    {
+        if (($stockHist = $this->histMdl->get($this->data->storeditemid, $this->data->locationid)) === false) {
+            $result['error'] = "Could not retrieve stock history";
         } else {
-            $result['data']= $stockHist;
+            $result['data'] = $stockHist;
         }
         return $result;
     }
@@ -196,10 +211,11 @@ class WposAdminStock {
      * @param int $direction
      * @return bool
      */
-    private function createStockHistory($storeditemid, $locationid, $type, $amount, $sourceid=-1, $direction=0){
-        if ($this->histMdl->create($storeditemid, $locationid, $type, $amount, $sourceid, $direction)!==false){
+    private function createStockHistory($storeditemid, $locationid, $type, $amount, $sourceid = -1, $direction = 0)
+    {
+        if ($this->histMdl->create($storeditemid, $locationid, $type, $amount, $sourceid, $direction) !== false) {
             return true;
         }
         return false;
     }
-} 
+}

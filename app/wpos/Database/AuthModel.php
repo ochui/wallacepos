@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Database;
-
 /**
  * AuthModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -24,6 +22,9 @@ namespace App\Database;
  * @author     Adam Jacquier-Parr <aljparr0@gmail.com>, Michael B Wallace <micwallace@gmx.com>
  * @since      Class created 11/23/13 4:47 PM
  */
+
+namespace App\Database;
+
 class AuthModel extends DbConfig
 {
 
@@ -51,7 +52,7 @@ class AuthModel extends DbConfig
     {
         $uuid         = uniqid();
         $sql          = "INSERT INTO auth (username, password, uuid, admin, permissions) VALUES (:username,:password,:uuid,:isadmin,:perm)";
-        $placeholders = [':username' => $username, ':password' => $password, ':uuid' => $uuid, ':isadmin'=>$isadmin, ':perm'=>$permissions];
+        $placeholders = [':username' => $username, ':password' => $password, ':uuid' => $uuid, ':isadmin' => $isadmin, ':perm' => $permissions];
 
         $result = parent::insert($sql, $placeholders);
         if ($result && $result > 0) {
@@ -71,11 +72,11 @@ class AuthModel extends DbConfig
     public function login($username, $password, $returnUser = false)
     {
         $sql          = 'SELECT id, username, password AS hash, admin, permissions, disabled FROM auth WHERE (username=:username AND password=:password);';
-        $placeholders = ["username"=>$username, "password"=>$password];
+        $placeholders = ["username" => $username, "password" => $password];
         $users        = $this->select($sql, $placeholders);
         if (count($users) > 0) {
             $user = $users[0];
-            if ($user['disabled']==1){
+            if ($user['disabled'] == 1) {
                 return -1;
             }
             if ($returnUser === true) {
@@ -96,9 +97,9 @@ class AuthModel extends DbConfig
      * @param bool $getAuthValues
      * @return array|bool returns false on failure or an array of users on success
      */
-    public function get($userId = null, $username = null, $password = null, $disabled = null, $getAuthValues=false)
+    public function get($userId = null, $username = null, $password = null, $disabled = null, $getAuthValues = false)
     {
-        $sql          = 'SELECT id, username, admin, permissions, disabled'.($getAuthValues?', password AS hash, token':'').' FROM auth';
+        $sql          = 'SELECT id, username, admin, permissions, disabled' . ($getAuthValues ? ', password AS hash, token' : '') . ' FROM auth';
         $placeholders = [];
         if ($userId !== null) {
             if (empty($placeholders)) {
@@ -132,7 +133,7 @@ class AuthModel extends DbConfig
                 $sql .= ' AND';
             }
             $sql .= ' disabled = :disabled';
-            $placeholders[':disabled'] = $disabled?1:0;
+            $placeholders[':disabled'] = $disabled ? 1 : 0;
         }
 
         return $this->select($sql, $placeholders);
@@ -218,22 +219,22 @@ class AuthModel extends DbConfig
             $placeholders[':username'] = $username;
         }
         if ($password !== null) {
-            if (!empty($placeholders)) $sql.=",";
+            if (!empty($placeholders)) $sql .= ",";
             $sql .= ' password= :password';
             $placeholders[':password'] = $password;
         }
         if ($disabled !== null) {
-            if (!empty($placeholders)) $sql.=",";
+            if (!empty($placeholders)) $sql .= ",";
             $sql .= ' disabled = :disabled';
             $placeholders[':disabled'] = $disabled;
         }
         if ($isadmin !== null) {
-            if (!empty($placeholders)) $sql.=",";
+            if (!empty($placeholders)) $sql .= ",";
             $sql .= ' admin = :isadmin';
             $placeholders[':isadmin'] = $isadmin;
         }
         if ($permissions !== null) {
-            if (!empty($placeholders)) $sql.=",";
+            if (!empty($placeholders)) $sql .= ",";
             $sql .= ' permissions = :perm';
             $placeholders[':perm'] = $permissions;
         }
@@ -249,9 +250,10 @@ class AuthModel extends DbConfig
      * @param $token
      * @return bool|int
      */
-    public function setAuthToken($id, $token){
+    public function setAuthToken($id, $token)
+    {
         $sql = 'UPDATE auth SET token=:token WHERE id=:id';
-        $placeholders = [':id'=>$id, ':token'=>$token];
+        $placeholders = [':id' => $id, ':token' => $token];
 
         return $this->update($sql, $placeholders);
     }
@@ -261,7 +263,8 @@ class AuthModel extends DbConfig
      * @param bool $disable
      * @return bool|int returns false on failure or the number of DB rows affected on success
      */
-    public function setDisabled($userId, $disable = true){
+    public function setDisabled($userId, $disable = true)
+    {
         return $this->edit($userId, null, null, null, null, $disable);
     }
-} 
+}

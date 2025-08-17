@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * SaleVoidsModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -53,20 +56,20 @@ class SaleVoidsModel extends DbConfig
      * @param $processdt
      * @return bool|string Returns false on an unexpected failure, returns -1 if a unique constraint in the database fails, or the new rows id if the insert is successful
      */
-    public function create($saleid, $userid, $deviceid, $locationid, $reason, $method=null, $amount=null, $items=null, $void, $processdt)
+    public function create($saleid, $userid, $deviceid, $locationid, $reason, $method = null, $amount = null, $items = null, $void, $processdt)
     {
         $sql = "INSERT INTO `sale_voids` (`saleid`, `userid`, `deviceid`, `locationid`, `reason`, `method`, `amount`, `items`, `void`, `processdt`, `dt`) VALUES (:saleid, :userid, :deviceid, :locationid, :reason, :method, :amount, :items, :isvoid, :processdt, now())";
         $placeholders = [
-            ':saleid'=>$saleid,
-            ':userid'=>$userid,
-            ':deviceid'=>$deviceid,
-            ':locationid'=>$locationid,
-            ':reason'=>$reason,
-            ':method'=>$method,
-            ':amount'=>$amount,
-            ':items'=>$items,
-            ':isvoid'=>$void,
-            ':processdt'=>$processdt
+            ':saleid' => $saleid,
+            ':userid' => $userid,
+            ':deviceid' => $deviceid,
+            ':locationid' => $locationid,
+            ':reason' => $reason,
+            ':method' => $method,
+            ':amount' => $amount,
+            ':items' => $items,
+            ':isvoid' => $void,
+            ':processdt' => $processdt
         ];
 
         return $this->insert($sql, $placeholders);
@@ -79,7 +82,7 @@ class SaleVoidsModel extends DbConfig
      * @param null $processdt
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function get($limit = 0, $offset = 0, $saleid=null, $processdt=null)
+    public function get($limit = 0, $offset = 0, $saleid = null, $processdt = null)
     {
         $sql = 'SELECT * FROM sale_voids';
         $placeholders = [];
@@ -124,10 +127,11 @@ class SaleVoidsModel extends DbConfig
      * @param bool $groupmethod
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function getRange($stime, $etime, $deviceid=null, $isvoid=null, $gettotal = false, $groupmethod = false){
+    public function getRange($stime, $etime, $deviceid = null, $isvoid = null, $gettotal = false, $groupmethod = false)
+    {
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
-        $sql = 'SELECT *'.($gettotal?', COALESCE(SUM(amount), 0) as stotal, COUNT(id) as snum':'').' FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
+        $sql = 'SELECT *' . ($gettotal ? ', COALESCE(SUM(amount), 0) as stotal, COUNT(id) as snum' : '') . ' FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
 
         if ($deviceid !== null) {
             $sql .= ' AND deviceid= :deviceid';
@@ -136,10 +140,10 @@ class SaleVoidsModel extends DbConfig
 
         if ($isvoid !== null) {
             $sql .= ' AND void= :isvoid';
-            $placeholders[':isvoid'] = ($isvoid?1:0);
+            $placeholders[':isvoid'] = ($isvoid ? 1 : 0);
         }
 
-        if ($gettotal && $groupmethod){
+        if ($gettotal && $groupmethod) {
             $sql .= ' GROUP BY method';
         }
 
@@ -155,22 +159,23 @@ class SaleVoidsModel extends DbConfig
      * @param null $ttype
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function getTotals($stime, $etime, $isvoid=null, $groupmethod = false, $ttype=null){
+    public function getTotals($stime, $etime, $isvoid = null, $groupmethod = false, $ttype = null)
+    {
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
         $sql = "SELECT *, COALESCE(SUM(v.amount), 0) as stotal, COUNT(v.id) as snum, COALESCE(GROUP_CONCAT(s.ref SEPARATOR ','),'') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
 
         if ($isvoid !== null) {
             $sql .= ' AND v.void= :isvoid';
-            $placeholders[':isvoid'] = ($isvoid?1:0);
+            $placeholders[':isvoid'] = ($isvoid ? 1 : 0);
         }
 
-        if ($ttype!=null){
+        if ($ttype != null) {
             $sql .= ' AND s.type=:type';
             $placeholders[':type'] = $ttype;
         }
 
-        if ($groupmethod){
+        if ($groupmethod) {
             $sql .= ' GROUP BY v.method';
         }
 
@@ -185,12 +190,13 @@ class SaleVoidsModel extends DbConfig
      * @param string $grouptype
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function getGroupedTotals($stime, $etime, $isvoid = null, $grouptype='device'){
+    public function getGroupedTotals($stime, $etime, $isvoid = null, $grouptype = 'device')
+    {
 
         $joinsql = "devices as d ON v.deviceid=d.id LEFT JOIN locations as l ON d.locationid=l.id";
         $groupsql = " GROUP BY v.deviceid";
 
-        switch($grouptype){
+        switch ($grouptype) {
             case "device":
                 break;
             case "location":
@@ -203,15 +209,15 @@ class SaleVoidsModel extends DbConfig
                 break;
         }
 
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
-        $sql = "SELECT *, d.id as groupid, ".($grouptype=='device'?"CONCAT(d.name, ' (', l.name, ')')":'d.name')." as name, SUM(v.amount) as stotal, COUNT(v.id) as snum, GROUP_CONCAT(s.ref SEPARATOR ',') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id LEFT JOIN ".$joinsql." WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
+        $sql = "SELECT *, d.id as groupid, " . ($grouptype == 'device' ? "CONCAT(d.name, ' (', l.name, ')')" : 'd.name') . " as name, SUM(v.amount) as stotal, COUNT(v.id) as snum, GROUP_CONCAT(s.ref SEPARATOR ',') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id LEFT JOIN " . $joinsql . " WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
 
         if ($isvoid !== null) {
             $sql .= ' AND v.void= :isvoid';
-            $placeholders[':isvoid'] = ($isvoid?1:0);
+            $placeholders[':isvoid'] = ($isvoid ? 1 : 0);
         }
 
-        $sql.= $groupsql;
+        $sql .= $groupsql;
 
         return $this->select($sql, $placeholders);
     }
@@ -222,9 +228,10 @@ class SaleVoidsModel extends DbConfig
      * @param null $processdt
      * @return bool
      */
-    public function recordExists($saleid=null, $processdt=null){
-        $records = $this->get(0,0,$saleid,$processdt);
-        if (sizeof($records)>0){
+    public function recordExists($saleid = null, $processdt = null)
+    {
+        $records = $this->get(0, 0, $saleid, $processdt);
+        if (sizeof($records) > 0) {
             return true;
         }
         return false;
@@ -236,8 +243,9 @@ class SaleVoidsModel extends DbConfig
      * @param null $processdt
      * @return bool|int
      */
-    public function removeBySale($saleid=null, $processdt=null){
-        if ($saleid===null){
+    public function removeBySale($saleid = null, $processdt = null)
+    {
+        if ($saleid === null) {
             return false;
         }
         $sql = "DELETE FROM `sale_voids` WHERE `saleid` = :saleid";
@@ -251,5 +259,4 @@ class SaleVoidsModel extends DbConfig
 
         return $this->delete($sql, $placeholders);
     }
-
 }

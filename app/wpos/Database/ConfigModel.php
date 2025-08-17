@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * ConfigModel is part of Wallace Point of Sale system (WPOS) API
  *

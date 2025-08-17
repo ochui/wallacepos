@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * StockHistoryModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -47,9 +50,10 @@ class StockHistoryModel extends DbConfig
      * @param int $direction
      * @return bool|string Returns false on an unexpected failure, returns -1 if a unique constraint in the database fails, or the new rows id if the insert is successful
      */
-    public function create($storeditemid, $locationid, $type, $amount, $auxid=-1, $direction=0){
-        $sql = "INSERT INTO stock_history (storeditemid, locationid, auxid, auxdir, type, amount, dt) VALUES (:storeditemid, :locationid, :auxid, :auxdir, :type, :amount, '".date("Y-m-d H:i:s")."');";
-        $placeholders = [":storeditemid"=>$storeditemid, ":locationid"=>$locationid, ":auxid"=>$auxid, ":auxdir"=>$direction, ":type"=>$type, ":amount"=>$amount];
+    public function create($storeditemid, $locationid, $type, $amount, $auxid = -1, $direction = 0)
+    {
+        $sql = "INSERT INTO stock_history (storeditemid, locationid, auxid, auxdir, type, amount, dt) VALUES (:storeditemid, :locationid, :auxid, :auxdir, :type, :amount, '" . date("Y-m-d H:i:s") . "');";
+        $placeholders = [":storeditemid" => $storeditemid, ":locationid" => $locationid, ":auxid" => $auxid, ":auxdir" => $direction, ":type" => $type, ":amount" => $amount];
 
         return $this->insert($sql, $placeholders);
     }
@@ -59,7 +63,8 @@ class StockHistoryModel extends DbConfig
      * @param bool $locationid
      * @return array|bool Returns an array of results on success, false on failure
      */
-    public function get($storeditemid = false, $locationid = false){
+    public function get($storeditemid = false, $locationid = false)
+    {
         $sql = "SELECT h.*, i.name as name, COALESCE(l.name, 'Warehouse') as location FROM stock_history as h LEFT JOIN stored_items as i ON h.storeditemid=i.id LEFT JOIN locations as l ON h.locationid=l.id";
         $placeholders = [];
         if ($storeditemid !== false) {
@@ -87,12 +92,13 @@ class StockHistoryModel extends DbConfig
      * @param $itemid
      * @return bool|int Returns false on failure or the number of rows affected
      */
-    public function removeByItemId($itemid){
+    public function removeByItemId($itemid)
+    {
         if ($itemid === null) {
             return false;
         }
         $sql = "DELETE FROM stock_history WHERE itemid=:itemid;";
-        $placeholders = [":itemid"=>$itemid];
+        $placeholders = [":itemid" => $itemid];
 
         return $this->delete($sql, $placeholders);
     }
@@ -102,12 +108,13 @@ class StockHistoryModel extends DbConfig
      * @param $locationid
      * @return bool|int Returns false on failure or the number of rows affected
      */
-    public function removeByLocationId($locationid){
+    public function removeByLocationId($locationid)
+    {
         if ($locationid === null) {
             return false;
         }
         $sql          = "DELETE FROM stock_history WHERE locationid=:locationid;";
-        $placeholders = [":locationid"=>$locationid];
+        $placeholders = [":locationid" => $locationid];
 
         return $this->delete($sql, $placeholders);
     }

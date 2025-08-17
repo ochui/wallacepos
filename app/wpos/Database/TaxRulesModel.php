@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * TaxRulesModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -48,7 +51,7 @@ class TaxRulesModel extends DbConfig
     public function create($data)
     {
         $sql          = "INSERT INTO tax_rules (data) VALUES (:data);";
-        $placeholders = [":data"=>json_encode($data)];
+        $placeholders = [":data" => json_encode($data)];
 
         return $this->insert($sql, $placeholders);
     }
@@ -65,7 +68,7 @@ class TaxRulesModel extends DbConfig
             if (empty($placeholders)) {
                 $sql .= ' WHERE';
             }
-            $sql .= ' id = '.$taxId;
+            $sql .= ' id = ' . $taxId;
             $placeholders[] = $taxId;
         }
 
@@ -81,7 +84,7 @@ class TaxRulesModel extends DbConfig
     {
 
         $sql          = "UPDATE tax_rules SET data= :data WHERE id= :id;";
-        $placeholders = [":id"=>$id, ":data"=>json_encode($data)];
+        $placeholders = [":id" => $id, ":data" => json_encode($data)];
 
         return $this->update($sql, $placeholders);
     }
@@ -96,11 +99,8 @@ class TaxRulesModel extends DbConfig
             return false;
         }
         $sql          = "DELETE FROM tax_rules WHERE id= :id;";
-        $placeholders = [":id"=>$id];
+        $placeholders = [":id" => $id];
 
         return $this->delete($sql, $placeholders);
     }
-
 }
-
-?>

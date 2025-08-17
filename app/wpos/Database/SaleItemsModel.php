@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * SaleItemsModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -55,7 +58,7 @@ class SaleItemsModel extends DbConfig
      *
      * @return bool|string Returns false on an unexpected failure, returns -1 if a unique constraint in the database fails, or the new rows id if the insert is successful
      */
-    public function create($saleid, $sitemid, $saleitemid, $qty, $name, $desc, $taxid, $tax, $cost, $unit, $price, $unit_original=0)
+    public function create($saleid, $sitemid, $saleitemid, $qty, $name, $desc, $taxid, $tax, $cost, $unit, $price, $unit_original = 0)
     {
         $sql = "INSERT INTO sale_items (saleid, storeditemid, saleitemid, qty, name, description, taxid, tax, tax_incl, tax_total, cost, unit_original, unit, price, refundqty) VALUES (:saleid, :sitemid, :saleitemid, :qty, :name, :description, :taxid, :tax, :tax_incl, :tax_total, :cost, :unit_original, :unit, :price, 0)";
         $placeholders = [
@@ -70,7 +73,7 @@ class SaleItemsModel extends DbConfig
             ':tax_incl'     => $tax->inclusive ? 1 : 0,
             ':tax_total'    => $tax->total,
             ':cost'         => $cost,
-            ':unit_original'=> $unit_original,
+            ':unit_original' => $unit_original,
             ':unit'         => $unit,
             ':price'        => $price
         ];
@@ -122,7 +125,7 @@ class SaleItemsModel extends DbConfig
      *
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function get($limit = 0, $offset = 0, $saleid=null, $sitemid=null)
+    public function get($limit = 0, $offset = 0, $saleid = null, $sitemid = null)
     {
         $sql = 'SELECT * FROM sale_items';
         $placeholders = [];
@@ -170,9 +173,10 @@ class SaleItemsModel extends DbConfig
      * @param $price
      * @return array|bool Returns false on an unexpected failure or the rows found by the statement. Returns an empty array when nothing is found
      */
-    public function edit($itemid, $sitemid, $saleitemid=0, $qty, $name, $desc, $taxid, $tax, $cost, $unit, $price){
+    public function edit($itemid, $sitemid, $saleitemid = 0, $qty, $name, $desc, $taxid, $tax, $cost, $unit, $price)
+    {
         $sql = 'UPDATE sale_items SET storeditemid=:sitemid, saleitemid=:saleitemid, qty=:qty, name=:name, description=:desc, taxid=:taxid, tax=:tax, cost=:cost, unit=:unit, price=:price WHERE id= :id';
-        $placeholders = [":id"=>$itemid, ":sitemid"=>$sitemid, ":saleitemid"=>$saleitemid, ":qty"=>$qty, ":name"=>$name, ":desc"=>$desc, ":taxid"=>$taxid, ":tax"=>json_encode($tax), ":cost"=>$cost, ":unit"=>$unit, ":price"=>$price];
+        $placeholders = [":id" => $itemid, ":sitemid" => $sitemid, ":saleitemid" => $saleitemid, ":qty" => $qty, ":name" => $name, ":desc" => $desc, ":taxid" => $taxid, ":tax" => json_encode($tax), ":cost" => $cost, ":unit" => $unit, ":price" => $price];
 
         return $this->update($sql, $placeholders);
     }
@@ -185,9 +189,10 @@ class SaleItemsModel extends DbConfig
      * @param null $ttype
      * @return array|bool Returns an array of stored items and their totals for a corresponding period, items that are not stored are added into the Misc group (ie id=0). Returns false on failure
      */
-    public function getStoredItemTotals($stime, $etime, $group = 0, $novoids = true, $ttype=null){
+    public function getStoredItemTotals($stime, $etime, $group = 0, $novoids = true, $ttype = null)
+    {
 
-        if ($group==2){
+        if ($group == 2) {
             $groupcol = "supplierid";
             $grouptable = "stored_suppliers";
         } else {
@@ -195,16 +200,16 @@ class SaleItemsModel extends DbConfig
             $grouptable = "stored_categories";
         }
 
-        $sql = "SELECT ".($group>0?'si.'.$groupcol.' AS groupid, p.name AS name':'i.storeditemid AS groupid, i.name AS name').", COALESCE(SUM(i.qty), 0) AS itemnum, COALESCE(SUM(i.price-(i.price*(s.discount/100))), 0) AS itemtotal, COALESCE(SUM((i.price*(s.discount/100))), 0) AS discounttotal, COALESCE(SUM(i.tax_total-(i.tax_total*(s.discount/100))), 0) AS taxtotal, COALESCE(SUM(i.refundqty), 0) AS refnum, COALESCE(SUM(i.unit*i.refundqty), 0) AS reftotal, COALESCE(GROUP_CONCAT(DISTINCT s.ref SEPARATOR ','),'') as refs";
-        $sql.= ' FROM sale_items AS i LEFT JOIN sales AS s ON i.saleid=s.id'.($group>0 ? ' LEFT JOIN stored_items AS si ON i.storeditemid=si.id LEFT JOIN '.$grouptable.' AS p ON si.'.$groupcol.'=p.id' : '').' WHERE (s.processdt>= :stime AND s.processdt<= :etime) '.($novoids?'AND s.status!=3':'');
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $sql = "SELECT " . ($group > 0 ? 'si.' . $groupcol . ' AS groupid, p.name AS name' : 'i.storeditemid AS groupid, i.name AS name') . ", COALESCE(SUM(i.qty), 0) AS itemnum, COALESCE(SUM(i.price-(i.price*(s.discount/100))), 0) AS itemtotal, COALESCE(SUM((i.price*(s.discount/100))), 0) AS discounttotal, COALESCE(SUM(i.tax_total-(i.tax_total*(s.discount/100))), 0) AS taxtotal, COALESCE(SUM(i.refundqty), 0) AS refnum, COALESCE(SUM(i.unit*i.refundqty), 0) AS reftotal, COALESCE(GROUP_CONCAT(DISTINCT s.ref SEPARATOR ','),'') as refs";
+        $sql .= ' FROM sale_items AS i LEFT JOIN sales AS s ON i.saleid=s.id' . ($group > 0 ? ' LEFT JOIN stored_items AS si ON i.storeditemid=si.id LEFT JOIN ' . $grouptable . ' AS p ON si.' . $groupcol . '=p.id' : '') . ' WHERE (s.processdt>= :stime AND s.processdt<= :etime) ' . ($novoids ? 'AND s.status!=3' : '');
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
 
-        if ($ttype!=null){
+        if ($ttype != null) {
             $sql .= ' AND s.type=:type';
             $placeholders[':type'] = $ttype;
         }
 
-        $sql.= ' GROUP BY groupid, name';
+        $sql .= ' GROUP BY groupid, name';
 
         return $this->select($sql, $placeholders);
     }
@@ -216,12 +221,13 @@ class SaleItemsModel extends DbConfig
      * @param null $ttype
      * @return array|bool Returns a range of sale items with their totals. returns false on failure
      */
-    public function getTotalsRange($stime, $etime, $novoids = true, $ttype=null){
+    public function getTotalsRange($stime, $etime, $novoids = true, $ttype = null)
+    {
 
-        $sql = "SELECT i.*, COALESCE(i.price-(i.price*(s.discount/100)), 0) AS itemtotal, COALESCE((i.price*(s.discount/100)/i.qty)*i.refundqty, 0) AS refundtotal, s.ref as ref, s.discount as discount FROM sale_items AS i LEFT JOIN sales AS s ON i.saleid=s.id WHERE (s.processdt>= :stime AND s.processdt<= :etime) ".($novoids?'AND s.status!=3':'');
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $sql = "SELECT i.*, COALESCE(i.price-(i.price*(s.discount/100)), 0) AS itemtotal, COALESCE((i.price*(s.discount/100)/i.qty)*i.refundqty, 0) AS refundtotal, s.ref as ref, s.discount as discount FROM sale_items AS i LEFT JOIN sales AS s ON i.saleid=s.id WHERE (s.processdt>= :stime AND s.processdt<= :etime) " . ($novoids ? 'AND s.status!=3' : '');
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
 
-        if ($ttype!=null){
+        if ($ttype != null) {
             $sql .= ' AND s.type=:type';
             $placeholders[':type'] = $ttype;
         }
@@ -234,9 +240,10 @@ class SaleItemsModel extends DbConfig
      * @param $etime
      * @return array|bool Returns a single row array with to total amount of cash rounding and the qty of sales rounding was applied to
      */
-    public function getRoundingTotal($stime, $etime){
+    public function getRoundingTotal($stime, $etime)
+    {
         $sql = "SELECT COALESCE(SUM(rounding), 0) as total, COALESCE(COUNT(id), 0) as num, COALESCE(GROUP_CONCAT(ref SEPARATOR ','),'') as refs FROM sales WHERE (processdt>= :stime AND processdt<= :etime) AND rounding!=0";
-        $placeholders = [":stime"=>$stime, ":etime"=>$etime];
+        $placeholders = [":stime" => $stime, ":etime" => $etime];
 
         return $this->select($sql, $placeholders);
     }
@@ -249,9 +256,10 @@ class SaleItemsModel extends DbConfig
      * @param bool $add
      * @return bool|int Returns false on failure, number of rows affected on success.
      */
-    public function incrementQtyRefunded($saleid, $saleitemid, $qtyrefunded, $add = true){
-        $sql = 'UPDATE `sale_items` SET `refundqty`= `refundqty`'.($add==true?'+':'-').':qtyrefunded WHERE `saleid` = :saleid AND `saleitemid` = :saleitemid';
-        $placeholders = [':saleid'=>$saleid, ':saleitemid'=>$saleitemid, ':qtyrefunded'=>$qtyrefunded];
+    public function incrementQtyRefunded($saleid, $saleitemid, $qtyrefunded, $add = true)
+    {
+        $sql = 'UPDATE `sale_items` SET `refundqty`= `refundqty`' . ($add == true ? '+' : '-') . ':qtyrefunded WHERE `saleid` = :saleid AND `saleitemid` = :saleitemid';
+        $placeholders = [':saleid' => $saleid, ':saleitemid' => $saleitemid, ':qtyrefunded' => $qtyrefunded];
 
         return $this->update($sql, $placeholders);
     }
@@ -260,8 +268,9 @@ class SaleItemsModel extends DbConfig
      * @param null $saleid
      * @return bool|int Returns false on failure, number of rows affected on success.
      */
-    public function removeBySale($saleid=null){
-        if ($saleid===null){
+    public function removeBySale($saleid = null)
+    {
+        if ($saleid === null) {
             return false;
         }
         $sql = "DELETE FROM `sale_items` WHERE `saleid` = :saleid";
@@ -274,8 +283,9 @@ class SaleItemsModel extends DbConfig
      * @param null $id
      * @return bool|int Returns false on failure, the number of rows affected on successs
      */
-    public function removeById($id=null){
-        if ($id===null){
+    public function removeById($id = null)
+    {
+        if ($id === null) {
             return false;
         }
 
@@ -284,5 +294,4 @@ class SaleItemsModel extends DbConfig
 
         return $this->delete($sql, $placeholders);
     }
-
 }

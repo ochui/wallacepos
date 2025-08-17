@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Integration;
+
+use App\Admin\WposAdminSettings;
+
 /**
  * GoogleIntergration is part of Wallace Point of Sale system (WPOS) API
  *
@@ -23,13 +28,15 @@
  * @since      File available since 12/04/14 3:44 PM
  */
 
-class GoogleIntegration {
+class GoogleIntegration
+{
     private static $client_id = '454006942772-d44o95d02ctqpfa341sbm9gj23kif5e2.apps.googleusercontent.com';
     private static $client_secret = 'i7zxnfJuTv58iwZgQFyiXuhw';
     private static $redirect_uri = 'urn:ietf:wg:oauth:2.0:oob';
 
-    public static function initGoogleAuth(){
-        $client = new Google\Client();
+    public static function initGoogleAuth()
+    {
+        $client = new \Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setRedirectUri(self::$redirect_uri);
@@ -38,7 +45,7 @@ class GoogleIntegration {
         // Request token from google
         $authUrl = $client->createAuthUrl();
         // Redirect to oauth url
-        header("Location: ".$authUrl);
+        header("Location: " . $authUrl);
         exit;
     }
 
@@ -47,8 +54,9 @@ class GoogleIntegration {
      * @param $code
      * @return string
      */
-    public static function processGoogleAuthCode($code){
-        $client = new Google\Client();
+    public static function processGoogleAuthCode($code)
+    {
+        $client = new \Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setRedirectUri(self::$redirect_uri);
@@ -59,7 +67,8 @@ class GoogleIntegration {
         return $tokens;
     }
 
-    public static function removeGoogleAuth(){
+    public static function removeGoogleAuth()
+    {
         // nullify access tokens
         WposAdminSettings::putValue('general', 'gcontacttoken', '');
         // turn off intergration
@@ -70,7 +79,8 @@ class GoogleIntegration {
      * Set new token set in the config
      * @param $token
      */
-    private static function setNewAccessToken($token){
+    private static function setNewAccessToken($token)
+    {
         // set new access token in the config
         WposAdminSettings::putValue('general', 'gcontacttoken', $token);
     }
@@ -81,28 +91,29 @@ class GoogleIntegration {
      * @param string $googleId
      * @return bool|int|mixed
      */
-    public static function setGoogleContact($settings, $data, $googleId=''){
+    public static function setGoogleContact($settings, $data, $googleId = '')
+    {
         // init google client & set tokens/ids
-        $client = new Google\Client();
+        $client = new \Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setAccessToken(json_encode($settings->gcontacttoken));
         // Check if access token needs renewal
-        if ($client->isAccessTokenExpired()){
+        if ($client->isAccessTokenExpired()) {
             // Renew access token and save to config
             $client->refreshToken($settings->gcontacttoken->refresh_token);
             $curtokenset = $settings->gcontacttoken;
-            $curtokenset->access_token = json_decode($client->getAccessToken())->access_token;
+            $curtokenset->access_token = $client->getAccessToken();
             self::setNewAccessToken($curtokenset);
         }
 
         try {
             // create new entry
-            $doc  = new DOMDocument();
+            $doc  = new \DOMDocument();
             $doc->formatOutput = true;
             $entry = $doc->createElement('atom:entry');
-            $entry->setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:atom', 'http://www.w3.org/2005/Atom');
-            $entry->setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:gd', 'http://schemas.google.com/g/2005');
+            $entry->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:atom', 'http://www.w3.org/2005/Atom');
+            $entry->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:gd', 'http://schemas.google.com/g/2005');
             $doc->appendChild($entry);
             // add name element
             $name = $doc->createElement('gd:name');
@@ -111,22 +122,22 @@ class GoogleIntegration {
             $name->appendChild($fullName);
             // add email element
             $ema = $doc->createElement('gd:email');
-            $ema->setAttribute('address' , $data->email);
-            $ema->setAttribute('rel' ,'http://schemas.google.com/g/2005#home');
+            $ema->setAttribute('address', $data->email);
+            $ema->setAttribute('rel', 'http://schemas.google.com/g/2005#home');
             $entry->appendChild($ema);
             // add phone elements
-            if ($data->phone!=""){
+            if ($data->phone != "") {
                 $pho = $doc->createElement('gd:phoneNumber', $data->phone);
-                $pho->setAttribute('label' ,'Phone');
+                $pho->setAttribute('label', 'Phone');
                 $entry->appendChild($pho);
             }
-            if ($data->mobile!=""){
+            if ($data->mobile != "") {
                 $mob = $doc->createElement('gd:phoneNumber', $data->mobile);
                 $mob->setAttribute('label', 'Mobile');
                 $entry->appendChild($mob);
             }
             // add address
-            $homeAddress=$doc->createElement('gd:structuredPostalAddress');
+            $homeAddress = $doc->createElement('gd:structuredPostalAddress');
             $homeAddress->setAttribute('rel', 'http://schemas.google.com/g/2005#home');
             $entry->appendChild($homeAddress);
             // city/suburb
@@ -146,7 +157,7 @@ class GoogleIntegration {
             $homeAddress->appendChild($homeCountry);
 
             // insert entry
-            if ($googleId!=''){
+            if ($googleId != '') {
                 $id = $doc->createElement('id', $googleId);
                 $entry->appendChild($id);
                 $url = str_replace('http', 'https', $googleId);
@@ -169,12 +180,12 @@ class GoogleIntegration {
             $xml = simplexml_load_string($response->getBody()->getContents());
             $xml->registerXPathNamespace('gd', 'http://schemas.google.com/g/2005');
             //print_r($xml);
-            if (isset($xml->error)){
+            if (isset($xml->error)) {
                 return [false, $xml->error->internalReason];
             } else {
                 return [true, $xml->id];
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

@@ -1,4 +1,20 @@
 <?php
+
+namespace App\Pos;
+
+use App\Admin\WposAdminSettings;
+use App\Database\AuthModel;
+use App\Database\CategoriesModel;
+use App\Database\CustomerModel;
+use App\Database\DevicesModel;
+use App\Database\LocationsModel;
+use App\Database\SalesModel;
+use App\Database\StockModel;
+use App\Database\StoredItemsModel;
+use App\Database\SuppliersModel;
+use App\Database\TaxItemsModel;
+use App\Database\TaxRulesModel;
+
 /**
  * JsonData is part of Wallace Point of Sale system (WPOS) API
  *
@@ -42,10 +58,10 @@ class WposPosData
     /**
      * Decodes any provided JSON string
      */
-    public function __construct($jsondata=null)
+    public function __construct($jsondata = null)
     {
-        if ($jsondata!==null){
-            if (is_string($jsondata)){
+        if ($jsondata !== null) {
+            if (is_string($jsondata)) {
                 $this->data = json_decode($jsondata);
             } else {
                 $this->data = $jsondata;
@@ -70,8 +86,8 @@ class WposPosData
                 $cdata[$customer['id']] = $customer;
             }
             // add custoner contacts
-            foreach ($contacts as $contact){
-                if (isset($cdata[$contact['customerid']])){
+            foreach ($contacts as $contact) {
+                if (isset($cdata[$contact['customerid']])) {
                     $cdata[$contact['customerid']]['contacts'][$contact['id']] = $contact;
                 }
             }
@@ -120,7 +136,7 @@ class WposPosData
             foreach ($devices as $device) {
                 $data[$device['id']] =  $device;
             }
-            $data[0] = ["id"=> 0, "name"=>"Admin dash", "locationname"=>"Admin dash", "locationid"=>0];
+            $data[0] = ["id" => 0, "name" => "Admin dash", "locationname" => "Admin dash", "locationid" => 0];
             $result['data'] = $data;
         } else {
             $result['error'] = $devMdl->errorInfo;
@@ -143,7 +159,7 @@ class WposPosData
             foreach ($locations as $location) {
                 $data[$location['id']] = $location;
             }
-            $data[0] = ["id"=> 0, "name"=>"Admin dash"];
+            $data[0] = ["id" => 0, "name" => "Admin dash"];
             $result['data'] = $data;
         } else {
             $result['error'] = $locMdl->errorInfo;
@@ -156,13 +172,14 @@ class WposPosData
      * @param $result
      * @return mixed an array of users without their password hash
      */
-    public function getUsers($result){
+    public function getUsers($result)
+    {
         $authMdl = new AuthModel();
         $users = $authMdl->get();
         $data = [];
-        foreach ($users as $user){
+        foreach ($users as $user) {
             unset($user['password']);
-            $user['permissions']=json_decode($user['permissions']);
+            $user['permissions'] = json_decode($user['permissions']);
             $data[$user['id']] = $user;
         }
         $result['data'] = $data;
@@ -175,20 +192,22 @@ class WposPosData
      * @param $result
      * @return mixed
      */
-    public function getSales($result){
-        if (!isset($this->data->stime) && !isset($this->data->etime)){
+    public function getSales($result)
+    {
+        if (!isset($this->data->stime) && !isset($this->data->etime)) {
             // time not set, retrieving POS records, get config.
             $WposConfig = new WposAdminSettings();
             $config = $WposConfig->getSettingsObject("pos");
 
             // set the sale range based on the config setting
-            $etime = time()*1000;
-            $stime = strtotime("-1 ".(isset($config->salerange)?$config->salerange:"week"))*1000;
+            $etime = time() * 1000;
+            $stime = strtotime("-1 " . (isset($config->salerange) ? $config->salerange : "week")) * 1000;
 
             // determine which devices transactions to include based on config
-            if (isset($this->data->deviceid)){
-                switch ($config->saledevice){
-                    case "device": break; // no need to do anything, id already set
+            if (isset($this->data->deviceid)) {
+                switch ($config->saledevice) {
+                    case "device":
+                        break; // no need to do anything, id already set
                     case "all":
                         unset($this->data->deviceid); // unset the device id to get all sales
                         break;
@@ -205,7 +224,7 @@ class WposPosData
 
         // Get all transactions within the specified timeframe/devices
         $salesMdl = new SalesModel();
-        $dbSales  = $salesMdl->getRangeWithRefunds($stime, $etime, (isset($this->data->deviceid)?$this->data->deviceid:null));
+        $dbSales  = $salesMdl->getRangeWithRefunds($stime, $etime, (isset($this->data->deviceid) ? $this->data->deviceid : null));
 
         if (is_array($dbSales)) {
             $sales = [];
@@ -252,7 +271,7 @@ class WposPosData
      *
      * @return array Returns an array of tax objects
      */
-    public static function getTaxes($result=[])
+    public static function getTaxes($result = [])
     {
         $taxItemsMdl = new TaxItemsModel();
         $taxItemsArr    = $taxItemsMdl->get();
@@ -277,10 +296,10 @@ class WposPosData
 
                 $result['data']['rules'] = $taxRules;
             } else {
-                $result['error'] = "Tax data could not be retrieved: ".$taxRulesMdl->errorInfo;
+                $result['error'] = "Tax data could not be retrieved: " . $taxRulesMdl->errorInfo;
             }
         } else {
-            $result['error'] = "Tax data could not be retrieved: ".$taxItemsMdl->errorInfo;
+            $result['error'] = "Tax data could not be retrieved: " . $taxItemsMdl->errorInfo;
         }
 
         return $result;
@@ -350,7 +369,4 @@ class WposPosData
 
         return $result;
     }
-
 }
-
-?>
