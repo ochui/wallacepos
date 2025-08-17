@@ -64,8 +64,11 @@ RewriteRule ^kitchen/(.*)$ kitchen/$1 [L]
 RewriteRule ^customer/?$ customer/index.html [L]
 RewriteRule ^customer/(.*)$ customer/$1 [L]
 
-# API requests - proxy to parent directory
-RewriteRule ^api/(.*)$ ../api/$1 [L]
+# API requests - route to local api directory
+RewriteRule ^api/(.*)$ api/wpos.php?a=$1 [L,QSA]
+
+# Customer API requests - route to local api directory
+RewriteRule ^customerapi/(.*)$ api/customerapi.php?a=$1 [L,QSA]
 
 # Library files - proxy to parent directory for PHP includes
 RewriteRule ^library/(.*)$ ../library/$1 [L]
@@ -73,10 +76,10 @@ RewriteRule ^library/(.*)$ ../library/$1 [L]
 # Installer - proxy to parent directory
 RewriteRule ^installer/?(.*)$ ../installer/$1 [L]
 
-# Service worker
-RewriteRule ^sw\.js$ ../sw.js [L]
+# Service worker - local file
+RewriteRule ^sw\.js$ sw.js [L]
 
-# App cache manifest
+# App cache manifest - proxy to parent directory  
 RewriteRule ^wpos\.appcache$ ../wpos.appcache [L]
 
 # Block access to sensitive files
