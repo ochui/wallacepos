@@ -2,8 +2,8 @@
 
 namespace App\Integration;
 
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminStats;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminStats;
 
 /**
  * XeroIntergration is part of Wallace Point of Sale system (WPOS) API

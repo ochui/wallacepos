@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin;
+namespace App\Controllers\Admin;
 
 use App\Communication\WposSocketIO;
 use App\Database\AuthModel;
@@ -10,7 +10,7 @@ use App\Database\SuppliersModel;
 use App\Database\TaxItemsModel;
 use App\Database\TaxRulesModel;
 use App\Models\WposStoredItem;
-use App\Pos\WposPosData;
+use App\Controllers\Pos\WposPosData;
 use App\Utility\EventStream;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;

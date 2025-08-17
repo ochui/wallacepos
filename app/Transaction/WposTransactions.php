@@ -2,8 +2,8 @@
 
 namespace App\Transaction;
 
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminStock;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminStock;
 use App\Communication\WposSocketIO;
 use App\Database\TransactionsModel;
 use App\Database\SaleItemsModel;

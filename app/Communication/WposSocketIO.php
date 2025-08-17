@@ -4,8 +4,8 @@ namespace App\Communication;
 
 use ElephantIO\Client as Client;
 use ElephantIO\Engine\SocketIO\Version1X as Version1X;
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminUtilities;
 
 /**
  * WposSocketIO is part of Wallace Point of Sale system (WPOS) API

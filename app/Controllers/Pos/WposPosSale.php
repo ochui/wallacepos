@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Pos;
+namespace App\Controllers\Pos;
 
-use App\Admin\WposAdminCustomers;
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminStock;
+use App\Controllers\Admin\WposAdminCustomers;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminStock;
 use App\Communication\WposSocketIO;
 use App\Database\DevicesModel;
 use App\Database\SaleItemsModel;

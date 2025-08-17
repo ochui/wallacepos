@@ -3,8 +3,8 @@
 namespace App\Utility;
 
 use App\Database\DbConfig;
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminUtilities;
 use App\Communication\WposSocketIO;
 use App\Database\AuthModel;
 use App\Database\SaleItemsModel;

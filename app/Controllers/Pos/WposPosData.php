@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Pos;
+namespace App\Controllers\Pos;
 
-use App\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminSettings;
 use App\Database\AuthModel;
 use App\Database\CategoriesModel;
 use App\Database\CustomerModel;

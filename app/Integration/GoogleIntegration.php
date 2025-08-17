@@ -2,7 +2,7 @@
 
 namespace App\Integration;
 
-use App\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminSettings;
 
 /**
  * GoogleIntergration is part of Wallace Point of Sale system (WPOS) API

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin;
+namespace App\Controllers\Admin;
 
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;

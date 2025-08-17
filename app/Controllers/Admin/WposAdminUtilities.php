@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Admin;
+namespace App\Controllers\Admin;
 
 use App\Database\ConfigModel;
 use App\Database\DbConfig;
-use App\Pos\WposPosData;
+use App\Controllers\Pos\WposPosData;
 use App\Utility\Logger;
 use Ifsnop\Mysqldump as IMysqldump;
 

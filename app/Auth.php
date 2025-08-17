@@ -26,7 +26,7 @@ namespace App;
  * @since      Class created 11/24/13 12:01 PM
  */
 
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminUtilities;
 use App\Communication\WposSocketIO;
 use App\Database\AuthModel;
 use App\Database\CustomerModel;

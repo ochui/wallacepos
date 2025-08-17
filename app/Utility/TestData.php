@@ -2,7 +2,7 @@
 
 namespace App\Utility;
 
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminUtilities;
 use App\Database\AuthModel;
 use App\Database\CategoriesModel;
 use App\Database\CustomerModel;
@@ -12,8 +12,8 @@ use App\Database\LocationsModel;
 use App\Database\StoredItemsModel;
 use App\Database\SuppliersModel;
 use App\Invoice\WposInvoices;
-use App\Pos\WposPosData;
-use App\Pos\WposPosSale;
+use App\Controllers\Pos\WposPosData;
+use App\Controllers\Pos\WposPosSale;
 
 /**
  * Test Data is part of Wallace Point of Sale system (WPOS) API

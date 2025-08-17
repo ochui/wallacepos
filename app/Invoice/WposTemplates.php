@@ -3,7 +3,7 @@
 namespace App\Invoice;
 
 use Mustache_Engine;
-use App\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminSettings;
 use App\Utility\JsonValidate;
 
 /**

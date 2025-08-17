@@ -2,7 +2,7 @@
 
 namespace App\Invoice;
 
-use App\Admin\WposAdminStock;
+use App\Controllers\Admin\WposAdminStock;
 use App\Database\InvoicesModel;
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;

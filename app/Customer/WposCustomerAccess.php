@@ -2,9 +2,9 @@
 
 namespace App\Customer;
 
-use App\Admin\WposAdminCustomers;
-use App\Admin\WposAdminSettings;
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminCustomers;
+use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\WposAdminUtilities;
 use App\Database\CustomerModel;
 use App\Database\TaxItemsModel;
 use App\Database\TransactionsModel;

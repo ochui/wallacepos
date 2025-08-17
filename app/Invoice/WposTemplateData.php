@@ -3,8 +3,8 @@
 namespace App\Invoice;
 
 use Mustache_LambdaHelper;
-use App\Admin\WposAdminCustomers;
-use App\Admin\WposAdminUtilities;
+use App\Controllers\Admin\WposAdminCustomers;
+use App\Controllers\Admin\WposAdminUtilities;
 
 /**
  * WposTemplateData is part of Wallace Point of Sale system (WPOS) API
