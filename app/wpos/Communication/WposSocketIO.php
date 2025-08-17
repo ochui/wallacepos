@@ -65,7 +65,7 @@ class WposSocketIO
         set_error_handler(function () { /* ignore warnings */
         }, E_WARNING);
         try {
-            $this->elephant->initialize();
+            $this->elephant->connect();
             $this->elephant->emit($event, $data);
             $this->elephant->close();
         } catch (\Exception $e) {

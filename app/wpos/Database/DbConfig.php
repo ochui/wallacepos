@@ -110,13 +110,14 @@ class DbConfig
     {
         // Try to load .env file for local development
         $envPath = __DIR__ . '/../../../';
-        if (file_exists($envPath . '.env')) {
-            $dotenv = Dotenv::createImmutable($envPath);
-            $dotenv->load();
+        if (!file_exists($envPath . '.env')) {
+            throw new \Exception('Missing .env file');
         }
 
+        $dotenv = Dotenv::createImmutable($envPath);
+        $dotenv->load();
+
         if (($url = getenv("DATABASE_URL")) !== false) {
-            // dokku / heroku
             $url = parse_url($url);
             self::$_username = $url['user'];
             self::$_password = $url['pass'];
@@ -124,28 +125,11 @@ class DbConfig
             self::$_hostname = $url['host'];
             self::$_port = $url["port"];
         } else if (!empty($_ENV['DATABASE_HOST']) && !empty($_ENV['DATABASE_NAME'])) {
-            // .env file configuration
             self::$_username = $_ENV['DATABASE_USER'] ?? '';
             self::$_password = $_ENV['DATABASE_PASSWORD'] ?? '';
             self::$_database = $_ENV['DATABASE_NAME'];
             self::$_hostname = $_ENV['DATABASE_HOST'];
             self::$_port = $_ENV['DATABASE_PORT'] ?? '3306';
-        } else if (file_exists(__DIR__ . '/../dbconfig.php')) {
-            // legacy config (still used for alpha/demo versions)
-            require(__DIR__ . '/../dbconfig.php');
-            self::$_username = $dbConfig['user'];
-            self::$_password = $dbConfig['pass'];
-            self::$_database = $dbConfig["database"];
-            self::$_hostname = $dbConfig['host'];
-            self::$_port = $dbConfig["port"];
-        } else if (file_exists(__DIR__ . '/../.dbconfig.json')) {
-            // json config
-            $dbConfig = json_decode(file_get_contents(__DIR__ . '/../.dbconfig.json'), true);
-            self::$_username = $dbConfig['user'];
-            self::$_password = $dbConfig['pass'];
-            self::$_database = $dbConfig["database"];
-            self::$_hostname = $dbConfig['host'];
-            self::$_port = $dbConfig["port"];
         }
 
         $conf = ["host" => self::$_hostname, "port" => self::$_port, "user" => self::$_username, "pass" => self::$_password, "db" => self::$_database,];

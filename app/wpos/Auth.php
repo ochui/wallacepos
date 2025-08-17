@@ -115,7 +115,13 @@ class Auth
     public function getUser()
     {
         if (isset($_SESSION['userId'])) {
-            $user = ["id" => $_SESSION['userId'], "username" => $_SESSION['username'], "isadmin" => $_SESSION['isadmin'], "sections" => $_SESSION['permissions']['sections'], "csrf_token" => $_SESSION['csrf_token']];
+            $user = [
+                "id" => $_SESSION['userId'],
+                "username" => $_SESSION['username'],
+                "isadmin" => $_SESSION['isadmin'],
+                "sections" => $_SESSION['permissions'] ? $_SESSION['permissions']['sections'] : [],
+                "csrf_token" => $_SESSION['csrf_token']
+            ];
             // add auth tokens if set
             if ($this->authTokens !== null) {
                 $user = array_merge($user, $this->authTokens);
