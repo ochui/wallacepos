@@ -1,0 +1,386 @@
+public/
+├── .htaccess
+├── admin
+│   ├── content
+│   │   ├── accountsettings.php
+│   │   ├── categories.php
+│   │   ├── customers.php
+│   │   ├── dashboard.php
+│   │   ├── devlocations.php
+│   │   ├── faq.php
+│   │   ├── generalsettings.php
+│   │   ├── graph.php
+│   │   ├── info.php
+│   │   ├── invoices.php
+│   │   ├── invoicesettings.php
+│   │   ├── items.php
+│   │   ├── possettings.php
+│   │   ├── realtime.php
+│   │   ├── reports.php
+│   │   ├── sales.php
+│   │   ├── staffadmins.php
+│   │   ├── stock.php
+│   │   ├── suppliers.php
+│   │   ├── templates.php
+│   │   └── utilities.php
+│   └── index.html
+├── assets
+│   ├── css
+│   │   ├── ace-fonts.css
+│   │   ├── ace-ie.min.css
+│   │   ├── ace-rtl.min.css
+│   │   ├── ace-skins.min.css
+│   │   ├── ace.min.css
+│   │   ├── bootstrap-datepicker.min.css
+│   │   ├── bootstrap-editable.css
+│   │   ├── bootstrap-timepicker.css
+│   │   ├── bootstrap.min.css
+│   │   ├── chosen-sprite.png
+│   │   ├── chosen-sprite@2x.png
+│   │   ├── chosen.css
+│   │   ├── chosen.min.css
+│   │   ├── colorbox.css
+│   │   ├── colorpicker.css
+│   │   ├── dataTables.bootstrap.css
+│   │   ├── datepicker.css-old
+│   │   ├── daterangepicker.css
+│   │   ├── dropzone.css
+│   │   ├── font-awesome-ie7.min.css
+│   │   ├── font-awesome.min.css
+│   │   ├── fullcalendar.css
+│   │   ├── fullcalendar.print.css
+│   │   ├── images
+│   │   │   ├── border.png
+│   │   │   ├── border1.png
+│   │   │   ├── border2.png
+│   │   │   ├── controls.png
+│   │   │   ├── ie6
+│   │   │   ├── loading.gif
+│   │   │   ├── loading_background.png
+│   │   │   └── overlay.png
+│   │   ├── img
+│   │   │   ├── alpha.png
+│   │   │   ├── hue.png
+│   │   │   └── saturation.png
+│   │   ├── jquery-ui-1.10.3.custom.min.css
+│   │   ├── jquery-ui-1.10.3.full.min.css
+│   │   ├── jquery.gritter.css
+│   │   ├── less
+│   │   │   ├── ace-nav.less
+│   │   │   ├── ace-responsive.less
+│   │   │   ├── ace-rtl.less
+│   │   │   ├── ace.less
+│   │   │   ├── basic.less
+│   │   │   ├── bootstrap
+│   │   │   ├── breadcrumbs.less
+│   │   │   ├── bs3-reset.less
+│   │   │   ├── buttons.less
+│   │   │   ├── dropdown.less
+│   │   │   ├── ext
+│   │   │   ├── form-checkbox.less
+│   │   │   ├── form-file.less
+│   │   │   ├── form.less
+│   │   │   ├── gallery.less
+│   │   │   ├── general.less
+│   │   │   ├── icon-animated.less
+│   │   │   ├── infobox.less
+│   │   │   ├── items.less
+│   │   │   ├── label-badge.less
+│   │   │   ├── mixins.less
+│   │   │   ├── other.less
+│   │   │   ├── page.error.less
+│   │   │   ├── page.inbox.less
+│   │   │   ├── page.invoice.less
+│   │   │   ├── page.login.less
+│   │   │   ├── page.pricing.less
+│   │   │   ├── page.profile.less
+│   │   │   ├── page.timeline.less
+│   │   │   ├── progressbar.less
+│   │   │   ├── rtl-grid.less
+│   │   │   ├── searchbox.less
+│   │   │   ├── sidebar-min.less
+│   │   │   ├── sidebar.less
+│   │   │   ├── tab-accordion.less
+│   │   │   ├── tables.less
+│   │   │   ├── thirdparty-calendar.less
+│   │   │   ├── thirdparty-chosen.less
+│   │   │   ├── thirdparty-colorbox.less
+│   │   │   ├── thirdparty-dropzone.less
+│   │   │   ├── thirdparty-editable.less
+│   │   │   ├── thirdparty-fuelux.less
+│   │   │   ├── thirdparty-gritter.less
+│   │   │   ├── thirdparty-jqgrid.less
+│   │   │   ├── thirdparty-jquery-ui.less
+│   │   │   ├── thirdparty-nestable.less
+│   │   │   ├── thirdparty-select2.less
+│   │   │   ├── thirdparty-slider.less
+│   │   │   ├── thirdparty-wysiwyg.less
+│   │   │   ├── tooltip-popover.less
+│   │   │   ├── utility.less
+│   │   │   ├── variables.less
+│   │   │   └── widget.less
+│   │   ├── prettify.css
+│   │   ├── select2-spinner.gif
+│   │   ├── select2.css
+│   │   ├── select2.png
+│   │   ├── select2x2.png
+│   │   ├── ui.jqgrid.css
+│   │   ├── uncompressed
+│   │   │   ├── ace-ie.css
+│   │   │   ├── ace-rtl.css
+│   │   │   ├── ace-skins.css
+│   │   │   ├── ace.css
+│   │   │   ├── bootstrap.css
+│   │   │   ├── chosen.css
+│   │   │   ├── font-awesome-ie7.css
+│   │   │   ├── font-awesome.css
+│   │   │   └── jquery-ui-1.10.3.custom.css
+│   │   ├── wpos.css
+│   │   └── wposadmin.css
+│   ├── font
+│   │   ├── DXI1ORHCpsQm3Vp6mXoaTXhCUOGz7vYGh680lGh-uXM.woff
+│   │   ├── FontAwesome.otf
+│   │   ├── cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff
+│   │   ├── fontawesome-webfont.eot
+│   │   ├── fontawesome-webfont.svg
+│   │   ├── fontawesome-webfont.ttf
+│   │   └── fontawesome-webfont.woff
+│   ├── fonts
+│   │   ├── DXI1ORHCpsQm3Vp6mXoaTXhCUOGz7vYGh680lGh-uXM.woff
+│   │   ├── FontAwesome.otf
+│   │   ├── cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff
+│   │   ├── fontawesome-webfont.eot
+│   │   ├── fontawesome-webfont.svg
+│   │   ├── fontawesome-webfont.ttf
+│   │   ├── fontawesome-webfont.woff
+│   │   ├── glyphicons-halflings-regular.eot
+│   │   ├── glyphicons-halflings-regular.svg
+│   │   ├── glyphicons-halflings-regular.ttf
+│   │   ├── glyphicons-halflings-regular.woff
+│   │   └── glyphicons-halflings-regular.woff2
+│   ├── images
+│   │   ├── .htaccess
+│   │   ├── ajax-loader.gif
+│   │   ├── apple-touch-icon-114x114.png
+│   │   ├── apple-touch-icon-72x72.png
+│   │   ├── apple-touch-icon.png
+│   │   ├── back_disabled.png
+│   │   ├── back_enabled.png
+│   │   ├── back_enabled_hover.png
+│   │   ├── cloud_loader.gif
+│   │   ├── faq
+│   │   │   ├── faq-eftpos-receipts.png
+│   │   │   └── faq-eftpos-settings.png
+│   │   ├── favicon.ico
+│   │   ├── forward_disabled.png
+│   │   ├── forward_enabled.png
+│   │   ├── forward_enabled_hover.png
+│   │   ├── icon.png
+│   │   ├── qrcode.png
+│   │   ├── receipt-logo-mono-master.png
+│   │   ├── receipt-logo-mono.png
+│   │   ├── receipt-logo.png
+│   │   ├── sort_asc.png
+│   │   ├── sort_asc_disabled.png
+│   │   ├── sort_both.png
+│   │   ├── sort_desc.png
+│   │   ├── sort_desc_disabled.png
+│   │   ├── spritemap.png
+│   │   └── spritemap@2x.png
+│   ├── img
+│   │   ├── clear.png
+│   │   ├── glyphicons-halflings-white.png
+│   │   ├── glyphicons-halflings.png
+│   │   └── loading.gif
+│   ├── js
+│   │   ├── accountplugin.js
+│   │   ├── ace
+│   │   │   ├── ace.js
+│   │   │   ├── ext-beautify.js
+│   │   │   ├── ext-chromevox.js
+│   │   │   ├── ext-elastic_tabstops_lite.js
+│   │   │   ├── ext-emmet.js
+│   │   │   ├── ext-error_marker.js
+│   │   │   ├── ext-keybinding_menu.js
+│   │   │   ├── ext-language_tools.js
+│   │   │   ├── ext-linking.js
+│   │   │   ├── ext-modelist.js
+│   │   │   ├── ext-old_ie.js
+│   │   │   ├── ext-searchbox.js
+│   │   │   ├── ext-settings_menu.js
+│   │   │   ├── ext-spellcheck.js
+│   │   │   ├── ext-split.js
+│   │   │   ├── ext-static_highlight.js
+│   │   │   ├── ext-statusbar.js
+│   │   │   ├── ext-textarea.js
+│   │   │   ├── ext-themelist.js
+│   │   │   ├── ext-whitespace.js
+│   │   │   ├── mode-html.js
+│   │   │   ├── theme-chrome.js
+│   │   │   └── worker-html.js
+│   │   ├── ace-elements.min.js
+│   │   ├── ace-extra.min.js
+│   │   ├── ace.min.js
+│   │   ├── additional-methods.min.js
+│   │   ├── bootbox.min.js
+│   │   ├── bootstrap-colorpicker.min.js
+│   │   ├── bootstrap-tag.js
+│   │   ├── bootstrap-tag.min.js
+│   │   ├── bootstrap-wysiwyg.min.js
+│   │   ├── bootstrap.min.js
+│   │   ├── chosen.jquery.min.js
+│   │   ├── clientaccess.js
+│   │   ├── clienttrans.js
+│   │   ├── csv-import
+│   │   │   ├── csv.import.tool.js
+│   │   │   └── lib
+│   │   ├── date-time
+│   │   │   ├── bootstrap-datepicker.min.js
+│   │   │   ├── bootstrap-datepicker.min.js-old
+│   │   │   ├── bootstrap-timepicker.min.js
+│   │   │   ├── daterangepicker.min.js
+│   │   │   ├── locales
+│   │   │   └── moment.min.js
+│   │   ├── dropzone.min.js
+│   │   ├── excanvas.min.js
+│   │   ├── flot
+│   │   │   ├── jquery.flot.min.js
+│   │   │   ├── jquery.flot.pie.min.js
+│   │   │   ├── jquery.flot.resize.min.js
+│   │   │   └── jquery.flot.time.min.js
+│   │   ├── fuelux
+│   │   │   ├── data
+│   │   │   ├── fuelux.spinner.min.js
+│   │   │   ├── fuelux.tree.min.js
+│   │   │   └── fuelux.wizard.min.js
+│   │   ├── fullcalendar.min.js
+│   │   ├── html5shiv.js
+│   │   ├── jqGrid
+│   │   │   ├── i18n
+│   │   │   └── jquery.jqGrid.min.js
+│   │   ├── jquery-1.10.2.min.js
+│   │   ├── jquery-2.0.3.min.js
+│   │   ├── jquery-2.2.0.min.js
+│   │   ├── jquery-ui-1.10.3.custom.min.js
+│   │   ├── jquery-ui-1.10.3.full.min.js
+│   │   ├── jquery.autosize.min.js
+│   │   ├── jquery.colorbox-min.js
+│   │   ├── jquery.easy-pie-chart.min.js
+│   │   ├── jquery.gritter.min.js
+│   │   ├── jquery.hotkeys.min.js
+│   │   ├── jquery.inputlimiter.1.3.1.min.js
+│   │   ├── jquery.knob.min.js
+│   │   ├── jquery.maskedinput.min.js
+│   │   ├── jquery.mobile.custom.min.js
+│   │   ├── jquery.mustache.js
+│   │   ├── jquery.nestable.min.js
+│   │   ├── jquery.scannerdetection.js
+│   │   ├── jquery.slimscroll.min.js
+│   │   ├── jquery.sparkline.min.js
+│   │   ├── jquery.ui.touch-punch.min.js
+│   │   ├── jquery.validate.min.js
+│   │   ├── markdown
+│   │   │   ├── bootstrap-markdown.min.js
+│   │   │   ├── markdown.min.js
+│   │   │   └── to-markdown.min.js
+│   │   ├── prettify.js
+│   │   ├── respond.min.js
+│   │   ├── select2
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── select2-bootstrap.css
+│   │   │   ├── select2-spinner.gif
+│   │   │   ├── select2.css
+│   │   │   ├── select2.min.js
+│   │   │   ├── select2.png
+│   │   │   ├── select2_locale_en.js.template
+│   │   │   └── select2x2.png
+│   │   ├── select2.min.js
+│   │   ├── spin.min.js
+│   │   ├── typeahead-bs2.min.js
+│   │   ├── uncompressed
+│   │   │   ├── ace-elements.js
+│   │   │   ├── ace-extra.js
+│   │   │   ├── ace.js
+│   │   │   ├── additional-methods.js
+│   │   │   ├── bootbox.js
+│   │   │   ├── bootstrap-colorpicker.js
+│   │   │   ├── bootstrap-tag.js
+│   │   │   ├── bootstrap-wysiwyg.js
+│   │   │   ├── bootstrap.js
+│   │   │   ├── chosen.jquery.js
+│   │   │   ├── date-time
+│   │   │   ├── excanvas.js
+│   │   │   ├── flot
+│   │   │   ├── fuelux
+│   │   │   ├── fullcalendar.js
+│   │   │   ├── jquery-1.10.2.js
+│   │   │   ├── jquery-2.0.3.js
+│   │   │   ├── jquery-ui-1.10.3.custom.js
+│   │   │   ├── jquery.autosize.js
+│   │   │   ├── jquery.colorbox.js
+│   │   │   ├── jquery.dataTables.js
+│   │   │   ├── jquery.easy-pie-chart.js
+│   │   │   ├── jquery.gritter.js
+│   │   │   ├── jquery.hotkeys.js
+│   │   │   ├── jquery.inputlimiter.1.3.1.js
+│   │   │   ├── jquery.knob.js
+│   │   │   ├── jquery.maskedinput.js
+│   │   │   ├── jquery.mobile.custom.js
+│   │   │   ├── jquery.slimscroll.js
+│   │   │   ├── jquery.sparkline.js
+│   │   │   ├── jquery.ui.touch-punch.js
+│   │   │   ├── jquery.validate.js
+│   │   │   ├── markdown
+│   │   │   ├── respond.src.js
+│   │   │   ├── select2.js
+│   │   │   ├── spin.js
+│   │   │   └── x-editable
+│   │   ├── wpos
+│   │   │   ├── core.js
+│   │   │   ├── orders.js
+│   │   │   ├── print.js
+│   │   │   ├── reports.js
+│   │   │   ├── sales.js
+│   │   │   ├── sw-manager.js
+│   │   │   ├── transactions.js
+│   │   │   └── utilities.js
+│   │   └── x-editable
+│   │       ├── ace-editable.min.js
+│   │       └── bootstrap-editable.min.js
+│   ├── libs
+│   │   ├── datatables
+│   │   │   ├── datatableSorting.js
+│   │   │   ├── datatables.min.css
+│   │   │   └── datatables.min.js
+│   │   ├── jquery-keypad
+│   │   │   ├── jquery.keypad.css
+│   │   │   ├── jquery.keypad.min.js
+│   │   │   ├── jquery.plugin.min.js
+│   │   │   └── keypad.png
+│   │   ├── socketio
+│   │   │   └── socket.io-1.4.5.js
+│   │   └── webprint.js
+│   ├── sounds
+│   │   └── bell_modern.mp3
+│   └── wpos
+│       ├── customers.js
+│       ├── transactions.js
+│       └── wpos.js
+├── customer
+│   ├── activate.php
+│   ├── checkout
+│   │   └── processpayment.php
+│   ├── content
+│   │   ├── contact.php
+│   │   ├── dashboard.php
+│   │   ├── mydetails.php
+│   │   └── transactions.php
+│   ├── index.html
+│   ├── register.php
+│   └── resetpassword.php
+├── index.html
+└── kitchen
+    └── index.html
+
+48 directories, 336 files
