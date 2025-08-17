@@ -12,6 +12,29 @@ With a rich administration dashboard and reporting features, WallacePOS brings b
 
 Take your business into the cloud with WallacePOS!
 
+## 🏗️ Modern Project Structure
+
+This repository now features a modernized structure for better organization and maintainability:
+
+- **`public/`** - Main web-accessible directory containing all frontend applications
+  - **`assets/`** - Consolidated assets (CSS, JS, images, fonts)
+  - **`admin/`** - Administrative interface
+  - **`kitchen/`** - Kitchen display system
+  - **`customer/`** - Customer portal
+- **`api/`** - Server-side API endpoints
+- **`library/`** - PHP libraries and core functionality
+
+For detailed information about the new structure, see [MODERN_STRUCTURE.md](MODERN_STRUCTURE.md).
+
+## 🚀 Quick Start
+
+1. Configure your web server to serve from the `public/` directory
+2. Access different applications:
+   - Main POS: `/` or `/pos`
+   - Admin: `/admin`
+   - Kitchen Display: `/kitchen`
+   - Customer Portal: `/customer`
+
 To find out more about WallacePOS, head over to [wallacepos.com](https://wallacepos.com)
 
 If you find that WallacePOS is the perfect companion for your business, please donate to support further development.

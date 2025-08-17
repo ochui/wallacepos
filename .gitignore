@@ -5,3 +5,30 @@ library/wpos/.dbconfig.json
 docs/
 test-sw.html
 vendor/
+
+# Build artifacts
+*.min.js.map
+*.min.css.map
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Node modules (if added)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache files
+.cache/
+
+.env
