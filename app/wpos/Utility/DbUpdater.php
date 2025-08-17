@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Utility;
+
+use App\Database\DbConfig;
+
 /**
  * DbUpdater is part of Wallace Point of Sale system (WPOS) API
  *
@@ -15,7 +20,7 @@
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Utility
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
  * @link       https://wallacepos.com
  * @author     Michael B Wallace <micwallace@gmx.com>
@@ -268,8 +273,8 @@ class DbUpdater {
         // copy static config file if it doesn't exist
         if (file_exists(__DIR__ . '/../../../'.'docs/.config.json')==false){
             // copy current version or use template
-            if (file_exists(__DIR__ . '/../../../'.'library/wpos/.config.json')){
-                copy(__DIR__ . '/../../../'.'library/wpos/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
+            if (file_exists(__DIR__ . '/../../../'.'app/wpos/.config.json')){
+                copy(__DIR__ . '/../../../'.'app/wpos/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
             } else {
                 copy(__DIR__ . '/../../../'.'docs-template/templates/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
             }

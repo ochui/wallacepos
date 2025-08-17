@@ -24,7 +24,7 @@
 
 $_SERVER['APP_ROOT'] = "../../";
 
-require(__DIR__ . '/../../library/wpos/config.php');
+require(__DIR__ . '/../../app/wpos/config.php');
 require_once(__DIR__ . '/../../vendor/autoload.php');
 // setup api error handling
 set_error_handler("errorHandler", E_ERROR | E_PARSE);

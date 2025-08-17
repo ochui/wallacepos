@@ -1,5 +1,11 @@
 <?php
 
+namespace App\Admin;
+
+use App\Database\CustomerModel;
+use App\Database\AuthModel;
+use Exception;
+
 /**
  * WposAdminCustomers is part of Wallace Point of Sale system (WPOS) API
  *
@@ -16,7 +22,7 @@
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Admin
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
 
  * @link       https://wallacepos.com

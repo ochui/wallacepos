@@ -119,8 +119,8 @@ function checkDependencies(){
     $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']));
     foreach($objects as $name => $object){
         if (strpos($name, $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs')===false &&
-            $name!=$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.config.json' &&
-            $name!=$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.dbconfig.json' &&
+            $name!=$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'app/wpos/.config.json' &&
+            $name!=$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'app/wpos/.dbconfig.json' &&
             (is_file($name) && is_writable($name))){
             $result['permissions_files'] = false;
             $result['all'] = false;
@@ -138,8 +138,8 @@ function checkDependencies(){
             }
         }
     }
-    if (!$result['permissions_config']=(!is_writable($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.config.json') ||
-        !is_writable($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.dbconfig.json')))
+    if (!$result['permissions_config']=(!is_writable($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'app/wpos/.config.json') ||
+        !is_writable($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'app/wpos/.dbconfig.json')))
         $result['all'] = false;
 
     // web server node.js config test
@@ -195,7 +195,7 @@ function writeDatabaseConfig(){
         "user"=> $_REQUEST['username'],
         "pass"=> $_REQUEST['password']
     ];
-    if (!file_put_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.dbconfig.json', json_encode($dbconfig))){
+    if (!file_put_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'app/wpos/.dbconfig.json', json_encode($dbconfig))){
         return false;
     }
     return true;

@@ -20,9 +20,10 @@
         "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
-        "classmap": ["library/wpos/"],
+        "classmap": ["app/wpos/"],
         "psr-4": {
-            "wpos\\": "library/wpos/"
+            "App\\": "app/wpos/",
+            "wpos\\": "app/wpos/"
         }
     }
 }

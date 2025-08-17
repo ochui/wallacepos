@@ -1,8 +1,11 @@
 <?php
+
+namespace App\Database;
+
 /**
- * ConfigModel is part of Wallace Point of Sale system (WPOS) API
+ * CustomerModel is part of Wallace Point of Sale system (WPOS) API
  *
- * ConfigModel extends the DbConfig PDO class to interact with the config DB table
+ * CustomerModel extends the DbConfig PDO class to interact with the customers DB table
  *
  * WallacePOS is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +18,7 @@
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Database
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
 
  * @link       https://wallacepos.com

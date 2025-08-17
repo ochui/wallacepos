@@ -1,4 +1,11 @@
 <?php
+
+namespace App\Database;
+
+use Dotenv\Dotenv;
+use PDO;
+use PDOException;
+
 /**
  * DbConfig is part of Wallace Point of Sale system (WPOS) API
  *
@@ -15,7 +22,7 @@
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Database
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
 
  * @link       https://wallacepos.com
@@ -81,7 +88,7 @@ class DbConfig
         $dsn = self::$_dsnPrefix . ':host=' . self::$_hostname . ';port=' . self::$_port . ';dbname=' . self::$_database;
 
         try {
-            if (!$this->_db = new \PDO($dsn, self::$_username, self::$_password)){
+            if (!$this->_db = new PDO($dsn, self::$_username, self::$_password)){
                 throw new PDOException('Failed to connect to database, php PDO extension may not be installed', 0, 0);
             }
 
@@ -101,6 +108,12 @@ class DbConfig
      * @return array
      */
     static function getConf(){
+        // Try to load .env file for local development
+        $envPath = __DIR__ . '/../../../';
+        if (file_exists($envPath . '.env')) {
+            $dotenv = Dotenv::createImmutable($envPath);
+            $dotenv->load();
+        }
 
         if (($url=getenv("DATABASE_URL"))!==false) {
             // dokku / heroku
@@ -110,17 +123,24 @@ class DbConfig
             self::$_database = substr($url["path"],1);
             self::$_hostname = $url['host'];
             self::$_port = $url["port"];
-        } else if (file_exists($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/dbconfig.php')){
+        } else if (!empty($_ENV['DATABASE_HOST']) && !empty($_ENV['DATABASE_NAME'])) {
+            // .env file configuration
+            self::$_username = $_ENV['DATABASE_USER'] ?? '';
+            self::$_password = $_ENV['DATABASE_PASSWORD'] ?? '';
+            self::$_database = $_ENV['DATABASE_NAME'];
+            self::$_hostname = $_ENV['DATABASE_HOST'];
+            self::$_port = $_ENV['DATABASE_PORT'] ?? '3306';
+        } else if (file_exists(__DIR__ . '/../dbconfig.php')){
             // legacy config (still used for alpha/demo versions)
-            require($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/dbconfig.php');
+            require(__DIR__ . '/../dbconfig.php');
             self::$_username = $dbConfig['user'];
             self::$_password = $dbConfig['pass'];
             self::$_database = $dbConfig["database"];
             self::$_hostname = $dbConfig['host'];
             self::$_port = $dbConfig["port"];
-        } else if (file_exists($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/.dbconfig.json')){
+        } else if (file_exists(__DIR__ . '/../.dbconfig.json')){
             // json config
-            $dbConfig = json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.dbconfig.json'), true);
+            $dbConfig = json_decode(file_get_contents(__DIR__ . '/../.dbconfig.json'), true);
             self::$_username = $dbConfig['user'];
             self::$_password = $dbConfig['pass'];
             self::$_database = $dbConfig["database"];

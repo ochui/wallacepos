@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Database;
+
 /**
  * AuthModel is part of Wallace Point of Sale system (WPOS) API
  *
@@ -15,7 +18,7 @@
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Database
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
  * @link       https://wallacepos.com
  * @author     Adam Jacquier-Parr <aljparr0@gmail.com>, Michael B Wallace <micwallace@gmx.com>

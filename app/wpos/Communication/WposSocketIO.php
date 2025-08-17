@@ -1,8 +1,13 @@
 <?php
+
+namespace App\Communication;
+
 require __DIR__ . '/../../../vendor/autoload.php';
 
 use ElephantIO\Client as Client;
 use ElephantIO\Engine\SocketIO\Version1X as Version1X;
+use App\Admin\WposAdminSettings;
+
 /**
  * WposSocketIO is part of Wallace Point of Sale system (WPOS) API
  *
@@ -20,7 +25,7 @@ use ElephantIO\Engine\SocketIO\Version1X as Version1X;
  * Lesser General Public License for more details:
  * <https://www.gnu.org/licenses/lgpl.html>
  *
- * @package    wpos
+ * @package    App\Communication
  * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
  * @link       https://wallacepos.com
  * @author     Michael B Wallace <micwallace@gmx.com>
