@@ -25,13 +25,11 @@
 $_SERVER['APP_ROOT'] = "/";
 
 require($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'vendor/autoload.php');
 // setup api error handling
 set_error_handler("errorHandler", E_ERROR | E_PARSE);
 set_error_handler("warningHandler", E_WARNING);
 set_exception_handler("exceptionHandler");
-
-// load classes and start session
-require($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/AutoLoader.php'); //Autoload all the classes.
 $auth = new Auth();
 // enable cross origin requests
 header("Access-Control-Allow-Origin: *");

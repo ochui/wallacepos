@@ -1,5 +1,5 @@
 <?php
-require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/autoload.php";
+require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."vendor/autoload.php";
 
 use ElephantIO\Client as Client;
 use ElephantIO\Engine\SocketIO\Version1X as Version1X;

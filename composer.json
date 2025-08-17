@@ -7,9 +7,6 @@
             }
         }
     },
-    "config": {
-        "vendor-dir": "library"
-    },
     "require": {
         "php": ">=8.0.0",
         "elephantio/elephant.io": "^4.13",
@@ -17,8 +14,9 @@
         "ezyang/htmlpurifier": "^4.18"
     },
     "autoload": {
+        "classmap": ["library/wpos/"],
         "psr-4": {
-            "ElephantIO\\": ["library/"]
+            "wpos\\": "library/wpos/"
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
     $_SERVER['APP_ROOT'] = "/";
-    require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/wpos/AutoLoader.php";
+    require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."vendor/autoload.php";
     $activated = false;
     $error = "No token supplied!";
     if (isset($_REQUEST['token'])){

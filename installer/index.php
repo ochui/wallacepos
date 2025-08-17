@@ -25,7 +25,7 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 $_SERVER['APP_ROOT'] = "/";
-require($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/AutoLoader.php'); //Autoload all the classes.
+require($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'vendor/autoload.php'); //Autoload all the classes.
 
 function checkDependencies(){
     $result = [
@@ -36,7 +36,7 @@ function checkDependencies(){
     ];
 
     // check app root
-    if (!$result['app_root'] = file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/AutoLoader.php'))
+    if (!$result['app_root'] = file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'vendor/autoload.php'))
         $result['all'] = false;
 
     // detect web server
