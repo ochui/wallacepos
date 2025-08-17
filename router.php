@@ -127,6 +127,9 @@ if (preg_match('#^customer/(.*)$#', $path, $matches)) {
 // API requests - route to wpos.php
 if (preg_match('#^api/(.*)$#', $path, $matches)) {
     $action = $matches[1];
+    // Set both $_GET['a'] and $_REQUEST['a'] for compatibility
+    $_GET['a'] = $action;
+    $_REQUEST['a'] = $action;
     $target = redirectWithQuery('/api/wpos.php', $action, $queryString);
     include __DIR__ . '/public/api/wpos.php';
     return true;
@@ -135,6 +138,9 @@ if (preg_match('#^api/(.*)$#', $path, $matches)) {
 // Customer API requests - route to customerapi.php  
 if (preg_match('#^customerapi/(.*)$#', $path, $matches)) {
     $action = $matches[1];
+    // Set both $_GET['a'] and $_REQUEST['a'] for compatibility
+    $_GET['a'] = $action;
+    $_REQUEST['a'] = $action;
     $target = redirectWithQuery('/api/customerapi.php', $action, $queryString);
     include __DIR__ . '/public/api/customerapi.php';
     return true;
