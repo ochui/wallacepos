@@ -24,8 +24,8 @@
 // Set the root of the install
 $_SERVER['APP_ROOT'] = "../../";
 
-require($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/wpos/config.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'vendor/autoload.php');
+require(__DIR__ . '/../../library/wpos/config.php');
+require_once(__DIR__ . '/../../vendor/autoload.php');
 // setup api error handling
 set_error_handler("errorHandler", E_ERROR | E_PARSE);
 set_error_handler("warningHandler", E_WARNING);
@@ -722,7 +722,7 @@ function routeApiCall($action, $data, $result) {
 
                 $newpath = $uploaddir . DIRECTORY_SEPARATOR . basename($_FILES['file']['name']);
 
-                if (move_uploaded_file($_FILES['file']['tmp_name'], $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . $newpath) !== false) {
+                if (move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../../' . $newpath) !== false) {
                     $result['data'] = ["path" => "/" . $newpath];
                 } else {
                     $result['error'] = "There was an error uploading the file " . $newpath;

@@ -1,5 +1,5 @@
 <?php
-require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."vendor/autoload.php";
+require __DIR__ . '/../../../vendor/autoload.php';
 use Ifsnop\Mysqldump as IMysqldump;
 /**
  * WposAdminUtilities is part of Wallace Point of Sale system (WPOS) API

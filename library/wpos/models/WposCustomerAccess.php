@@ -51,7 +51,7 @@ class WposCustomerAccess {
             return $result;
         }
         // validate captcha
-        require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'assets/secureimage/securimage.php';
+        require __DIR__ . '/../../../public/assets/secureimage/securimage.php';
         $img = new Securimage;
         // if the code checked is correct, it is destroyed to prevent re-use
         if ($img->check($this->data->captcha) == false) {
@@ -113,7 +113,7 @@ class WposCustomerAccess {
             return $result;
         }
         // validate captcha
-        require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'assets/secureimage/securimage.php';
+        require __DIR__ . '/../../../public/assets/secureimage/securimage.php';
         $img = new Securimage;
         // if the code checked is correct, it is destroyed to prevent re-use
         if ($img->check($this->data->captcha) == false) {

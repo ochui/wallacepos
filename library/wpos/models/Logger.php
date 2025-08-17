@@ -47,7 +47,7 @@ class Logger {
             }
         }
         // open file
-        $fd = fopen($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].self::$directory.DIRECTORY_SEPARATOR."wpos_log_".date("y-m-d").".txt", "a");
+        $fd = fopen(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . "wpos_log_" . date("y-m-d") . ".txt", "a");
         // write string
         fwrite($fd, "[".date("y-m-d H:i:s")."] (".$type.(isset($user)?' - '.$user.') ':') ').$msg.($data!=null?"\nData: ".$data:"")."\n");
         // close file
@@ -60,7 +60,7 @@ class Logger {
      * @return string
      */
     public static function read($filename){
-        return file_get_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].self::$directory.DIRECTORY_SEPARATOR.$filename);
+        return file_get_contents(__DIR__ . '/../../../' . self::$directory . DIRECTORY_SEPARATOR . $filename);
     }
 
     /**
@@ -68,7 +68,7 @@ class Logger {
      * @return array
      */
     public static function ls(){
-        $dir = scandir($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].self::$directory);
+        $dir = scandir(__DIR__ . '/../../../' . self::$directory);
         unset($dir[0]);
         unset($dir[1]);
         return $dir;

@@ -84,7 +84,7 @@ class WposTemplates
         unset($template->template);
         WposAdminSettings::putValue('templates', $this->data->id, $template);
 
-        if (!file_put_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/".$template->filename, $this->data->template)){
+        if (!file_put_contents(__DIR__ . '/../../../'."docs/templates/".$template->filename, $this->data->template)){
             $result['error'] = "Error saving template file";
         }
 
@@ -125,7 +125,7 @@ class WposTemplates
      * @return string
      */
     private static function getTemplateData($filename){
-        return file_get_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/".$filename);
+        return file_get_contents(__DIR__ . '/../../../'."docs/templates/".$filename);
     }
 
     /**
@@ -134,12 +134,12 @@ class WposTemplates
      */
     public static function restoreDefaults($filename=null){
         if ($filename!=null){
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs-template/templates/".$filename))
-                copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs-template/templates/".$filename, $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/".$filename);
+            if (file_exists(__DIR__ . '/../../../'."docs-template/templates/".$filename))
+                copy(__DIR__ . '/../../../'."docs-template/templates/".$filename, __DIR__ . '/../../../'."docs/templates/".$filename);
             return;
         }
-        foreach (glob($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs-template/templates/*") as $file) {
-            copy($file, $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/".basename($file));
+        foreach (glob(__DIR__ . '/../../../'."docs-template/templates/*") as $file) {
+            copy($file, __DIR__ . '/../../../'."docs/templates/".basename($file));
         }
     }
 }

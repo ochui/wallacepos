@@ -46,7 +46,7 @@ class DbUpdater {
             return "Database detected, skipping full installation.";
         }
         // Install database
-        $schemapath = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/installer/schemas/install.sql";
+        $schemapath = __DIR__ . '/../../../'."library/installer/schemas/install.sql";
         if (!file_exists($schemapath)){
             return "Schema does not exist";
         }
@@ -81,19 +81,19 @@ class DbUpdater {
     public function checkStorageTemplate(){
         // set permissions
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/logs')==false){
-                exec('ROBOCOPY "'.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/." "'.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/" /E');
+            if (file_exists(__DIR__ . '/../../../'.'docs/logs')==false){
+                exec('ROBOCOPY "'.__DIR__ . '/../../../'.'docs-template/." "'.__DIR__ . '/../../../'.'docs/" /E');
             }
         } else { //  Assume Linux
             // copy docs template if it doesn't exist
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/logs')==false){
-                exec('cp -arn "'.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/." "'.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/"');
+            if (file_exists(__DIR__ . '/../../../'.'docs/logs')==false){
+                exec('cp -arn "'.__DIR__ . '/../../../'.'docs-template/." "'.__DIR__ . '/../../../'.'docs/"');
             }
             // copy static config file from template if it doesn't exist
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json')==false)
-                copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates/.config.json', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json');
-            exec('chmod -R 774 '.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/');
-            exec('chmod -R 774 '.$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json');
+            if (file_exists(__DIR__ . '/../../../'.'docs/.config.json')==false)
+                copy(__DIR__ . '/../../../'.'docs-template/templates/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
+            exec('chmod -R 774 '.__DIR__ . '/../../../'.'docs/');
+            exec('chmod -R 774 '.__DIR__ . '/../../../'.'docs/.config.json');
             $socket = new WposSocketIO();
             $socket->generateHashKey();
 	    }
@@ -181,7 +181,7 @@ class DbUpdater {
         try {
             if ($versionInfo['db']) {
                 echo("Updating database...\n");
-                $path = $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/installer/schemas/update".$versionInfo['name'].".sql";
+                $path = __DIR__ . '/../../../'."library/installer/schemas/update".$versionInfo['name'].".sql";
                 if (!file_exists($path)){
                     return "Schema does not exist";
                 }
@@ -248,9 +248,9 @@ class DbUpdater {
 
     private function upgradeVersion1_4_3(){
         // copy new templates
-        copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates/receipt.mustache', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/receipt.mustache');
-        copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates/receipt_alt.mustache', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/receipt_alt.mustache');
-        copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates/receipt_mixed.mustache', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/receipt_mixed.mustache');
+        copy(__DIR__ . '/../../../'.'docs-template/templates/receipt.mustache', __DIR__ . '/../../../'.'docs/receipt.mustache');
+        copy(__DIR__ . '/../../../'.'docs-template/templates/receipt_alt.mustache', __DIR__ . '/../../../'.'docs/receipt_alt.mustache');
+        copy(__DIR__ . '/../../../'.'docs-template/templates/receipt_mixed.mustache', __DIR__ . '/../../../'.'docs/receipt_mixed.mustache');
         // extract data for new sale_items fields
         $itemsMdl = new SaleItemsModel();
         $items = $itemsMdl->get();
@@ -266,14 +266,14 @@ class DbUpdater {
     private function upgradeVersion1_4_0(){
         WposAdminSettings::putValue('pos', 'negative_items', false);
         // copy static config file if it doesn't exist
-        if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json')==false){
+        if (file_exists(__DIR__ . '/../../../'.'docs/.config.json')==false){
             // copy current version or use template
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.config.json')){
-                copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.config.json', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json');
+            if (file_exists(__DIR__ . '/../../../'.'library/wpos/.config.json')){
+                copy(__DIR__ . '/../../../'.'library/wpos/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
             } else {
-                copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates/.config.json', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.config.json');
+                copy(__DIR__ . '/../../../'.'docs-template/templates/.config.json', __DIR__ . '/../../../'.'docs/.config.json');
             }
-            copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/.htaccess', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/.htaccess');
+            copy(__DIR__ . '/../../../'.'docs-template/.htaccess', __DIR__ . '/../../../'.'docs/.htaccess');
         }
         $socket = new WposSocketIO();
         $socket->generateHashKey();
@@ -283,8 +283,8 @@ class DbUpdater {
         // set default template values & copy templates
         WposAdminSettings::putValue('pos', 'rectemplate', 'receipt');
         WposAdminSettings::putValue('invoice', 'defaulttemplate', 'invoice');
-        if (!file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/"))
-            mkdir($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/templates/");
+        if (!file_exists(__DIR__ . '/../../../'."docs/templates/"))
+            mkdir(__DIR__ . '/../../../'."docs/templates/");
         WposTemplates::restoreDefaults();
         // put alternate language values
         $labels = json_decode('{"cash":"Cash","credit":"Credit","eftpos":"Eftpos","cheque":"Cheque","deposit":"Deposit","tendered":"Tendered","change":"Change","transaction-ref":"Transaction Ref","sale-time":"Sale Time","subtotal":"Subtotal","total":"Total","item":"Item","items":"Items","refund":"Refund","void-transaction":"Void Transaction"}}');
@@ -436,7 +436,7 @@ class DbUpdater {
         WposAdminSettings::putValue('general', 'gcontacttoken', '');
         WposAdminSettings::putValue('pos', 'priceedit', 'blank');
         // copy new templates
-        copy($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs-template/templates', $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'docs/');
+        copy(__DIR__ . '/../../../'.'docs-template/templates', __DIR__ . '/../../../'.'docs/');
 
         return true;
     }

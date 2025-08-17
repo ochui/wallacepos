@@ -12,8 +12,8 @@ if (!isset($_SERVER['DOCUMENT_ROOT'])) {
 // load timezone config if available
 // TODO: cache this somehow
 $timezone = "Australia/Sydney";
-if (file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/.config.json")){
-    $GLOBALS['config'] = json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."docs/.config.json"));
+if (file_exists(__DIR__ . "/../../docs/.config.json")){
+    $GLOBALS['config'] = json_decode(file_get_contents(__DIR__ . "/../../docs/.config.json"));
     if (isset($GLOBALS['config']->timezone))
         $timezone = $GLOBALS['config']->timezone;
 }
