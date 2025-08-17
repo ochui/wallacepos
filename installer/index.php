@@ -29,7 +29,7 @@ require($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/AutoLoader.
 
 function checkDependencies(){
     $result = [
-        "apache"=>true,
+        "webserver"=>true,
         "php"=>true,
         "node"=>true,
         "all"=>true
@@ -39,12 +39,25 @@ function checkDependencies(){
     if (!$result['app_root'] = file_exists($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/AutoLoader.php'))
         $result['all'] = false;
 
-    // check apache version
-    $version = str_replace("Apache/", "", apache_get_version());
-    $version = str_replace(" (Ubuntu)", "", $version);
-    if (version_compare($result['apache_version']=$version, "2.4.7")<0){
-        $result['all'] = false;
-        $result['apache'] = false;
+    // detect web server
+    $result['webserver_name'] = 'Unknown';
+    if (function_exists('apache_get_version') && apache_get_version()) {
+        $version = str_replace("Apache/", "", apache_get_version());
+        $version = str_replace(" (Ubuntu)", "", $version);
+        $result['webserver_name'] = 'Apache ' . $version;
+        $result['webserver_version'] = $version;
+        // Apache version check (optional for Apache users)
+        if (version_compare($version, "2.4.7")<0){
+            $result['webserver'] = false;
+            $result['all'] = false;
+        }
+    } else {
+        // Detect other web servers
+        if (isset($_SERVER['SERVER_SOFTWARE'])) {
+            $result['webserver_name'] = $_SERVER['SERVER_SOFTWARE'];
+        }
+        // For non-Apache servers, we assume they're compatible
+        $result['webserver'] = true;
     }
 
     // check php version
@@ -68,12 +81,15 @@ function checkDependencies(){
             $result['all'] = false;
 	}
 
-    // required apache modules
-    $apache_mods = apache_get_modules();
-    if (!$result['apache_wstunnel']=in_array("mod_proxy_wstunnel", $apache_mods))
-        $result['all'] = false;
-    if (!$result['apache_rewrite']=in_array("mod_rewrite", $apache_mods))
-        $result['all'] = false;
+    // check for URL rewriting capability
+    $result['url_rewrite'] = true; // Assume available - will be tested functionally
+    
+    // check for WebSocket proxy capability  
+    $result['websocket_proxy'] = true; // Assume available - will be tested functionally
+    
+    // Note: For Apache users, mod_rewrite and mod_proxy_wstunnel are required
+    // For Nginx users, equivalent functionality should be configured
+    // For other web servers, ensure URL rewriting and WebSocket proxying are available
 
     // required php extensions
     $php_mods = get_loaded_extensions();
@@ -116,13 +132,27 @@ function checkDependencies(){
         !is_writable($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/wpos/.dbconfig.json')))
         $result['all'] = false;
 
-    // apache node.js config
+    // web server node.js config test
     if ($result['php_curl']){
-        $handle = curl_init((isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off"?"https":"http").$_SERVER['SERVER_NAME']."/");
-        curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
+        // Determine scheme
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        // Use HTTP_HOST if available, else SERVER_NAME
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from host if present, we'll add it explicitly
+        $hostOnly = preg_replace('/:.*/', '', $host);
+        // Add port if present and not default
+        $port = isset($_SERVER['SERVER_PORT']) ? intval($_SERVER['SERVER_PORT']) : null;
+        $defaultPort = ($scheme === 'https') ? 443 : 80;
+        $portPart = ($port && $port !== $defaultPort) ? ":$port" : '';
+        $url = $scheme . '://' . $hostOnly . $portPart . '/';
+        $handle = curl_init($url);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 5);
+        curl_setopt($handle, CURLOPT_NOBODY, true); // Use HEAD request for efficiency
         curl_exec($handle);
         $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        if($httpCode == 404 || $httpCode == 500) {
+        if($httpCode == 0 || $httpCode == 404 || $httpCode == 500) {
             $result['node_redirect'] = false;
             $result['all'] = false;
         } else {

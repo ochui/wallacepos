@@ -29,16 +29,16 @@
                 <?php echo("Correct Application Root".($deps['app_root']?"":"<br/><small>WallacePOS must be installed in the root directory of it's own virtual host</small>")); ?>
             </li>
             <li>
-                <i class="icon icon-large icon-check <?php echo($deps['apache']?"green":"red"); ?>"></i>
-                <?php echo("Apache ".($deps['apache']?"":"2.4.7 required, ").$deps['apache_version']." installed"); ?>
+                <i class="icon icon-large icon-check <?php echo($deps['webserver']?"green":"red"); ?>"></i>
+                <?php echo("Web Server ".($deps['webserver']?"":"(Apache 2.4.7+ recommended) ").$deps['webserver_name']." detected"); ?>
             </li>
             <li>
-                <i class="icon icon-large icon-check <?php echo($deps['apache_rewrite']?"green":"red"); ?>"></i>
-                Apache rewrite module
+                <i class="icon icon-large icon-check <?php echo($deps['url_rewrite']?"green":"red"); ?>"></i>
+                URL Rewriting (mod_rewrite for Apache, equivalent for other servers)
             </li>
             <li>
-                <i class="icon icon-large icon-check <?php echo($deps['apache_wstunnel']?"green":"red"); ?>"></i>
-                Apache proxy_wstunnel module
+                <i class="icon icon-large icon-check <?php echo($deps['websocket_proxy']?"green":"red"); ?>"></i>
+                WebSocket Proxy (mod_proxy_wstunnel for Apache, equivalent for other servers)
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['php']?"green":"red"); ?>"></i>
@@ -66,11 +66,16 @@
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['node_redirect']?"green":"red"); ?>"></i>
-                Apache Configuration: Node.js (Proxy Web Socket Tunnel)
+                Web Server Configuration: Node.js (Proxy Web Socket Tunnel)
             </li>
+            <?php
+                $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+                    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+                $httpsClass = $isHttps ? 'green' : 'red';
+            ?>
             <li>
-                <i class="icon icon-large icon-check <?php echo($https=(isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off")?"green":"red"); ?>"></i>
-                Apache Configuration: HTTPS <?php echo($https?"Active":"is recommended") ?>
+                <i class="icon icon-large icon-check <?php echo $httpsClass; ?>"></i>
+                Web Server Configuration: HTTPS <?php echo($isHttps ? "Active" : "is recommended") ?>
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['permissions_root']?"green":"red"); ?>"></i>
