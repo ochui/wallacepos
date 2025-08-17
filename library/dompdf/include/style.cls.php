@@ -787,7 +787,8 @@ class Style {
 
     $font = null;
     while ( current($families) ) {
-      list(,$family) = each($families);
+      $key = key($families);
+      $family = next($families);
       //remove leading and trailing string delimiters, e.g. on font names with spaces;
       //remove leading and trailing whitespace
       $family=trim($family," \t\n\r\x0B\"'");

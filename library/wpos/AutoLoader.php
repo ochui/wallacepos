@@ -25,7 +25,7 @@
 namespace wpos; //I am using a namespace here because the function name "modelLoader" could be used again and that would break the script and be hard to debug, better safe than sorry
 
 /*** nullify any existing autoloads ***/
-spl_autoload_register(null, false);
+spl_autoload_register(null);
 
 /*** specify extensions that may be loaded ***/
 spl_autoload_extensions('.php, .class.php');

@@ -28,7 +28,7 @@ class ComposerStaticInit04c164d2cd90f723569852fc7a37e407
     public static $prefixDirsPsr4 = array (
         'Psr\\Log\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+            0 => __DIR__ . '/..' . '/psr/log/src',
         ),
         'Ifsnop\\' => 
         array (
@@ -37,8 +37,7 @@ class ComposerStaticInit04c164d2cd90f723569852fc7a37e407
         'ElephantIO\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library',
-            1 => __DIR__ . '/..' . '/wisembly/elephant.io/src',
-            2 => __DIR__ . '/..' . '/wisembly/elephant.io/test',
+            1 => __DIR__ . '/..' . '/elephantio/elephant.io/src',
         ),
     );
 
@@ -52,12 +51,17 @@ class ComposerStaticInit04c164d2cd90f723569852fc7a37e407
         ),
     );
 
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit04c164d2cd90f723569852fc7a37e407::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit04c164d2cd90f723569852fc7a37e407::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit04c164d2cd90f723569852fc7a37e407::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit04c164d2cd90f723569852fc7a37e407::$classMap;
 
         }, null, ClassLoader::class);
     }
