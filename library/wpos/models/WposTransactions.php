@@ -435,9 +435,8 @@ class WposTransactions {
      * @return bool|string
      */
     private function convertToPdf($html, $output=0){
-        require_once($_SERVER['DOCUMENT_ROOT']."/library/dompdf/dompdf_config.inc.php");
-        $dompdf = new DOMPDF();
-        $dompdf->load_html($html);
+        $dompdf = new Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
         $dompdf->render();
         //output PDF document according to type
         if ($output==0){

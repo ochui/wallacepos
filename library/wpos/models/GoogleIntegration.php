@@ -29,8 +29,7 @@ class GoogleIntegration {
     private static $redirect_uri = 'urn:ietf:wg:oauth:2.0:oob';
 
     public static function initGoogleAuth(){
-        require_once $_SERVER['DOCUMENT_ROOT'].'/library/Google/Client.php';
-        $client = new Google_Client();
+        $client = new Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setRedirectUri(self::$redirect_uri);
@@ -49,8 +48,7 @@ class GoogleIntegration {
      * @return string
      */
     public static function processGoogleAuthCode($code){
-        require_once $_SERVER['DOCUMENT_ROOT'].'/library/Google/Client.php';
-        $client = new Google_Client();
+        $client = new Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setRedirectUri(self::$redirect_uri);
@@ -84,10 +82,8 @@ class GoogleIntegration {
      * @return bool|int|mixed
      */
     public static function setGoogleContact($settings, $data, $googleId=''){
-        require_once $_SERVER['DOCUMENT_ROOT'].'/library/Google/Client.php';
-        require_once $_SERVER['DOCUMENT_ROOT'].'/library/Google/Http/Request.php';
         // init google client & set tokens/ids
-        $client = new Google_Client();
+        $client = new Google\Client();
         $client->setClientId(self::$client_id);
         $client->setClientSecret(self::$client_secret);
         $client->setAccessToken(json_encode($settings->gcontacttoken));
@@ -159,11 +155,18 @@ class GoogleIntegration {
                 $url = 'https://www.google.com/m8/feeds/contacts/default/full/';
                 $meth = 'POST';
             }
-            $req = new Google_Http_Request($url, $meth, ['GData-Version' => 3.0, 'Content-type' => 'application/atom+xml; charset=UTF-8; type=entry', 'If-Match'=>'*'], $doc->saveXML());
-            $client->getAuth()->authenticatedRequest($req);
+            $client_http = $client->authorize();
+            $response = $client_http->request($meth, $url, [
+                'headers' => [
+                    'GData-Version' => '3.0',
+                    'Content-type' => 'application/atom+xml; charset=UTF-8; type=entry',
+                    'If-Match' => '*'
+                ],
+                'body' => $doc->saveXML()
+            ]);
             // The contacts api only returns XML responses
             //print_r($req->getResponseBody());
-            $xml = simplexml_load_string($req->getResponseBody());
+            $xml = simplexml_load_string($response->getBody()->getContents());
             $xml->registerXPathNamespace('gd', 'http://schemas.google.com/g/2005');
             //print_r($xml);
             if (isset($xml->error)){

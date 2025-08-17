@@ -332,10 +332,14 @@ class WposAdminSettings {
      * Generate a QR code, executed if qrcode text has changed
      */
     public function generateQRCode(){
-        include($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'].'library/phpqrcode.php');
         //echo("Creating QR code");
         $path = "/docs/qrcode.png";
-        QRcode::png($this->data->recqrcode, $_SERVER['DOCUMENT_ROOT'].$path, QR_ECLEVEL_L, 5.5, 1);
+        $qrCode = new Endroid\QrCode\QrCode($this->data->recqrcode);
+        $qrCode->setSize(300);
+        $qrCode->setErrorCorrectionLevel(Endroid\QrCode\ErrorCorrectionLevel::Low);
+        $writer = new Endroid\QrCode\Writer\PngWriter();
+        $result = $writer->write($qrCode);
+        file_put_contents($_SERVER['DOCUMENT_ROOT'].$path, $result->getString());
     }
 
 }

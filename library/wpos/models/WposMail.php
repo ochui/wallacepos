@@ -35,8 +35,7 @@ class WposMail {
             $this->genconfig = $this->configMdl->getSettingsObject("general");
         }
         // Initialize mail object
-        include $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/PHPMailerAutoload.php";
-        $this->mail = new PHPMailer();
+        $this->mail = new PHPMailer\PHPMailer\PHPMailer();
     }
 
     /**
@@ -45,7 +44,7 @@ class WposMail {
      */
     private function getMailer(){
         $config = WposAdminSettings::getConfigFileValues(true);
-        $mail = new PHPMailer();
+        $mail = new PHPMailer\PHPMailer\PHPMailer();
         $mail->isSMTP(); // Set mailer to use SMTP
 
         $mail->Host = ($config->email_host==""?"127.0.0.1":$config->email_host);  // Specify main and backup SMTP servers

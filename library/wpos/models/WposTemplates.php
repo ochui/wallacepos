@@ -98,7 +98,6 @@ class WposTemplates
      * @return null
      */
     public function renderTemplate($id, $data){
-        require_once $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/mustache.php";
         $template = $this->getTemplate($id);
         if (!$template) return null;
         $m = new Mustache_Engine;
