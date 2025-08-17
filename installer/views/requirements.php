@@ -68,9 +68,14 @@
                 <i class="icon icon-large icon-check <?php echo($deps['node_redirect']?"green":"red"); ?>"></i>
                 Web Server Configuration: Node.js (Proxy Web Socket Tunnel)
             </li>
+            <?php
+                $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+                    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+                $httpsClass = $isHttps ? 'green' : 'red';
+            ?>
             <li>
-                <i class="icon icon-large icon-check <?php echo($https=(isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off")?"green":"red"); ?>"></i>
-                Web Server Configuration: HTTPS <?php echo($https?"Active":"is recommended") ?>
+                <i class="icon icon-large icon-check <?php echo $httpsClass; ?>"></i>
+                Web Server Configuration: HTTPS <?php echo($isHttps ? "Active" : "is recommended") ?>
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['permissions_root']?"green":"red"); ?>"></i>

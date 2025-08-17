@@ -134,12 +134,25 @@ function checkDependencies(){
 
     // web server node.js config test
     if ($result['php_curl']){
-        $server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
-        $handle = curl_init((isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off"?"https":"http").$server_name."/");
-        curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
+        // Determine scheme
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        // Use HTTP_HOST if available, else SERVER_NAME
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from host if present, we'll add it explicitly
+        $hostOnly = preg_replace('/:.*/', '', $host);
+        // Add port if present and not default
+        $port = isset($_SERVER['SERVER_PORT']) ? intval($_SERVER['SERVER_PORT']) : null;
+        $defaultPort = ($scheme === 'https') ? 443 : 80;
+        $portPart = ($port && $port !== $defaultPort) ? ":$port" : '';
+        $url = $scheme . '://' . $hostOnly . $portPart . '/';
+        $handle = curl_init($url);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 5);
+        curl_setopt($handle, CURLOPT_NOBODY, true); // Use HEAD request for efficiency
         curl_exec($handle);
         $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        if($httpCode == 404 || $httpCode == 500) {
+        if($httpCode == 0 || $httpCode == 404 || $httpCode == 500) {
             $result['node_redirect'] = false;
             $result['all'] = false;
         } else {
