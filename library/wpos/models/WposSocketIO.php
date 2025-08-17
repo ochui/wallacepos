@@ -1,19 +1,4 @@
 <?php
-/*require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Client.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/EngineInterface.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/AbstractPayload.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Exception/SocketException.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Exception/MalformedUrlException.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Exception/ServerConnectionFailureException.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Exception/UnsupportedActionException.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Exception/UnsupportedTransportException.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Engine/AbstractSocketIO.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Engine/SocketIO/Session.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Engine/SocketIO/Version0X.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Engine/SocketIO/Version1X.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Payload/Decoder.php");
-require_once($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/elephantio/Payload/Encoder.php");*/
-
 require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/autoload.php";
 
 use ElephantIO\Client as Client;
@@ -163,11 +148,11 @@ class WposSocketIO {
 
     /**
      * Send a sale update to the specified devices, if no devices specified, all receive.
-     * @param null $devices
      * @param $sale
+     * @param null $devices
      * @return bool
      */
-    public function sendSaleUpdate($devices=null, $sale){ // device that the record was updated on
+    public function sendSaleUpdate($sale, $devices=null){ // device that the record was updated on
 
         return $this->sendDataToDevices(['a' => 'sale', 'data' => $sale], $devices);
     }

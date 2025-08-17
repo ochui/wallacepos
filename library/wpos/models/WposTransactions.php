@@ -150,7 +150,7 @@ class WposTransactions {
             $result['data']= true;
             // broadcast the sale; supplying the id only indicates deletion
             $socket = new WposSocketIO();
-            $socket->sendSaleUpdate(null, $this->data->id);
+            $socket->sendSaleUpdate($this->data->id);
 
             // log data
             Logger::write("Sale deleted with id:".$this->data->id, "SALE");

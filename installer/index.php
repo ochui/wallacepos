@@ -64,7 +64,7 @@ function checkDependencies(){
     $phpversion = phpversion();
     if (strpos($phpversion, "-")!==false)
         $phpversion = explode("-", $phpversion)[0];
-    if (version_compare($result['php_version']=$phpversion, "5.4")<0){
+    if (version_compare($result['php_version']=$phpversion, "8.0")<0){
         $result['all'] = false;
         $result['php'] = false;
     }

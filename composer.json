@@ -3,7 +3,7 @@
         "heroku": {
             "index-document": "index.html",
             "engines": {
-                "php": "5.5.9"
+                "php": "8.0.0"
             }
         }
     },
@@ -11,10 +11,10 @@
         "vendor-dir": "library"
     },
     "require": {
-        "php": ">=5.4.0",
-        "wisembly/elephant.io": "~3.0",
-        "ifsnop/mysqldump-php":"2.*",
-        "ezyang/htmlpurifier": "^4.10"
+        "php": ">=8.0.0",
+        "elephantio/elephant.io": "^4.13",
+        "ifsnop/mysqldump-php": "^2.12",
+        "ezyang/htmlpurifier": "^4.18"
     },
     "autoload": {
         "psr-4": {
