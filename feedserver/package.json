@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "repository": "https://github.com/micwallace/wallacepos.git",
   "description": "Web based POS system",
-  "main": "/app/api/server.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
