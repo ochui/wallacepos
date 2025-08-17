@@ -44,7 +44,7 @@ class XeroIntegration
         define("XRO_APP_TYPE", "Public");
         //define ( "OAUTH_CALLBACK", 'http://localhost/XeroOAuth-PHP/public.php' );
         define("OAUTH_CALLBACK", 'https://' . $_SERVER['SERVER_NAME'] . '/api/settings/xero/oauthcallback');
-        require_once $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/Xero/lib/XeroOAuth.php';
+        require_once function_exists('base_path') ? base_path('library/Xero/lib/XeroOAuth.php') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'library/Xero/lib/XeroOAuth.php';
 
         $signatures = [
             'consumer_key' => self::$cosumer_key,

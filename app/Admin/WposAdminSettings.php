@@ -236,12 +236,17 @@ class WposAdminSettings
                     $conf = $this->curconfig;
                     if ($this->name == "general") {
                         unset($conf->gcontacttoken);
-                        // update file config values
-                        $fileconfig = $this->updateConfigFileValues($this->data);
-                        // only set specific file values for broadcast, email config only needed server side
-                        $conf->timezone = $fileconfig->timezone;
-                        $conf->feedserver_port = $fileconfig->feedserver_port;
-                        $conf->feedserver_proxy = $fileconfig->feedserver_proxy;
+                        // update Laravel-style config values (no longer using file config)
+                        // Set runtime config values for broadcasting to POS terminals
+                        if (isset($this->data->timezone)) {
+                            $conf->timezone = $this->data->timezone;
+                        }
+                        if (isset($this->data->feedserver_port)) {
+                            $conf->feedserver_port = $this->data->feedserver_port;
+                        }
+                        if (isset($this->data->feedserver_proxy)) {
+                            $conf->feedserver_proxy = $this->data->feedserver_proxy;
+                        }
                     } else if ($this->name == "accounting") {
                         unset($conf->xerotoken);
                     }
@@ -276,64 +281,73 @@ class WposAdminSettings
     }
 
     /**
-     * Get general config values that are stored in .config.json
+     * Get general config values using Laravel-style configuration
      * @param bool $includeServerside
      * @return mixed|stdClass
      */
     public static function getConfigFileValues($includeServerside = false)
     {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
         $config = new \stdClass();
-        if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])) {
-            $config = $GLOBALS['config'];
-        } else if (file_exists($path)) {
-            $config = json_decode(file_get_contents($path));
-        }
+        
+        // Use Laravel-style config instead of .config.json
+        if (function_exists('config')) {
+            $config->timezone = config('app.timezone', 'UTC');
+            $config->feedserver_host = config('app.feedserver_host', '127.0.0.1');
+            $config->feedserver_port = config('app.feedserver_port', 3000);
+            
+            if ($includeServerside) {
+                $config->email_host = config('app.email.host', '');
+                $config->email_port = config('app.email.port', 587);
+                $config->email_tls = config('app.email.encryption', 'tls');
+                $config->email_user = config('app.email.username', '');
+                $config->email_pass = config('app.email.password', '');
+                $config->feedserver_key = config('app.feedserver_key', '');
+            }
+        } else {
+            // Fallback to legacy .config.json for backward compatibility (deprecated)
+            $path = function_exists('storage_path') ? storage_path('.config.json') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
+            if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])) {
+                $config = $GLOBALS['config'];
+            } else if (file_exists($path)) {
+                $config = json_decode(file_get_contents($path));
+            }
 
-        if (!$includeServerside) {
-            unset($config->email_host);
-            unset($config->email_port);
-            unset($config->email_tls);
-            unset($config->email_user);
-            unset($config->email_pass);
-            unset($config->feedserver_key);
+            if (!$includeServerside) {
+                unset($config->email_host);
+                unset($config->email_port);
+                unset($config->email_tls);
+                unset($config->email_user);
+                unset($config->email_pass);
+                unset($config->feedserver_key);
+            }
         }
 
         return $config;
     }
 
     /**
-     * Updates config.json values
-     * @param $config
-     * @return mixed|stdClass updated config values
-     */
-    private function updateConfigFileValues($config)
-    {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
-        $curconfig = new \stdClass();
-        if (file_exists($path)) {
-            $curconfig = json_decode(file_get_contents($path));
-            if ($curconfig) {
-                foreach ($curconfig as $key => $value) {
-                    if (isset($config->{$key}))
-                        $curconfig->{$key} = $config->{$key};
-                }
-
-                file_put_contents($path, json_encode($curconfig));
-            }
-        }
-        return $curconfig;
-    }
-
-    /**
-     * Updates config.json values
+     * Updates config values using Laravel-style configuration
      * @param $key
      * @param $value
-     * @return mixed|stdClass updated config values
+     * @return bool
      */
     public static function setConfigFileValue($key, $value)
     {
-        $path = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
+        // For now, we'll store in .env file or runtime config
+        // This is a compatibility method - ideally configuration should be
+        // managed through .env variables and config files
+        
+        if (function_exists('config')) {
+            // Store in runtime config for this request
+            $configKey = "app.{$key}";
+            if (class_exists('\App\Core\Config')) {
+                \App\Core\Config::set($configKey, $value);
+                return true;
+            }
+        }
+        
+        // Fallback to legacy .config.json (deprecated)
+        $path = function_exists('storage_path') ? storage_path('.config.json') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
         if (file_exists($path)) {
             $curconfig = json_decode(file_get_contents($path));
             if ($curconfig) {
@@ -351,12 +365,13 @@ class WposAdminSettings
     public function generateQRCode()
     {
         //echo("Creating QR code");
-        $path = "/storage/qrcode.png";
         $qrCode = new \Endroid\QrCode\QrCode($this->data->recqrcode);
         $qrCode->setSize(300);
         $qrCode->setErrorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Low);
         $writer = new \Endroid\QrCode\Writer\PngWriter();
         $result = $writer->write($qrCode);
-        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $path, $result->getString());
+        
+        $qrPath = function_exists('storage_path') ? storage_path('qrcode.png') : $_SERVER['DOCUMENT_ROOT'] . "/storage/qrcode.png";
+        file_put_contents($qrPath, $result->getString());
     }
 }

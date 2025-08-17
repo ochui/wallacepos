@@ -44,10 +44,13 @@ class WposSocketControl
      */
     public function startSocketServer($result = ['error' => 'OK'])
     {
+        $basePath = function_exists('base_path') ? base_path() : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'];
+        $serverScript = $basePath . 'api/server.js';
+        
         if ($this->isWindows) {
-            pclose(popen('START "WPOS" node ' . $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'api/server.js', 'r'));
+            pclose(popen('START "WPOS" node ' . $serverScript, 'r'));
         } else {
-            $args = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "api/server.js > /dev/null &";
+            $args = $serverScript . " > /dev/null &";
             exec("nodejs " . $args, $output, $res);
             // try the alternative command if nodejs fails
             if ($res > 0)

@@ -60,9 +60,12 @@ class TestData {
     }
 
     public function resetDocuments(){
-        exec("rm -r ".$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."storage/*");
-        exec("cp -rp ".$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."storage-template/* ".$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."storage");
-        exec("chmod -R 777 ".$_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."storage");
+        $basePath = function_exists('base_path') ? base_path() : $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT'];
+        $storagePath = function_exists('storage_path') ? storage_path() : $basePath."storage";
+        
+        exec("rm -r ".$storagePath."/*");
+        exec("cp -rp ".$basePath."storage-template/* ".$storagePath);
+        exec("chmod -R 777 ".$storagePath);
     }
 
     public function generate($numtransactions, $type='sale'){
@@ -273,7 +276,7 @@ class TestData {
     // Purge all records and set demo data
     private function purgeRecords(){
         $dbMdl = new DbConfig();
-        $sql = file_get_contents($_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/installer/schemas/install.sql");
+        $sql = file_get_contents(function_exists('base_path') ? base_path("library/installer/schemas/install.sql") : $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."library/installer/schemas/install.sql");
         if ($sql!=false){
             $dbMdl->_db->exec("TRUNCATE TABLE sales; ALTER TABLE sales AUTO_INCREMENT = 1;");
             $dbMdl->_db->exec("TRUNCATE TABLE sale_items; ALTER TABLE sale_items AUTO_INCREMENT = 1;");
