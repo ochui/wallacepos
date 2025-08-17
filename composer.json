@@ -7,18 +7,21 @@
             }
         }
     },
-    "config": {
-        "vendor-dir": "library"
-    },
     "require": {
         "php": ">=8.0.0",
         "elephantio/elephant.io": "^4.13",
         "ifsnop/mysqldump-php": "^2.12",
-        "ezyang/htmlpurifier": "^4.18"
+        "ezyang/htmlpurifier": "^4.18",
+        "phpmailer/phpmailer": "^6.9",
+        "mustache/mustache": "^2.14",
+        "dompdf/dompdf": "^2.0",
+        "endroid/qr-code": "^5.0",
+        "google/apiclient": "^2.16"
     },
     "autoload": {
+        "classmap": ["library/wpos/"],
         "psr-4": {
-            "ElephantIO\\": ["library/"]
+            "wpos\\": "library/wpos/"
         }
     }
 }

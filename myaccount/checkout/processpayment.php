@@ -1,7 +1,7 @@
 <?php
 $_SERVER['APP_ROOT'] = "/";
 ini_set('date.timezone', 'Australia/Sydney');
-require $_SERVER['DOCUMENT_ROOT']."/library/wpos/AutoLoader.php";
+require $_SERVER['DOCUMENT_ROOT']."/vendor/autoload.php";
 // check input
 if (!isset($_REQUEST['ref'])){
     $error = "Did not receive a valid order reference";
