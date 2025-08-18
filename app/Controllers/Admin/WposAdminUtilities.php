@@ -277,7 +277,7 @@ class WposAdminUtilities
     {
         $conf = DbConfig::getConf();
         $dump = new IMysqldump\Mysqldump('mysql:host=' . $conf['host'] . ';dbname=' . $conf['db'], $conf['user'], $conf['pass']);
-        $fname = function_exists('storage_path') ? storage_path('backup/dbbackup-' . date("Y-m-d_H-i-s") . '.sql') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . 'storage/backup/dbbackup-' . date("Y-m-d_H-i-s") . '.sql';
+        $fname = storage_path('backup/dbbackup-' . date("Y-m-d_H-i-s") . '.sql');
         $dump->start($fname);
         if ($download) {
             header('Content-Description: File Transfer');

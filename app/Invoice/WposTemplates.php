@@ -94,7 +94,7 @@ class WposTemplates
         unset($template->template);
         WposAdminSettings::putValue('templates', $this->data->id, $template);
 
-        if (!file_put_contents(function_exists('storage_path') ? storage_path("templates/" . $template->filename) : __DIR__ . '/../../../' . "storage/templates/" . $template->filename, $this->data->template)) {
+        if (!file_put_contents(storage_path("templates/" . $template->filename), $this->data->template)) {
             $result['error'] = "Error saving template file";
         }
 
@@ -139,7 +139,7 @@ class WposTemplates
      */
     private static function getTemplateData($filename)
     {
-        return file_get_contents(function_exists('storage_path') ? storage_path("templates/" . $filename) : __DIR__ . '/../../../' . "storage/templates/" . $filename);
+        return file_get_contents(storage_path("templates/" . $filename));
     }
 
     /**
@@ -148,8 +148,8 @@ class WposTemplates
      */
     public static function restoreDefaults($filename = null)
     {
-        $basePath = function_exists('base_path') ? base_path() : __DIR__ . '/../../../';
-        $storagePath = function_exists('storage_path') ? storage_path() : $basePath . 'storage/';
+        $basePath = base_path();
+        $storagePath = storage_path();
         
         if ($filename != null) {
             if (file_exists($basePath . "storage-template/templates/" . $filename))

@@ -23,12 +23,12 @@ class Config
         }
 
         // Load main app config
-        if (function_exists('config_path') && file_exists(config_path('app.php'))) {
+        if (file_exists(config_path('app.php'))) {
             self::$config['app'] = require config_path('app.php');
         }
 
         // Load database config if it exists
-        if (function_exists('config_path') && file_exists(config_path('database.php'))) {
+        if (file_exists(config_path('database.php'))) {
             self::$config['database'] = require config_path('database.php');
         }
 

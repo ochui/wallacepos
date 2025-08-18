@@ -44,7 +44,7 @@ class WposSocketControl
      */
     public function startSocketServer($result = ['error' => 'OK'])
     {
-        $basePath = function_exists('base_path') ? base_path() : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'];
+        $basePath = base_path();
         $serverScript = $basePath . 'api/server.js';
         
         if ($this->isWindows) {

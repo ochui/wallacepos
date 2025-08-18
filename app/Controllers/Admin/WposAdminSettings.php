@@ -289,37 +289,18 @@ class WposAdminSettings
     {
         $config = new \stdClass();
         
-        // Use Laravel-style config instead of .config.json
-        if (function_exists('config')) {
-            $config->timezone = config('app.timezone', 'UTC');
-            $config->feedserver_host = config('app.feedserver_host', '127.0.0.1');
-            $config->feedserver_port = config('app.feedserver_port', 3000);
-            
-            if ($includeServerside) {
-                $config->email_host = config('app.email.host', '');
-                $config->email_port = config('app.email.port', 587);
-                $config->email_tls = config('app.email.encryption', 'tls');
-                $config->email_user = config('app.email.username', '');
-                $config->email_pass = config('app.email.password', '');
-                $config->feedserver_key = config('app.feedserver_key', '');
-            }
-        } else {
-            // Fallback to legacy .config.json for backward compatibility (deprecated)
-            $path = function_exists('storage_path') ? storage_path('.config.json') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
-            if (isset($GLOBALS['config']) && is_object($GLOBALS['config'])) {
-                $config = $GLOBALS['config'];
-            } else if (file_exists($path)) {
-                $config = json_decode(file_get_contents($path));
-            }
-
-            if (!$includeServerside) {
-                unset($config->email_host);
-                unset($config->email_port);
-                unset($config->email_tls);
-                unset($config->email_user);
-                unset($config->email_pass);
-                unset($config->feedserver_key);
-            }
+        // Use Laravel-style config
+        $config->timezone = config('app.timezone', 'UTC');
+        $config->feedserver_host = config('app.feedserver_host', '127.0.0.1');
+        $config->feedserver_port = config('app.feedserver_port', 3000);
+        
+        if ($includeServerside) {
+            $config->email_host = config('app.email.host', '');
+            $config->email_port = config('app.email.port', 587);
+            $config->email_tls = config('app.email.encryption', 'tls');
+            $config->email_user = config('app.email.username', '');
+            $config->email_pass = config('app.email.password', '');
+            $config->feedserver_key = config('app.feedserver_key', '');
         }
 
         return $config;
@@ -333,29 +314,15 @@ class WposAdminSettings
      */
     public static function setConfigFileValue($key, $value)
     {
-        // For now, we'll store in .env file or runtime config
-        // This is a compatibility method - ideally configuration should be
-        // managed through .env variables and config files
+        // Store in runtime config for this request
+        // Configuration should be managed through .env variables and config files
         
-        if (function_exists('config')) {
-            // Store in runtime config for this request
-            $configKey = "app.{$key}";
-            if (class_exists('\App\Core\Config')) {
-                \App\Core\Config::set($configKey, $value);
-                return true;
-            }
+        $configKey = "app.{$key}";
+        if (class_exists('\App\Core\Config')) {
+            \App\Core\Config::set($configKey, $value);
+            return true;
         }
         
-        // Fallback to legacy .config.json (deprecated)
-        $path = function_exists('storage_path') ? storage_path('.config.json') : $_SERVER['DOCUMENT_ROOT'] . $_SERVER['APP_ROOT'] . "storage/.config.json";
-        if (file_exists($path)) {
-            $curconfig = json_decode(file_get_contents($path));
-            if ($curconfig) {
-                $curconfig->{$key} = $value;
-                if (file_put_contents($path, json_encode($curconfig)))
-                    return true;
-            }
-        }
         return false;
     }
 
@@ -371,7 +338,7 @@ class WposAdminSettings
         $writer = new \Endroid\QrCode\Writer\PngWriter();
         $result = $writer->write($qrCode);
         
-        $qrPath = function_exists('storage_path') ? storage_path('qrcode.png') : $_SERVER['DOCUMENT_ROOT'] . "/storage/qrcode.png";
+        $qrPath = storage_path('qrcode.png');
         file_put_contents($qrPath, $result->getString());
     }
 }
