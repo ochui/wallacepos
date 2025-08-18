@@ -277,6 +277,66 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function getPosSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/pos/get');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings();
+        $configMdl->setName('pos');
+        $this->result = $configMdl->getSettings($this->result);
+        return $this->returnResult();
+    }
+
+    public function savePosSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/pos/set');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings($data);
+        $configMdl->setName('pos');
+        $this->result = $configMdl->saveSettings($this->result);
+        return $this->returnResult();
+    }
+
+    public function getGeneralSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/general/get');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings();
+        $configMdl->setName('general');
+        $this->result = $configMdl->getSettings($this->result);
+        return $this->returnResult();
+    }
+
+    public function saveGeneralSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/general/set');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings($data);
+        $configMdl->setName('general');
+        $this->result = $configMdl->saveSettings($this->result);
+        return $this->returnResult();
+    }
+
+    public function getInvoiceSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/invoice/get');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings();
+        $configMdl->setName('invoice');
+        $this->result = $configMdl->getSettings($this->result);
+        return $this->returnResult();
+    }
+
     public function getOverviewStats()
     {
         $this->checkAuthentication();
@@ -473,6 +533,17 @@ class AdminController
         $data = $this->getRequestData();
         $adminMdl = new WposAdminItems($data);
         $this->result = $adminMdl->deleteUser($this->result);
+        return $this->returnResult();
+    }
+
+    public function disableUser()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('user/disable');
+
+        $data = $this->getRequestData();
+        $adminMdl = new WposAdminItems($data);
+        $this->result = $adminMdl->setUserDisabled($this->result);
         return $this->returnResult();
     }
 

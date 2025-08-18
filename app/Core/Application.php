@@ -100,6 +100,7 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/users/add', [AdminController::class, 'addUser']);
             $r->addRoute(['GET', 'POST'], '/api/users/edit', [AdminController::class, 'editUser']);
             $r->addRoute(['GET', 'POST'], '/api/users/delete', [AdminController::class, 'deleteUser']);
+            $r->addRoute(['GET', 'POST'], '/api/user/disable', [AdminController::class, 'disableUser']);
             
             // Device management
             $r->addRoute(['GET', 'POST'], '/api/devices/add', [AdminController::class, 'addDevice']);
@@ -108,12 +109,19 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/devices/disable', [AdminController::class, 'disableDevice']);
             $r->addRoute(['GET', 'POST'], '/api/devices/registrations', [AdminController::class, 'getDeviceRegistrations']);
             $r->addRoute(['GET', 'POST'], '/api/devices/registrations/delete', [AdminController::class, 'deleteDeviceRegistration']);
-            
+            // Alias for singular form
+            $r->addRoute(['GET', 'POST'], '/api/device/disable', [AdminController::class, 'disableDevice']);
+
             // Location management
             $r->addRoute(['GET', 'POST'], '/api/locations/add', [AdminController::class, 'addLocation']);
             $r->addRoute(['GET', 'POST'], '/api/locations/edit', [AdminController::class, 'editLocation']);
             $r->addRoute(['GET', 'POST'], '/api/locations/delete', [AdminController::class, 'deleteLocation']);
             $r->addRoute(['GET', 'POST'], '/api/locations/disable', [AdminController::class, 'disableLocation']);
+            // Aliases for singular forms
+            $r->addRoute(['GET', 'POST'], '/api/location/add', [AdminController::class, 'addLocation']);
+            $r->addRoute(['GET', 'POST'], '/api/location/edit', [AdminController::class, 'editLocation']);
+            $r->addRoute(['GET', 'POST'], '/api/location/delete', [AdminController::class, 'deleteLocation']);
+            $r->addRoute(['GET', 'POST'], '/api/location/disable', [AdminController::class, 'disableLocation']);
             
             // Invoice management
             $r->addRoute(['GET', 'POST'], '/api/invoices/get', [AdminController::class, 'getInvoices']);
@@ -145,6 +153,11 @@ class Application
             // Settings management
             $r->addRoute(['GET', 'POST'], '/api/settings/get', [AdminController::class, 'getSettings']);
             $r->addRoute(['GET', 'POST'], '/api/settings/set', [AdminController::class, 'saveSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/pos/get', [AdminController::class, 'getPosSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/pos/set', [AdminController::class, 'savePosSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/general/get', [AdminController::class, 'getGeneralSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/general/set', [AdminController::class, 'saveGeneralSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/invoice/get', [AdminController::class, 'getInvoiceSettings']);
             $r->addRoute(['GET', 'POST'], '/api/stats/general', [AdminController::class, 'getOverviewStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/itemselling', [AdminController::class, 'getItemSellingStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/takings', [AdminController::class, 'getTakingsStats']);
