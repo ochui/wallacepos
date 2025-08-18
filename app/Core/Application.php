@@ -34,8 +34,8 @@ class Application
     {
         return simpleDispatcher(function(RouteCollector $r) {
             // Template content routes
-            $r->get('/admin/content/{template}', [ViewController::class, 'adminContent']);
-            $r->get('/customer/content/{template}', [ViewController::class, 'customerContent']);
+            $r->get('/api/admin/content/{template}', [ViewController::class, 'adminContent']);
+            $r->get('/api/customer/content/{template}', [ViewController::class, 'customerContent']);
             
             // Authentication routes
             $r->addRoute(['GET', 'POST'], '/api/auth', [AuthController::class, 'authenticate']);
