@@ -140,6 +140,28 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function setItemImport()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('items/import/set');
+        
+        $data = $this->getRequestData();
+        $adminMdl = new WposAdminItems($data);
+        $this->result = $adminMdl->importItemsSet($this->result);
+        return $this->returnResult();
+    }
+
+    public function startItemImport()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('items/import/start');
+        
+        $data = $this->getRequestData();
+        $adminMdl = new WposAdminItems($data);
+        $this->result = $adminMdl->importItemsStart($this->result);
+        return $this->returnResult();
+    }
+
     // Suppliers management
     public function getSuppliers()
     {
@@ -252,6 +274,72 @@ class AdminController
             $configMdl->setName($name);
         }
         $this->result = $configMdl->saveSettings($this->result);
+        return $this->returnResult();
+    }
+
+    public function getOverviewStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/general');
+        
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getOverviewStats($this->result);
+        return $this->returnResult();
+    }
+
+    public function getItemSellingStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/itemselling');
+        
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getWhatsSellingStats($this->result);
+        return $this->returnResult();
+    }
+
+    public function getTakingsStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/takings');
+        
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getCountTakingsStats($this->result);
+        return $this->returnResult();
+    }
+
+    public function getLocationStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/locations');
+        
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'location');
+        return $this->returnResult();
+    }
+
+    public function getDeviceStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/devices');
+        
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'device');
+        return $this->returnResult();
+    }
+
+    public function getGeneralGraph()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('graph/general');
+        
+        $data = $this->getRequestData();
+        $graphMdl = new WposAdminGraph($data);
+        $this->result = $graphMdl->getOverviewGraph($this->result);
         return $this->returnResult();
     }
 
@@ -422,6 +510,39 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function disableDevice()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('devices/disable');
+        
+        $data = $this->getRequestData();
+        $setup = new WposPosSetup($data);
+        $this->result = $setup->setDeviceDisabled($this->result);
+        return $this->returnResult();
+    }
+
+    public function getDeviceRegistrations()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('devices/registrations');
+        
+        $data = $this->getRequestData();
+        $setup = new WposPosSetup($data);
+        $this->result = $setup->getDeviceRegistrations($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteDeviceRegistration()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('devices/registrations/delete');
+        
+        $data = $this->getRequestData();
+        $setup = new WposPosSetup($data);
+        $this->result = $setup->deleteDeviceRegistration($this->result);
+        return $this->returnResult();
+    }
+
     // Location management
     public function addLocation()
     {
@@ -453,6 +574,17 @@ class AdminController
         $data = $this->getRequestData();
         $setup = new WposPosSetup($data);
         $this->result = $setup->deleteLocation($this->result);
+        return $this->returnResult();
+    }
+
+    public function disableLocation()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('locations/disable');
+        
+        $data = $this->getRequestData();
+        $setup = new WposPosSetup($data);
+        $this->result = $setup->setLocationDisabled($this->result);
         return $this->returnResult();
     }
 
