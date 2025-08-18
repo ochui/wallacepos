@@ -375,13 +375,30 @@ function WPOS() {
     function initSetup() {
         $("#loadingbartxt").text("Initializing setup");
         WPOS.util.showLoader();
-        // get pos locations and devices and populate select lists
-        WPOS.sendJsonDataAsync("multi", JSON.stringify({"devices/get":"", "locations/get":""}), function(data){
-            if (data===false)
-                return;
-
-            var devices = data['devices/get'];
-            var locations = data['locations/get'];
+        // get pos locations and devices and populate select lists using parallel requests
+        var devicesPromise = new Promise(function(resolve, reject) {
+            WPOS.getJsonDataAsync("devices/get", function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch devices"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var locationsPromise = new Promise(function(resolve, reject) {
+            WPOS.getJsonDataAsync("locations/get", function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch locations"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        Promise.all([devicesPromise, locationsPromise]).then(function(results) {
+            var devices = results[0];
+            var locations = results[1];
 
             for (var i in devices) {
                 if (devices[i].disabled == 0 && devices[i].type!="kitchen_terminal"){ // do not add disabled devs
@@ -397,6 +414,10 @@ function WPOS() {
             // show the setup dialog
             $("#setupdiv").parent().css('z-index', "3200 !important");
             $("#setupdiv").dialog("open");
+        }).catch(function(error) {
+            console.error("Error loading setup data:", error);
+            alert("Failed to load setup data: " + error.message);
+            WPOS.util.hideLoader();
         });
     }
 

@@ -44,9 +44,6 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/hello', [AuthController::class, 'hello']);
             $r->addRoute(['GET', 'POST'], '/api/auth/websocket', [AuthController::class, 'authorizeWebsocket']);
             
-            // Multi API endpoint
-            $r->addRoute(['GET', 'POST'], '/api/multi', [AuthController::class, 'multiApi']);
-            
             // POS routes
             $r->addRoute(['GET', 'POST'], '/api/config/get', [PosController::class, 'getConfig']);
             $r->addRoute(['GET', 'POST'], '/api/items/get', [PosController::class, 'getItems']);

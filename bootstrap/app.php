@@ -6,9 +6,6 @@
  * and returns an application instance that can handle requests.
  */
 
-// Load Composer autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
-
 // Define application base path
 if (!defined('APP_BASE_PATH')) {
     define('APP_BASE_PATH', realpath(__DIR__ . '/..'));
