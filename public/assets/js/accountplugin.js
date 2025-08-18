@@ -188,7 +188,7 @@ function WOMSPluginBase(){
     function getJsonData(action) {
         // send request to server
         var response = $.ajax({
-            url     : "/customerapi/"+action,
+            url     : "/api/customer/"+action,
             type    : "GET",
             dataType: "text",
             timeout : 10000,
@@ -221,7 +221,7 @@ function WOMSPluginBase(){
     this.sendJsonData = function  (action, data, returnfull) {
         // send request to server
         var response = $.ajax({
-            url     : "/customerapi/"+action,
+            url     : "/api/customer/"+action,
             type    : "POST",
             data    : {data: data},
             dataType: "text",

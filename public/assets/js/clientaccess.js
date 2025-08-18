@@ -95,7 +95,7 @@ function WPOSClientDash(){
         clearInterval(timerId);
     };
     this.loadPageContent = function(query){
-        $.get("content/"+sec+".php", query, function(data){
+        $.get("content/"+sec+"", query, function(data){
             if (data=="AUTH"){
                 WPOS.sessionExpired();
             } else {
@@ -186,7 +186,7 @@ function WPOSClientDash(){
     function getJsonData(action) {
         // send request to server
         var response = $.ajax({
-            url     : "/customerapi/"+action,
+            url     : "/api/customer/"+action,
             type    : "GET",
             dataType: "text",
             timeout : 10000,
@@ -221,7 +221,7 @@ function WPOSClientDash(){
     this.sendJsonData = function  (action, data, returnfull) {
         // send request to server
         var response = $.ajax({
-            url     : "/customerapi/"+action,
+            url     : "/api/customer/"+action,
             type    : "POST",
             data    : {data: data},
             dataType: "text",

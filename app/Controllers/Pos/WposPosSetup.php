@@ -4,10 +4,10 @@ namespace App\Controllers\Pos;
 
 use App\Controllers\Admin\WposAdminSettings;
 use App\Communication\WposSocketIO;
+use App\Controllers\Invoice\WposTemplates;
 use App\Database\AuthModel;
 use App\Database\DevicesModel;
 use App\Database\LocationsModel;
-use App\Invoice\WposTemplates;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 

@@ -218,7 +218,7 @@ function WPOSCustomerTransactions() {
 
     // DATA FUNCTIONS
     this.generateInvoice = function(type, download) {
-        var link = "/customerapi/invoice/generate?id=" + curid;
+        var link = "/api/customer/invoice/generate?id=" + curid;
         if (type == "html") {
             link += "&type=html";
         } else {

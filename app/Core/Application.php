@@ -6,16 +6,6 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 use App\Auth;
-use App\Controllers\Admin\WposAdminItems;
-use App\Controllers\Admin\WposAdminGraph;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminStats;
-use App\Controllers\Admin\WposAdminUtilities;
-use App\Controllers\Admin\WposAdminCustomers;
-use App\Controllers\Admin\WposAdminStock;
-use App\Controllers\Pos\WposPosSetup;
-use App\Controllers\Pos\WposPosData;
-use App\Controllers\Pos\WposPosSale;
 use App\Controllers\ViewController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\PosController;
@@ -153,17 +143,17 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/file/upload', [AdminController::class, 'uploadFile']);
             
             // Customer API routes
-            $r->addRoute(['GET', 'POST'], '/customerapi/auth', [AuthController::class, 'customerAuth']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/logout', [AuthController::class, 'logout']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/hello', [AuthController::class, 'customerHello']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/register', [CustomerController::class, 'register']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/resetpasswordemail', [CustomerController::class, 'sendPasswordResetEmail']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/resetpassword', [CustomerController::class, 'resetPassword']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/config', [CustomerController::class, 'getConfig']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/mydetails/get', [CustomerController::class, 'getMyDetails']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/mydetails/save', [CustomerController::class, 'saveMyDetails']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/transactions/get', [CustomerController::class, 'getTransactions']);
-            $r->addRoute(['GET', 'POST'], '/customerapi/invoice/generate', [CustomerController::class, 'generateInvoice']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/auth', [AuthController::class, 'customerAuth']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/logout', [AuthController::class, 'logout']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/hello', [AuthController::class, 'customerHello']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/register', [CustomerController::class, 'register']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/resetpasswordemail', [CustomerController::class, 'sendPasswordResetEmail']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/resetpassword', [CustomerController::class, 'resetPassword']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/config', [CustomerController::class, 'getConfig']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/mydetails/get', [CustomerController::class, 'getMyDetails']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/mydetails/save', [CustomerController::class, 'saveMyDetails']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/transactions/get', [CustomerController::class, 'getTransactions']);
+            $r->addRoute(['GET', 'POST'], '/api/customer/invoice/generate', [CustomerController::class, 'generateInvoice']);
         });
     }
 

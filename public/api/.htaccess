@@ -3,12 +3,12 @@ Options -MultiViews
 RewriteEngine on
 RewriteBase /api/
 
-# Route customer API requests to customerapi.php
-RewriteCond %{REQUEST_URI} !customerapi.php
+# Route customer API requests to api/customer.php
+RewriteCond %{REQUEST_URI} !api/customer.php
 RewriteCond %{REQUEST_URI} !wpos.php
-RewriteRule ^customer/(.*)$ customerapi.php?a=$1 [L,NS,QSA]
+RewriteRule ^customer/(.*)$ api/customer.php?a=$1 [L,NS,QSA]
 
 # Route all other API requests to wpos.php
-RewriteCond %{REQUEST_URI} !customerapi.php
+RewriteCond %{REQUEST_URI} !api/customer.php
 RewriteCond %{REQUEST_URI} !wpos.php
 RewriteRule ^(.*)$ wpos.php?a=$1 [L,NS,QSA]

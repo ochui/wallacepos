@@ -106,7 +106,7 @@ function WPOSAdmin(){
         if (sec=="faq"){
             contenturl = "https://wallacepos.com/content/faq.php"
         } else {
-            contenturl = "content/"+sec+".php";
+            contenturl = "content/"+sec+"";
         }
         $.get(contenturl, query, function(data){
             if (data=="AUTH"){

@@ -54,7 +54,7 @@ RewriteRule ^pos/?$ index.html [L]
 
 # Admin interface
 RewriteRule ^admin/?$ admin/index.html [L]
-RewriteRule ^admin/content/(.+)$ api/wpos.php [L,E=CONTENT_REQUEST:1]
+RewriteRule ^admin/content/(.+)$ api/index.php [L,E=CONTENT_REQUEST:1]
 
 # Kitchen display
 RewriteRule ^kitchen/?$ kitchen/index.html [L]
@@ -62,20 +62,12 @@ RewriteRule ^kitchen/(.*)$ kitchen/$1 [L]
 
 # Customer portal
 RewriteRule ^customer/?$ customer/index.html [L]
-RewriteRule ^customer/content/(.+)$ api/wpos.php [L,E=CONTENT_REQUEST:1]
+RewriteRule ^customer/content/(.+)$ api/index.php [L,E=CONTENT_REQUEST:1]
 RewriteRule ^customer/(.*)$ customer/$1 [L]
 
 # API requests - route to local api directory
-RewriteRule ^api/(.*)$ api/wpos.php?a=$1 [L,QSA]
+RewriteRule ^api/(.*)$ api/index.php?a=$1 [L,QSA]
 
-# Customer API requests - route to local api directory
-RewriteRule ^customerapi/(.*)$ api/customerapi.php?a=$1 [L,QSA]
-
-# Library files - proxy to parent directory for PHP includes
-RewriteRule ^library/(.*)$ ../library/$1 [L]
-
-# Installer - proxy to parent directory
-RewriteRule ^installer/?(.*)$ ../installer/$1 [L]
 
 # Service worker - local file
 RewriteRule ^sw\.js$ sw.js [L]
