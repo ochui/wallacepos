@@ -172,34 +172,6 @@ class Application
      */
     public function handleRequest()
     {
-        // Check if this is a content request (set by .htaccess)
-        if (isset($_SERVER['CONTENT_REQUEST'])) {
-            $requestUri = $_SERVER['REQUEST_URI'];
-            // Remove query string
-            if (($pos = strpos($requestUri, '?')) !== false) {
-                $requestUri = substr($requestUri, 0, $pos);
-            }
-            
-            // Try FastRoute for content routes
-            $routeInfo = $this->dispatcher->dispatch('GET', $requestUri);
-            
-            if ($routeInfo[0] === Dispatcher::FOUND) {
-                $handler = $routeInfo[1];
-                $vars = $routeInfo[2];
-                
-                if ($handler[0] === ViewController::class) {
-                    $controller = new ViewController();
-                    call_user_func_array([$controller, $handler[1]], $vars);
-                    return;
-                }
-            }
-            
-            // If route not found, return 404
-            http_response_code(404);
-            echo "Template not found";
-            return;
-        }
-        
         // Get request URI and method
         $requestUri = $_SERVER['REQUEST_URI'];
         $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -209,13 +181,16 @@ class Application
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        // Try FastRoute for all requests
+        // Dispatch request through FastRoute
         $routeInfo = $this->dispatcher->dispatch($requestMethod, $requestUri);
         
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
-                // Fall back to legacy routing for unmapped routes
-                $this->handleLegacyRequest($requestUri);
+                http_response_code(404);
+                echo json_encode([
+                    "error" => "API endpoint not found",
+                    "requested_uri" => $requestUri
+                ]);
                 break;
                 
             case Dispatcher::METHOD_NOT_ALLOWED:
@@ -232,21 +207,6 @@ class Application
                 call_user_func_array([$controller, $handler[1]], $vars);
                 break;
         }
-    }
-
-    /**
-     * Handle legacy requests that haven't been migrated to FastRoute yet
-     */
-    private function handleLegacyRequest($requestUri)
-    {
-        // For now, return an error for unmapped routes
-        // This encourages complete migration to FastRoute
-        http_response_code(404);
-        echo json_encode([
-            "error" => "API endpoint not found. Please ensure you're using the correct FastRoute endpoint.",
-            "requested_uri" => $requestUri
-        ]);
-        die();
     }
 
     /**
