@@ -168,9 +168,30 @@
     var devtable, loctable, devices, locations;
 
     $(function() {
-        var data = WPOS.sendJsonData("multi", JSON.stringify({"devices/get":"", "locations/get":""}));
-        devices = data['devices/get'];
-        locations = data['locations/get'];
+        // get default data using parallel requests
+        var devicesPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("devices/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch devices"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var locationsPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("locations/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch locations"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        Promise.all([devicesPromise, locationsPromise]).then(function(results) {
+            devices = results[0];
+            locations = results[1];
 
         var devarray = [];
         var tempitem;
@@ -303,8 +324,13 @@
         populateLocationSelect();
         populateKitchenTerminalSelect();
 
-        // hide loader
-        WPOS.util.hideLoader();
+            // hide loader
+            WPOS.util.hideLoader();
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            alert("Failed to load data: " + error.message);
+            WPOS.util.hideLoader();
+        });
     });
     // updating records
     function openLocDialog(id){

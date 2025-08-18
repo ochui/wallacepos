@@ -224,10 +224,41 @@
     var categories = null;
     var datatable;
     $(function() {
-        var data = WPOS.sendJsonData("multi", JSON.stringify({"items/get":"", "suppliers/get":"", "categories/get":""}));
-        stock = data['items/get'];
-        suppliers = data['suppliers/get'];
-        categories = data['categories/get'];
+        // get default data using parallel requests
+        var itemsPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("items/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch items"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var suppliersPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("suppliers/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch suppliers"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var categoriesPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("categories/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch categories"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        Promise.all([itemsPromise, suppliersPromise, categoriesPromise]).then(function(results) {
+            stock = results[0];
+            suppliers = results[1];
+            categories = results[2];
         var itemarray = [];
         var tempitem;
         var taxrules = WPOS.getTaxTable().rules;
@@ -399,8 +430,13 @@
             catsel.append('<option class="catid-'+categories[key].id+'" value="'+categories[key].id+'">'+categories[key].name+'</option>');
         }
 
-        // hide loader
-        WPOS.util.hideLoader();
+            // hide loader
+            WPOS.util.hideLoader();
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            alert("Failed to load data: " + error.message);
+            WPOS.util.hideLoader();
+        });
     });
     // updating records
     function openEditDialog(id){

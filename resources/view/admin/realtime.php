@@ -615,16 +615,53 @@ $(function () {
     chart.css({'width': '100%', 'height': '220px'});
     // load data
     WPOS.startSocket();
-    var data = WPOS.sendJsonData("multi", JSON.stringify({"sales/get":{stime: stoday, etime: etime}, "stats/general":{"stime":stoday, "etime":etime}, "graph/general":{"stime": stime, "etime": etime, "interval": 1800000}}));
-    if (data!==false) {
-        sales = data['sales/get'];
-        totals = data['stats/general'];
+    
+    // Create parallel requests
+    var salesPromise = new Promise(function(resolve, reject) {
+        WPOS.sendJsonDataAsync("sales/get", JSON.stringify({stime: stoday, etime: etime}), function(data) {
+            if (data === false) {
+                reject(new Error("Failed to fetch sales"));
+            } else {
+                resolve(data);
+            }
+        });
+    });
+    
+    var statsPromise = new Promise(function(resolve, reject) {
+        WPOS.sendJsonDataAsync("stats/general", JSON.stringify({"stime":stoday, "etime":etime}), function(data) {
+            if (data === false) {
+                reject(new Error("Failed to fetch stats"));
+            } else {
+                resolve(data);
+            }
+        });
+    });
+    
+    var graphPromise = new Promise(function(resolve, reject) {
+        WPOS.sendJsonDataAsync("graph/general", JSON.stringify({"stime": stime, "etime": etime, "interval": 1800000}), function(data) {
+            if (data === false) {
+                reject(new Error("Failed to fetch graph data"));
+            } else {
+                resolve(data);
+            }
+        });
+    });
+    
+    Promise.all([salesPromise, statsPromise, graphPromise]).then(function(results) {
+        sales = results[0];
+        totals = results[1];
+        var graphData = results[2];
+        
         loadTodaysSales();
         populateTodayStats();
-        loadGraph(data['graph/general']);
-    }
-    // hide loader
-    WPOS.util.hideLoader();
+        loadGraph(graphData);
+        // hide loader
+        WPOS.util.hideLoader();
+    }).catch(function(error) {
+        console.error("Error loading data:", error);
+        alert("Failed to load data: " + error.message);
+        WPOS.util.hideLoader();
+    });
 })
 
 </script>

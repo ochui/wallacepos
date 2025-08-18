@@ -635,19 +635,69 @@
         var ttoday = getTodayTimeVals();
         var pvals = getPieValues();
         var gvals = getTimeVals($("#grange").text());
-        var req = {"stats/itemselling":{"stime":tmonth[0], "etime":tmonth[1]}, "stats/general":{"stime":ttoday[0], "etime":ttoday[1]}, "graph/general":{"stime":gvals[0], "etime":gvals[1], "interval":86400000}};
-        req[pvals[0]] = {"stime":pvals[1], "etime":pvals[2], "totals":true};
-        var data = WPOS.sendJsonData("multi", JSON.stringify(req));
-        // Load todays stats
-        loadTodayStats(data['stats/general']);
-        // load graph
-        drawGraph(data['graph/general']);
-        // initialize the initial pie chart
-        generatePieChart(data[pvals[0]]);
-        // load popular items
-        loadPopularItems(data['stats/itemselling']);
-        // hide loader
-        WPOS.util.hideLoader();
+        
+        // Create parallel requests
+        var itemsellingPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("stats/itemselling", JSON.stringify({"stime":tmonth[0], "etime":tmonth[1]}), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch item selling stats"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var generalStatsPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("stats/general", JSON.stringify({"stime":ttoday[0], "etime":ttoday[1]}), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch general stats"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var graphPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("graph/general", JSON.stringify({"stime":gvals[0], "etime":gvals[1], "interval":86400000}), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch graph data"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var piePromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync(pvals[0], JSON.stringify({"stime":pvals[1], "etime":pvals[2], "totals":true}), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch pie chart data"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        Promise.all([itemsellingPromise, generalStatsPromise, graphPromise, piePromise]).then(function(results) {
+            var itemsellingData = results[0];
+            var generalStatsData = results[1];
+            var graphData = results[2];
+            var pieData = results[3];
+            
+            // Load todays stats
+            loadTodayStats(generalStatsData);
+            // load graph
+            drawGraph(graphData);
+            // initialize the initial pie chart
+            generatePieChart(pieData);
+            // load popular items
+            loadPopularItems(itemsellingData);
+            // hide loader
+            WPOS.util.hideLoader();
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            alert("Failed to load data: " + error.message);
+            WPOS.util.hideLoader();
+        });
     });
 
 </script>

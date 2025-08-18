@@ -269,12 +269,34 @@
     }
 
     $(function() {
-        // get default data
-        var data = WPOS.sendJsonData("multi", JSON.stringify({"customers/get":"", "invoices/get":{"stime":stime, "etime":etime}}));
-        if (data===false) return;
-        WPOS.customers.setCustomers(data['customers/get']);
-        WPOS.transactions.setTransactions(data['invoices/get']);
-        var customers = WPOS.customers.getCustomers();
+        // get default data using parallel requests
+        var customersPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("customers/get", JSON.stringify(""), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch customers"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        var invoicesPromise = new Promise(function(resolve, reject) {
+            WPOS.sendJsonDataAsync("invoices/get", JSON.stringify({"stime":stime, "etime":etime}), function(data) {
+                if (data === false) {
+                    reject(new Error("Failed to fetch invoices"));
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+        
+        Promise.all([customersPromise, invoicesPromise]).then(function(results) {
+            var customers_data = results[0];
+            var invoices_data = results[1];
+            
+            WPOS.customers.setCustomers(customers_data);
+            WPOS.transactions.setTransactions(invoices_data);
+            var customers = WPOS.customers.getCustomers();
         $('select#ninvcustid.select2-offscreen').find('option').remove().end();
         // below not needed
         //$('select#ninvcustid').find('option').remove().end();
@@ -416,8 +438,13 @@
         // Customer multiselect
         $("#ninvcustid").select2();
 
-        // hide loader
-        WPOS.util.hideLoader();
+            // hide loader
+            WPOS.util.hideLoader();
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            alert("Failed to load data: " + error.message);
+            WPOS.util.hideLoader();
+        });
     });
 
 </script>
