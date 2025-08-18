@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Invoice;
+namespace App\Controllers\Invoice;
 
 use Mustache_Engine;
 use App\Controllers\Admin\WposAdminSettings;

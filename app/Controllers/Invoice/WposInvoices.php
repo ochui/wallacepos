@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Invoice;
+namespace App\Controllers\Invoice;
 
 use App\Controllers\Admin\WposAdminStock;
+use App\Controllers\Transaction\WposTransactions;
 use App\Database\InvoicesModel;
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;
 use App\Database\SaleVoidsModel;
 use App\Database\TransHistModel;
-use App\Transaction\WposTransactions;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 

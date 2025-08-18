@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Customer;
+namespace App\Controllers\Customer;
 
 use App\Controllers\Admin\WposAdminCustomers;
 use App\Controllers\Admin\WposAdminSettings;
 use App\Controllers\Admin\WposAdminUtilities;
+use App\Controllers\Transaction\WposTransactions;
 use App\Database\CustomerModel;
 use App\Database\TaxItemsModel;
 use App\Database\TransactionsModel;
-use App\Transaction\WposTransactions;
 use App\Utility\JsonValidate;
 use App\Utility\WposMail;
 

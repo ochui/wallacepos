@@ -5,12 +5,12 @@ namespace App\Utility;
 use App\Database\DbConfig;
 use App\Controllers\Admin\WposAdminSettings;
 use App\Controllers\Admin\WposAdminUtilities;
+use App\Controllers\Invoice\WposTemplates;
 use App\Communication\WposSocketIO;
 use App\Database\AuthModel;
 use App\Database\SaleItemsModel;
 use App\Auth;
 use App\Communication\WposSocketControl;
-use App\Invoice\WposTemplates;
 
 /**
  * DbUpdater is part of Wallace Point of Sale system (WPOS) API
@@ -98,7 +98,7 @@ class DbUpdater
         // set permissions
         $basePath = base_path();
         $storagePath = storage_path();
-        
+
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             if (file_exists($storagePath . '/logs') == false) {
                 exec('ROBOCOPY "' . $basePath . '/storage-template/." "' . $storagePath . '" /E');
@@ -272,7 +272,7 @@ class DbUpdater
         // copy new templates
         $basePath = base_path();
         $storagePath = storage_path();
-        
+
         copy($basePath . '/storage-template/templates/receipt.mustache', $storagePath . '/receipt.mustache');
         copy($basePath . '/storage-template/templates/receipt_alt.mustache', $storagePath . '/receipt_alt.mustache');
         copy($basePath . '/storage-template/templates/receipt_mixed.mustache', $storagePath . '/receipt_mixed.mustache');
@@ -294,7 +294,7 @@ class DbUpdater
         // copy .htaccess if needed
         $basePath = base_path();
         $storagePath = storage_path();
-        
+
         if (!file_exists($storagePath . '/.htaccess')) {
             copy($basePath . '/storage-template/.htaccess', $storagePath . '/.htaccess');
         }

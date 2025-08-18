@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Invoice;
+namespace App\Controllers\Invoice;
 
 use Mustache_LambdaHelper;
 use App\Controllers\Admin\WposAdminCustomers;

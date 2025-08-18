@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Transaction;
+namespace App\Controllers\Transaction;
 
 use App\Controllers\Admin\WposAdminSettings;
 use App\Controllers\Admin\WposAdminStock;
+use App\Controllers\Invoice\WposTemplateData;
+use App\Controllers\Invoice\WposTemplates;
 use App\Communication\WposSocketIO;
 use App\Database\TransactionsModel;
 use App\Database\SaleItemsModel;
@@ -11,8 +13,6 @@ use App\Database\SalePaymentsModel;
 use App\Database\SalesModel;
 use App\Database\SaleVoidsModel;
 use App\Database\TransHistModel;
-use App\Invoice\WposTemplateData;
-use App\Invoice\WposTemplates;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 use App\Utility\WposMail;
