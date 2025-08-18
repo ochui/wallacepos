@@ -4,6 +4,7 @@ namespace App\Core;
 
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
+use function FastRoute\simpleDispatcher;
 use App\Auth;
 use App\Controllers\Admin\WposAdminItems;
 use App\Controllers\Admin\WposAdminGraph;
@@ -15,6 +16,7 @@ use App\Controllers\Admin\WposAdminStock;
 use App\Controllers\Pos\WposPosSetup;
 use App\Controllers\Pos\WposPosData;
 use App\Controllers\Pos\WposPosSale;
+use App\Controllers\ViewController;
 use App\Transaction\WposTransactions;
 use App\Communication\WposSocketIO;
 use App\Communication\WposSocketControl;
@@ -32,10 +34,24 @@ class Application
 {
     private $result = ["errorCode" => "OK", "error" => "OK", "data" => ""];
     private $auth;
+    private $dispatcher;
 
     public function __construct()
     {
         $this->auth = new Auth();
+        $this->dispatcher = $this->createDispatcher();
+    }
+
+    /**
+     * Create FastRoute dispatcher with route definitions
+     */
+    private function createDispatcher()
+    {
+        return simpleDispatcher(function(RouteCollector $r) {
+            // Template content routes
+            $r->get('/admin/content/{template}', [ViewController::class, 'adminContent']);
+            $r->get('/customer/content/{template}', [ViewController::class, 'customerContent']);
+        });
     }
 
     /**
@@ -43,6 +59,34 @@ class Application
      */
     public function handleRequest()
     {
+        // Check if this is a content request (set by .htaccess)
+        if (isset($_SERVER['CONTENT_REQUEST'])) {
+            $requestUri = $_SERVER['REQUEST_URI'];
+            // Remove query string
+            if (($pos = strpos($requestUri, '?')) !== false) {
+                $requestUri = substr($requestUri, 0, $pos);
+            }
+            
+            // Try FastRoute for content routes
+            $routeInfo = $this->dispatcher->dispatch('GET', $requestUri);
+            
+            if ($routeInfo[0] === Dispatcher::FOUND) {
+                $handler = $routeInfo[1];
+                $vars = $routeInfo[2];
+                
+                if ($handler[0] === ViewController::class) {
+                    $controller = new ViewController();
+                    call_user_func_array([$controller, $handler[1]], $vars);
+                    return;
+                }
+            }
+            
+            // If route not found, return 404
+            http_response_code(404);
+            echo "Template not found";
+            return;
+        }
+        
         // Get request URI and method
         $requestUri = $_SERVER['REQUEST_URI'];
         $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -52,7 +96,7 @@ class Application
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        // Route based on the URI pattern
+        // Route based on the URI pattern (existing API routing)
         if (strpos($requestUri, '/api/') !== false) {
             $this->handleApiRequest();
         } elseif (strpos($requestUri, '/customerapi/') !== false) {

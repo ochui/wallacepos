@@ -54,7 +54,7 @@ RewriteRule ^pos/?$ index.html [L]
 
 # Admin interface
 RewriteRule ^admin/?$ admin/index.html [L]
-RewriteRule ^admin/(.*)$ admin/$1 [L]
+RewriteRule ^admin/content/(.+)$ api/wpos.php [L,E=CONTENT_REQUEST:1]
 
 # Kitchen display
 RewriteRule ^kitchen/?$ kitchen/index.html [L]
@@ -62,6 +62,7 @@ RewriteRule ^kitchen/(.*)$ kitchen/$1 [L]
 
 # Customer portal
 RewriteRule ^customer/?$ customer/index.html [L]
+RewriteRule ^customer/content/(.+)$ api/wpos.php [L,E=CONTENT_REQUEST:1]
 RewriteRule ^customer/(.*)$ customer/$1 [L]
 
 # API requests - route to local api directory
