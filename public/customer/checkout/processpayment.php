@@ -1,7 +1,18 @@
 <?php
-$_SERVER['APP_ROOT'] = "/";
+/**
+ * Payment Processing Endpoint
+ * 
+ * This file implements the modern bootstrap pattern for payment processing.
+ */
+
+// Register the Composer autoloader...
+require __DIR__ . '/../../../vendor/autoload.php';
+
+// Bootstrap the application...
+/** @var \App\Core\Application $app */
+$app = require_once __DIR__ . '/../../../bootstrap/app.php';
+
 ini_set('date.timezone', 'Australia/Sydney');
-require $_SERVER['DOCUMENT_ROOT']."/vendor/autoload.php";
 // check input
 if (!isset($_REQUEST['ref'])){
     $error = "Did not receive a valid order reference";

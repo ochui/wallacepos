@@ -1,16 +1,28 @@
 <?php
-    $_SERVER['APP_ROOT'] = "/";
-    require $_SERVER['DOCUMENT_ROOT'].$_SERVER['APP_ROOT']."vendor/autoload.php";
-    $activated = false;
-    $error = "No token supplied!";
-    if (isset($_REQUEST['token'])){
-        // try to activate account with token
-        $custAc = new WposCustomerAccess();
-        $error = $custAc->activateAccount($_REQUEST['token']);
-        if ($error===true){
-            $activated = true;
-        }
+/**
+ * Customer Account Activation
+ * 
+ * This file implements the modern bootstrap pattern for customer activation.
+ */
+
+// Register the Composer autoloader...
+require __DIR__ . '/../../vendor/autoload.php';
+
+// Bootstrap the application...
+/** @var \App\Core\Application $app */
+$app = require_once __DIR__ . '/../../bootstrap/app.php';
+
+$activated = false;
+$error = "No token supplied!";
+
+if (isset($_REQUEST['token'])){
+    // try to activate account with token
+    $custAc = new WposCustomerAccess();
+    $error = $custAc->activateAccount($_REQUEST['token']);
+    if ($error===true){
+        $activated = true;
     }
+}
 ?>
 <html>
 <head>
