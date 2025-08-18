@@ -24,6 +24,12 @@ class CustomerController
      */
     public function register()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         $data = $this->getRequestData();
         $wCust = new WposCustomerAccess($data);
         $this->result = $wCust->register($this->result);
@@ -35,6 +41,12 @@ class CustomerController
      */
     public function sendPasswordResetEmail()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         $data = $this->getRequestData();
         $wCust = new WposCustomerAccess($data);
         $this->result = $wCust->sendResetPasswordEmail($this->result);
@@ -46,6 +58,12 @@ class CustomerController
      */
     public function resetPassword()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         $data = $this->getRequestData();
         $wCust = new WposCustomerAccess($data);
         $this->result = $wCust->doPasswordReset($this->result);
@@ -57,6 +75,12 @@ class CustomerController
      */
     public function getConfig()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         $data = $this->getRequestData();
         $wCust = new WposCustomerAccess($data);
         $this->result = $wCust->getSettings($this->result);
@@ -68,6 +92,12 @@ class CustomerController
      */
     public function getMyDetails()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         if (!$this->auth->isCustomerLoggedIn()) {
             $this->result['errorCode'] = "auth";
             $this->result['error'] = "Access Denied!";
@@ -85,6 +115,12 @@ class CustomerController
      */
     public function saveMyDetails()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         if (!$this->auth->isCustomerLoggedIn()) {
             $this->result['errorCode'] = "auth";
             $this->result['error'] = "Access Denied!";
@@ -102,6 +138,12 @@ class CustomerController
      */
     public function getTransactions()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         if (!$this->auth->isCustomerLoggedIn()) {
             $this->result['errorCode'] = "auth";
             $this->result['error'] = "Access Denied!";
@@ -119,6 +161,12 @@ class CustomerController
      */
     public function generateInvoice()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         if (!$this->auth->isCustomerLoggedIn()) {
             $this->result['errorCode'] = "auth";
             $this->result['error'] = "Access Denied!";

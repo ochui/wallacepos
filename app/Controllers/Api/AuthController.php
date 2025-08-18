@@ -129,6 +129,12 @@ class AuthController
      */
     public function customerAuth()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         if (!isset($_REQUEST['data'])) {
             $this->result['errorCode'] = "request";
             $this->result['error'] = "No authentication data provided";
@@ -165,6 +171,12 @@ class AuthController
      */
     public function customerHello()
     {
+        // Enable cross origin requests for customer API
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
+
         $this->result['data'] = new \stdClass();
         if ($this->auth->isCustomerLoggedIn()) {
             $this->result['data']->user = $this->auth->getCustomer();
