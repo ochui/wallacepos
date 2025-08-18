@@ -19,7 +19,8 @@ class ViewController
         // Sanitize inputs
         $section = preg_replace('/[^a-z]/', '', strtolower($section));
         $template = preg_replace('/[^a-z0-9_-]/', '', strtolower($template));
-        
+
+        die(sprintf("Serving template: %s/%s\n", $section, $template));
         // Construct template path
         $templatePath = base_path("resources/view/{$section}/{$template}.php");
         

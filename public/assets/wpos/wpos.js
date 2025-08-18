@@ -43,10 +43,6 @@ $(function(){
     WPOS = new WPOSAdmin();
     // init
     WPOS.isLogged();
-    // dev/demo quick login
-    if (document.location.host=="demo.wallacepos.com" || document.location.host=="alpha.wallacepos.com"){
-        $("#logindiv").append('<button class="btn btn-primary btn-sm" onclick="$(\'#loguser\').val(\'admin\');$(\'#logpass\').val(\'admin\'); WPOS.login();">Demo Login</button>');
-    }
 });
 function WPOSAdmin(){
     // AJAX PAGE LOADER FUNCTIONS
