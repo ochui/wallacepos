@@ -59,7 +59,7 @@ class CategoriesModel extends DbConfig
      */
     public function get($Id = null)
     {
-        $sql = 'SELECT s.*, COUNT(i.id) as numitems FROM stored_categories as s LEFT OUTER JOIN stored_items as i ON s.id=i.categoryid';
+        $sql = 'SELECT s.id, s.name, s.dt, COUNT(i.id) as numitems FROM stored_categories as s LEFT OUTER JOIN stored_items as i ON s.id=i.categoryid';
         $placeholders = [];
         if ($Id !== null) {
             if (empty($placeholders)) {
