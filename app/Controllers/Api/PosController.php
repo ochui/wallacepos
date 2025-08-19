@@ -6,7 +6,7 @@ use App\Auth;
 use App\Controllers\Pos\WposPosSetup;
 use App\Controllers\Pos\WposPosData;
 use App\Controllers\Pos\WposPosSale;
-use App\Transaction\WposTransactions;
+use App\Controllers\Transaction\WposTransactions;
 
 /**
  * POS API Controller

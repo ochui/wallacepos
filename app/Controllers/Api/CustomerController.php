@@ -3,7 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Auth;
-use App\Customer\WposCustomerAccess;
+use App\Controllers\Customer\WposCustomerAccess;
 
 /**
  * Customer API Controller

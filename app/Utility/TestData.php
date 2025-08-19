@@ -3,6 +3,7 @@
 namespace App\Utility;
 
 use App\Controllers\Admin\WposAdminUtilities;
+use App\Controllers\Invoice\WposInvoices;
 use App\Database\AuthModel;
 use App\Database\CategoriesModel;
 use App\Database\CustomerModel;
@@ -11,7 +12,6 @@ use App\Database\DevicesModel;
 use App\Database\LocationsModel;
 use App\Database\StoredItemsModel;
 use App\Database\SuppliersModel;
-use App\Invoice\WposInvoices;
 use App\Controllers\Pos\WposPosData;
 use App\Controllers\Pos\WposPosSale;
 
