@@ -132,53 +132,36 @@ class DevicesModel extends DbConfig
     }
 
     /**
-     * Get a current location's devices using a locationid or a member device Id.
-     * @param mixed $deviceid
-     * @param mixed|null $locationid
-     * @return array Returns all current device ids associated with a location id, returns an empty array on failure.
+     * Get a current locations devices using a locationid or a member device Id.
+     * @param $deviceid
+     * @param null $locationid
+     * @return array|bool Returns all current device associated with a location id, returns an empty array on failure.
      */
     public function getLocationDeviceIds($deviceid, $locationid = null)
     {
         $devarr = [];
-
-        // Resolve $locationid if not given
         if ($locationid === null) {
             $device = $this->get($deviceid);
-
-            if (!is_array($device) || $device === []) {
-                return [];
+            if (!is_array($device) || empty($device)) {
+                return false;
             }
-
-            // Accept either a single associative row or a 0-indexed list of rows
-            if (isset($device['locationid'])) {
-                $locationid = $device['locationid'];
-            } elseif (isset($device[0]) && is_array($device[0]) && isset($device[0]['locationid'])) {
-                $locationid = $device[0]['locationid'];
-            } else {
-                return [];
+            $firstDevice = reset($device);
+            if (!isset($firstDevice['locationid'])) {
+                return false;
             }
+            $locationid = $firstDevice['locationid'];
         }
 
-        $locdev = $this->get(null, $locationid);
-        if (!is_array($locdev) || $locdev === []) {
-            return [];
-        }
-
-        if (isset($locdev['id'])) {
-            $locdev = [$locdev];
+        $locdev = $this->get(null, $locationid); // get location devices
+        if (!is_array($locdev)) {
+            return false;
         }
 
         foreach ($locdev as $dev) {
-            if (!is_array($dev)) {
-                continue;
-            }
-            // Only include enabled devices and ensure 'id' exists
-            $disabled = $dev['disabled'] ?? 1;
-            if ((int)$disabled === 0 && isset($dev['id'])) {
-                $devarr[] = $dev['id'];
+            if ($dev['disabled'] == 0) { // no disabled devices included
+                array_push($devarr, $dev['id']);
             }
         }
-
         return $devarr;
     }
 
