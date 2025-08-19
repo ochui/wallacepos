@@ -211,11 +211,11 @@
 </div>
 
 <!-- page specific plugin scripts -->
-<link rel="stylesheet" href="/admin/assets/js/csv-import/lib/jquery.ezdz.min.css"/>
-<script type="text/javascript" src="/admin/assets/js/csv-import/lib/jquery.ezdz.min.js"></script>
-<script type="text/javascript" src="/admin/assets/js/csv-import/lib/jquery-sortable-min.js"></script>
-<script type="text/javascript" src="/admin/assets/js/csv-import/lib/jquery.csv-0.71.min.js"></script>
-<script type="text/javascript" src="/admin/assets/js/csv-import/csv.import.tool.js"></script>
+<link rel="stylesheet" href="../assets/js/csv-import/lib/jquery.ezdz.min.css"/>
+<script type="text/javascript" src="../assets/js/csv-import/lib/jquery.ezdz.min.js"></script>
+<script type="text/javascript" src="../assets/js/csv-import/lib/jquery-sortable-min.js"></script>
+<script type="text/javascript" src="../assets/js/csv-import/lib/jquery.csv-0.71.min.js"></script>
+<script type="text/javascript" src="../assets/js/csv-import/csv.import.tool.js"></script>
 
 <!-- inline scripts related to this page -->
 <script type="text/javascript">
@@ -773,7 +773,7 @@
     }
 </script>
 <div id="modalloader" class="hide" style="width: 360px; height: 320px; text-align: center;">
-    <img id="modalloader_img" style="width: 128px; height: auto;" src="/admin/assets/images/cloud_loader.gif"/>
+    <img id="modalloader_img" style="width: 128px; height: auto;" src="../assets/images/cloud_loader.gif"/>
     <div id="modalloader_prog" class="progress progress-striped active">
         <div class="progress-bar" id="modalloader_progbar" style="width: 100%;"></div>
     </div>

@@ -35,9 +35,9 @@ if (!isset($_REQUEST['ref'])){
 <html>
 <head>
     <title>Confirm Payment -</title>
-    <script src='/admin/assets/js/jquery-2.0.3.min.js'></script>
-    <link rel="stylesheet" href="/admin/assets/css/ace.min.css"/>
-    <link rel="stylesheet" href="/admin/assets/css/bootstrap.min.css"/>
+    <script src='../assets/js/jquery-2.0.3.min.js'></script>
+    <link rel="stylesheet" href="../assets/css/ace.min.css"/>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
     <script src="/myaccount/assets/accountplugin.js"></script>
     <script>
         $(function(){

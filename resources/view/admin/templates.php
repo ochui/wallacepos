@@ -54,7 +54,7 @@
         <button class="btn btn-success" type="button" onclick="saveTemplate();"><i class="icon-save align-top bigger-125"></i>Save</button>
     </div>
 </div>
-<script language="javascript" src="/admin/assets/js/ace/ace.js"></script>
+<script language="javascript" src="../assets/js/ace/ace.js"></script>
 <script type="text/javascript">
     var templates;
     var templateEditor;

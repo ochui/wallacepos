@@ -255,7 +255,7 @@
                     <ol>
                         <li>Login to the <a href="/">WPOS terminal</a> and click on the settings tab.</li>
                         <li>Under Integrated Eftpos, click on the enabled checkbox and select Tyro from providers.<br/>
-                            <img style="padding-top: 5px;" src="/admin/assets/images/faq/faq-eftpos-settings.png">
+                            <img style="padding-top: 5px;" src="../assets/images/faq/faq-eftpos-settings.png">
                         </li>
                         <li>If you need to, change Eftpos receipt options based on your preferences.</li>
                         <li>Enter your merchant and terminal IDs and click on "Start Tyro Pairing". You will be prompted to perform the "Authorise POS" function on your terminal described in the next step.</li>
@@ -270,7 +270,7 @@
                         <li>If the customer is using multiple payment methods, add the additional payments (Not the tyro payment) to the sale before proceeding. The remaining balance will be calculated for you.</li>
                         <li>Click on the green "Tyro Eftpos" button. This will initialize the card payment on the Eftpos machine and show you payment progress through the wpos terminal. Once the customer makes a successful payment, the sale will be automatically processed.</li>
                         <li>Depending on your preferences, you will be asked if you would like a merchant receipt printed. If you decline, you can always view and reprint it from the Transaction details dialog.<br/>
-                            <img style="padding-top: 5px;" src="/admin/assets/images/faq/faq-eftpos-receipts.png">
+                            <img style="padding-top: 5px;" src="../assets/images/faq/faq-eftpos-receipts.png">
                         </li>
                     </ol>
                     <p>Note: At this time, WPOS only supports one integrated Eftpos transaction per sale.</p>
