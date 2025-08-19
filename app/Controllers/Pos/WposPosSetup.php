@@ -119,10 +119,11 @@ class WposPosSetup
 
         // get tax
         $tax = WposPosData::getTaxes();
-        if (is_null($tax['error'])) {
-            $result['data']->tax = $tax['data'];
+        $taxError = $tax['error'] ?? null;
+        if ($taxError === null) {
+            $result['data']->tax = $tax['data'] ?? null;
         } else {
-            $result['error'] = $tax['error'];
+            $result['error'] = $taxError;
         }
 
         // get templates
