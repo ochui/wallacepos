@@ -131,7 +131,15 @@ class SaleVoidsModel extends DbConfig
     {
 
         $placeholders = [":stime" => $stime, ":etime" => $etime];
-        $sql = 'SELECT *' . ($gettotal ? ', COALESCE(SUM(amount), 0) as stotal, COUNT(id) as snum' : '') . ' FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
+        if ($gettotal) {
+            if ($groupmethod) {
+                $sql = 'SELECT method, COALESCE(SUM(amount), 0) as stotal, COUNT(id) as snum FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
+            } else {
+                $sql = 'SELECT COALESCE(SUM(amount), 0) as stotal, COUNT(id) as snum FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
+            }
+        } else {
+            $sql = 'SELECT * FROM sale_voids WHERE (processdt>= :stime AND processdt<= :etime)';
+        }
 
         if ($deviceid !== null) {
             $sql .= ' AND deviceid= :deviceid';
@@ -163,7 +171,7 @@ class SaleVoidsModel extends DbConfig
     {
 
         $placeholders = [":stime" => $stime, ":etime" => $etime];
-        $sql = "SELECT *, COALESCE(SUM(v.amount), 0) as stotal, COUNT(v.id) as snum, COALESCE(GROUP_CONCAT(s.ref SEPARATOR ','),'') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
+        $sql = "SELECT " . ($groupmethod ? "v.method, " : "") . "COALESCE(SUM(v.amount), 0) as stotal, COUNT(v.id) as snum, COALESCE(GROUP_CONCAT(s.ref SEPARATOR ','),'') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
 
         if ($isvoid !== null) {
             $sql .= ' AND v.void= :isvoid';
@@ -210,7 +218,7 @@ class SaleVoidsModel extends DbConfig
         }
 
         $placeholders = [":stime" => $stime, ":etime" => $etime];
-        $sql = "SELECT *, d.id as groupid, " . ($grouptype == 'device' ? "CONCAT(d.name, ' (', l.name, ')')" : 'd.name') . " as name, SUM(v.amount) as stotal, COUNT(v.id) as snum, GROUP_CONCAT(s.ref SEPARATOR ',') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id LEFT JOIN " . $joinsql . " WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
+        $sql = "SELECT d.id as groupid, " . ($grouptype == 'device' ? "CONCAT(d.name, ' (', l.name, ')')" : 'd.name') . " as name, SUM(v.amount) as stotal, COUNT(v.id) as snum, GROUP_CONCAT(s.ref SEPARATOR ',') as refs FROM sale_voids as v LEFT JOIN sales as s ON v.saleid=s.id LEFT JOIN " . $joinsql . " WHERE (v.processdt>= :stime AND v.processdt<= :etime)";
 
         if ($isvoid !== null) {
             $sql .= ' AND v.void= :isvoid';
