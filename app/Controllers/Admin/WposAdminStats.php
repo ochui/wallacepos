@@ -414,7 +414,7 @@ class WposAdminStats
         }
 
         // include totals if requested
-        if ($this->data->totals == true) {
+        if (isset($this->data->totals) && $this->data->totals == true) {
             $result = $this->getOverviewStats($result);
             $stats["Totals"] = $result['data'];
         }
