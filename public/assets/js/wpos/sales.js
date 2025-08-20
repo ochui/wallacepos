@@ -54,7 +54,7 @@ function WPOSItems() {
         // find the item id from the stock code index and use it to retrieve the record.
         var item = WPOS.getItemsTable()[WPOS.getStockIndex()[code.toUpperCase()]];
         if (item === null || item === undefined || item === "") {//ADAM: Should use triple equals
-            alert("Item not found");
+            showError("Item not found", "Item Error");
             $("#codeinput").val('');
         } else {
             // add the item
@@ -69,7 +69,7 @@ function WPOSItems() {
     this.addItemFromId = function (id) {
         var item = WPOS.getItemsTable()[id];
         if (item === null) {
-            alert("Item not found");
+            showError("Item not found", "Item Error");
         } else {
             // add the item
             addItem(item);
@@ -308,7 +308,7 @@ function WPOSItems() {
         var newqty = parseInt(qtyelem.text()) + (positive?1:-1);
         if (newqty<minqty || newqty>maxqty){
             var ismax = newqty>maxqty;
-            alert("Cannot have "+(ismax?"more":"less")+" than "+(ismax?maxqty:minqty)+" "+row.find('.modname').text());
+            showWarning("Cannot have "+(ismax?"more":"less")+" than "+(ismax?maxqty:minqty)+" "+row.find('.modname').text(), "Quantity Limit");
             return;
         }
         var modqty = newqty-defaultqty;
@@ -800,7 +800,7 @@ function WPOSSales() {
             $("#paymentsdiv").dialog('open');
             $("#endsalebtn").prop("disabled", false); // make sure the damn button is active, dunno why but when the page reloads it seems to keep its state.
         } else {
-            alert("Please add some valid items to the sale before proceeding!");
+            showWarning("Please add some valid items to the sale before proceeding!", "No Items");
         }
     };
 
@@ -855,7 +855,7 @@ function WPOSSales() {
                             $(".keypad-popup").hide();
                             var cashout =  parseFloat($("#cashoutamount").val()).toFixed(2);
                             if (cashout<0){
-                                alert("Cashout value must be positive or 0");
+                                showWarning("Cashout value must be positive or 0", "Invalid Amount");
                                 return;
                             }
                             codialog.dialog('close');
@@ -940,7 +940,7 @@ function WPOSSales() {
     function processOrder(){
         var salesobj = getSaleObject();
         var sales_json = JSON.stringify(salesobj);
-        if (sales_json.length > 16384) return alert('Too Many Items'); // depends on database field size for sales.data
+        if (sales_json.length > 16384) return showError('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
         if (curref!=null){
             salesobj.ref = curref;
             var cursale = WPOS.trans.getTransactionRecord(curref);
@@ -986,7 +986,7 @@ function WPOSSales() {
                     // process the orders
                     WPOS.orders.processOrder(ref, cursale);
                 } else {
-                    alert("Could not delete the order!");
+                    showError("Could not delete the order!", "Order Deletion Failed");
                 }
                 WPOS.util.hideLoader();
                 WPOS.trans.showTransactionView();
@@ -1057,7 +1057,7 @@ function WPOSSales() {
             $("#transactiondiv").dialog('close');
             $("#wrapper").tabs("option", "active", 0);
         } else {
-            alert("Could not find the current record.");
+            showError("Could not find the current record.", "Record Not Found");
         }
     }
 
@@ -1066,12 +1066,12 @@ function WPOSSales() {
         var salebtn = $("#endsalebtn");
         salebtn.prop("disabled", true);
         if (!isSaleBalanced()){
-            alert("Please balance the sale before continuing");
+            showWarning("Please balance the sale before continuing", "Sale Not Balanced");
             salebtn.prop("disabled", false);
             return;
         }
         if (!validatePayments()){
-            alert("Only cash-out payments may have a negative amount");
+            showWarning("Only cash-out payments may have a negative amount", "Invalid Payment Amount");
             salebtn.prop("disabled", false);
             return;
         }
@@ -1100,7 +1100,7 @@ function WPOSSales() {
     function ProcessSaleTransaction(){
         var salesobj = getSaleObject();
         var sales_json = JSON.stringify(salesobj);
-        if (sales_json.length > 16384) return alert('Too Many Items'); // depends on database field size for sales.data
+        if (sales_json.length > 16384) return showError('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
 
         // check for sale reference, indicating an exiting order and set it's reference onto the new data
         var cursale = null;
@@ -1431,7 +1431,7 @@ function WPOSSales() {
             var netqty = parseInt($(item).find('.refundsqty').val());
             // check if the amount is larger than bought qty
             if (refundqty>netqty){
-                alert("Cannot return more items than sold + returned!");
+                showWarning("Cannot return more items than sold + returned!", "Invalid Return Quantity");
                 $(item).find('.refundqty').val(netqty);
                 return false;
             }
@@ -1464,13 +1464,13 @@ function WPOSSales() {
         var trans = WPOS.trans.getTransactionRecord(ref);
         for (var i in trans.payments){
             if (trans.payments[i].method=="tyro"){
-                alert("Sales with Eftpos transactions cannot be voided. Refund this transaction instead.");
+                showWarning("Sales with Eftpos transactions cannot be voided. Refund this transaction instead.", "Void Not Allowed");
                 return;
             }
         }
 
         if ($("#voidreason").val()==""){
-            alert("Reason must not be blank.");
+            showWarning("Reason must not be blank.", "Missing Information");
             return;
         }
         var answer = confirm("Are you sure you want to void this transaction?");
@@ -1486,11 +1486,11 @@ function WPOSSales() {
 
     this.processRefund = function(){
         if ($("#refundreason").val()==""){
-            alert("Reason must not be blank.");
+            showWarning("Reason must not be blank.", "Missing Information");
             return;
         }
         if ($("#refundamount").val()<=0){
-            alert("Amount must be larger than 0.");
+            showWarning("Amount must be larger than 0.", "Invalid Amount");
             return;
         }
         var ref = $("#refundref").val();
@@ -1619,7 +1619,7 @@ function WPOSSales() {
         if (addOfflineSale(jsondata, action)){
             if (removefromsales) removeSalesRecord(jsondata.ref);
         } else {
-            alert("Failed to update the record in offline storage, the sale has not been updated.");
+            showError("Failed to update the record in offline storage, the sale has not been updated.", "Offline Storage Error");
         }
     }
 
