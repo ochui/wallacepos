@@ -171,7 +171,7 @@ function WPOSKitchen() {
                 if (isUserAdmin()) {
                     initSetup();
                 } else {
-                    alert("You must login as an administrator for first time setup");
+                    showError("You must login as an administrator for first time setup", "Admin Access Required");
                     showLogin();
                 }
             } else {
@@ -613,7 +613,7 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            alert(json.warning);
+                            showWarning(json.warning, "Warning");
                         }
                         callback(json.data, callbackref);
                     } else {
@@ -626,13 +626,13 @@ function WPOSKitchen() {
                                 callback(false, callbackref);
                             }
                         } else {
-                            alert(err);
+                            showError(err, "Server Error");
                             callback(false, callbackref);
                         }
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    alert(error);
+                    showError(error, "Connection Error");
                     callback(false, callbackref);
                 }
             });
@@ -660,7 +660,7 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        alert(json.warning);
+                        showWarning(json.warning, "Warning");
                     }
                     return json.data;
                 } else {
@@ -678,7 +678,7 @@ function WPOSKitchen() {
                     }
                 }
             } else {
-                alert("There was an error connecting to the server: \n"+response.statusText);
+                showError("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
                 return false;
             }
         } catch (ex){

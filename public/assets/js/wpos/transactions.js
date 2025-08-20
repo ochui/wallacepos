@@ -49,7 +49,7 @@ function WPOSTransactions() {
     this.recallLastTransaction = function(){
         var lastref = WPOS.sales.getLastRef();
         if (lastref == null){
-            alert("No transactions yet for this session.");
+            showInfo("No transactions yet for this session.", "No Transactions");
             return;
         }
         WPOS.trans.showTransactionInfo(lastref);
@@ -175,7 +175,7 @@ function WPOSTransactions() {
         var record = getTransactionRecord(ref);
         var status = getTransactionStatus(ref);
         if (record===false){
-            alert("Could not find the transaction record!");
+            showError("Could not find the transaction record!", "Record Not Found");
         }
         // set values in info div
         $("#transstat").html(getStatusHtml(status));
@@ -466,7 +466,7 @@ function WPOSTransactions() {
         if (Object.keys(searchdata).length>0){
             searchRemoteTransactions(searchdata);
         } else {
-            alert("Please select at least one search option.");
+            showWarning("Please select at least one search option.", "Search Options Required");
         }
     };
 
@@ -492,7 +492,7 @@ function WPOSTransactions() {
             updateSaleNotes();
         } else {
             // TODO: update notes and misc info offline
-            alert("Updating notes offline is not supported at this time\nsorry for the inconvenience");
+            showWarning("Updating notes offline is not supported at this time\nsorry for the inconvenience", "Offline Limitation");
         }
     };
 

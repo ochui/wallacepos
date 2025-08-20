@@ -394,7 +394,7 @@ function WPOSPrint(kitchenMode) {
         var result = openCashDraw();
         if (!silentfail)
             if (!result) {
-                alert("Cash draw not connected or configured!!");
+                showError("Cash draw not connected or configured!!", "Cash Draw Error");
             }
     };
 
@@ -515,7 +515,7 @@ function WPOSPrint(kitchenMode) {
                 alert("QZ-Print integration is no longer available, switch to the new webprint applet");
                 return;
             }
-            alert("Receipt printer not configured!");
+            showError("Receipt printer not configured!", "Printer Configuration Error");
         }
     };
 
@@ -1142,7 +1142,7 @@ function WPOSPrint(kitchenMode) {
         }
         var template = WPOS.getConfigTable()['templates'][tempid];
         if (!template) {
-            alert("Could not load template");
+            showError("Could not load template", "Template Error");
             return;
         }
         var temp_data = {
