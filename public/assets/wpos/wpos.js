@@ -778,4 +778,5 @@ function WPOSAdmin(){
     this.util = new WPOSUtil();
     this.transactions = new WPOSTransactions();
     this.customers = new WPOSCustomers();
+    this.notifications = new WPOSNotifications();
 }

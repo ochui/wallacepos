@@ -89,7 +89,7 @@ function WPOSKitchen() {
         showLogin();
         if (getDeviceUUID() == null) {
             // The device has not been setup yet; User will have to login as an admin to setup the device.
-            showWarning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
+            WPOS.notifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
             initialsetup = true;
             online = true;
             return false;
@@ -132,7 +132,7 @@ function WPOSKitchen() {
                 }
             });
         }).error(function(){
-            showError("Failed to load the scanning plugin.", "Scanner Plugin Error");
+            WPOS.notifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
         });
     }
 
@@ -171,7 +171,7 @@ function WPOSKitchen() {
                 if (isUserAdmin()) {
                     initSetup();
                 } else {
-                    showError("You must login as an administrator for first time setup", "Admin Access Required");
+                    WPOS.notifications.error("You must login as an administrator for first time setup", "Admin Access Required");
                     showLogin();
                 }
             } else {
@@ -230,7 +230,7 @@ function WPOSKitchen() {
         if (localStorage.getItem("wpos_auth") !== null) {
             var jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
             if (jsonauth[username] === null || jsonauth[username] === undefined) {
-                showError("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
+                WPOS.notifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
                 return false;
             } else {
                 var authentry = jsonauth[username];
@@ -238,12 +238,12 @@ function WPOSKitchen() {
                     setCurrentUser(authentry);
                     return true;
                 } else {
-                    showError("Access denied!", "Authentication Failed");
+                    WPOS.notifications.error("Access denied!", "Authentication Failed");
                     return false;
                 }
             }
         } else {
-            showError("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
+            WPOS.notifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
             return false;
         }
     }
@@ -271,7 +271,7 @@ function WPOSKitchen() {
         var locname = $("#newposlocation").val();
         // check input
         if ((devid == null && devname == null) || (locid == null && locname == null)) {
-            showWarning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
+            WPOS.notifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
         } else {
             // call the setup function
             if (deviceSetup(devid, devname, locid, locname)) {
@@ -280,7 +280,7 @@ function WPOSKitchen() {
                 $("#setupdiv").dialog("close");
                 showLogin();
             } else {
-                showError("There was a problem setting up the device, please try again.", "Device Setup Failed");
+                WPOS.notifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
             }
         }
         WPOS.util.hideLoader();
@@ -517,7 +517,7 @@ function WPOSKitchen() {
             return true;
         } else {
             // display error notice
-            showError("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
+            WPOS.notifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
             $("#modaldiv").show();
             ('#loginbutton').prop('disabled', true);
             setLoadingBar(100, "Error switching to offine mode");
@@ -560,7 +560,7 @@ function WPOSKitchen() {
             if (response.status == "200") {
                 var json = $.parseJSON(response.responseText);
                 if (json == null) {
-                    showError("Error: The response that was returned from the server could not be parsed!", "Parse Error");
+                    WPOS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
                     return false;
                 }
                 var errCode = json.errorCode;
@@ -587,12 +587,12 @@ function WPOSKitchen() {
                 }
             } else {
                 switchToOffline();
-                showError("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
+                WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
                 return false;
             }
         } catch (ex) {
             switchToOffline();
-            showError("There was an error sending data, switching to offline mode", "Connection Error");
+            WPOS.notifications.error("There was an error sending data, switching to offline mode", "Connection Error");
             return false;
         }
     };
@@ -613,7 +613,7 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            showWarning(json.warning, "Warning");
+                            WPOS.notifications.warning(json.warning, "Warning");
                         }
                         callback(json.data, callbackref);
                     } else {
@@ -626,13 +626,13 @@ function WPOSKitchen() {
                                 callback(false, callbackref);
                             }
                         } else {
-                            showError(err, "Server Error");
+                            WPOS.notifications.error(err, "Server Error");
                             callback(false, callbackref);
                         }
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    showError(error, "Connection Error");
+                    WPOS.notifications.error(error, "Connection Error");
                     callback(false, callbackref);
                 }
             });
@@ -660,7 +660,7 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        showWarning(json.warning, "Warning");
+                        WPOS.notifications.warning(json.warning, "Warning");
                     }
                     return json.data;
                 } else {
@@ -678,7 +678,7 @@ function WPOSKitchen() {
                     }
                 }
             } else {
-                showError("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
+                WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
                 return false;
             }
         } catch (ex){

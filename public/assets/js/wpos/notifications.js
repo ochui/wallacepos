@@ -1,7 +1,7 @@
 /**
  * notifications.js is part of Wallace Point of Sale system (WPOS)
  *
- * notifications.js provides centralized notification management using iGrowl 
+ * notifications.js provides centralized notification management using iGrowl
  * to replace legacy browser alert() calls.
  *
  * WallacePOS is free software; you can redistribute it and/or
@@ -21,197 +21,120 @@
  */
 
 function WPOSNotifications() {
-    // Global iGrowl configuration as specified in requirements
-    this.defaultConfig = {
-        delay: 2500,        // Auto-dismiss after 2.5 seconds
-        small: false,       // Regular size notifications
-        spacing: 30,        // 30px spacing between alerts
-        placement: {
-            x: 'right',     // Horizontal placement: right
-            y: 'top'        // Vertical placement: top
-        },
-        offset: {
-            x: 20,          // 20px from right edge
-            y: 20           // 20px from top edge
-        }
-    };
+  // Global iGrowl configuration as specified in requirements
+  this.defaultConfig = {
+    delay: 2500, // Auto-dismiss after 2.5 seconds
+    small: false, // Regular size notifications
+    spacing: 30, // 30px spacing between alerts
+    placement: {
+      x: "right", // Horizontal placement: right
+      y: "top", // Vertical placement: top
+    },
+    offset: {
+      x: 20, // 20px from right edge
+      y: 20, // 20px from top edge
+    },
+  };
 
-    /**
-     * Show a notification using iGrowl with consistent styling
-     * @param {string} message - The message to display
-     * @param {string} type - Type of notification: 'info', 'success', 'warning', 'error'
-     * @param {string} title - Optional title for the notification
-     * @param {object} options - Optional override settings
-     */
-    this.show = function(message, type, title, options) {
-        type = type || 'info';
-        
-        // Map error type to danger for iGrowl
-        if (type === 'error') {
-            type = 'danger';
-        }
-        
-        var config = $.extend(true, {}, this.defaultConfig, {
-            type: type,
-            message: message,
-            title: title || null
-        }, options || {});
-        
-        // Show the notification
-        $.iGrowl(config);
-    };
+  /**
+   * Show a notification using iGrowl with consistent styling
+   * @param {string} message - The message to display
+   * @param {string} type - Type of notification: 'info', 'success', 'warning', 'error'
+   * @param {string} title - Optional title for the notification
+   * @param {object} options - Optional override settings
+   */
+  this.show = function (message, type, title, options) {
+    type = type || "info";
 
-    /**
-     * Show an info notification (default blue styling)
-     * @param {string} message - The message to display
-     * @param {string} title - Optional title
-     */
-    this.info = function(message, title) {
-        this.show(message, 'info', title);
-    };
+    var config = $.extend(
+      true,
+      {},
+      this.defaultConfig,
+      {
+        type: type,
+        message: message,
+        title: title || null,
+      },
+      options || {}
+    );
 
-    /**
-     * Show a success notification (green styling)
-     * @param {string} message - The message to display
-     * @param {string} title - Optional title
-     */
-    this.success = function(message, title) {
-        this.show(message, 'success', title);
-    };
+    // Show the notification
+    $.iGrowl(config);
+  };
 
-    /**
-     * Show a warning notification (yellow/orange styling)
-     * @param {string} message - The message to display
-     * @param {string} title - Optional title
-     */
-    this.warning = function(message, title) {
-        this.show(message, 'warning', title);
-    };
+  /**
+   * Show an info notification (default blue styling)
+   * @param {string} message - The message to display
+   * @param {string} title - Optional title
+   */
+  this.info = function (message, title) {
+    this.show(message, "info", title);
+  };
 
-    /**
-     * Show an error notification (red styling)
-     * @param {string} message - The message to display
-     * @param {string} title - Optional title
-     */
-    this.error = function(message, title) {
-        this.show(message, 'error', title);
-    };
+  /**
+   * Show a success notification (green styling)
+   * @param {string} message - The message to display
+   * @param {string} title - Optional title
+   */
+  this.success = function (message, title) {
+    this.show(message, "success", title);
+  };
 
-    /**
-     * Direct replacement for alert() calls
-     * This function provides backward compatibility while migrating
-     * @param {string} message - The alert message
-     */
-    this.alert = function(message) {
-        // Determine notification type based on message content
-        var type = 'info';
-        var title = null;
-        
-        if (message.toLowerCase().includes('error') || 
-            message.toLowerCase().includes('failed') ||
-            message.toLowerCase().includes('could not') ||
-            message.toLowerCase().includes('cannot') ||
-            message.toLowerCase().includes('access denied')) {
-            type = 'error';
-            title = 'Error';
-        } else if (message.toLowerCase().includes('warning') ||
-                   message.toLowerCase().includes('please') ||
-                   message.toLowerCase().includes('must')) {
-            type = 'warning';
-            title = 'Warning';
-        } else if (message.toLowerCase().includes('success') ||
-                   message.toLowerCase().includes('completed') ||
-                   message.toLowerCase().includes('updated')) {
-            type = 'success';
-            title = 'Success';
-        }
-        
-        this.show(message, type, title);
-    };
+  /**
+   * Show a warning notification (yellow/orange styling)
+   * @param {string} message - The message to display
+   * @param {string} title - Optional title
+   */
+  this.warning = function (message, title) {
+    this.show(message, "notice", title);
+  };
 
-    /**
-     * Dismiss all notifications
-     * @param {string} placement - Optional placement to dismiss, or 'all' for all notifications
-     */
-    this.dismissAll = function(placement) {
-        if (typeof $.iGrowl.prototype.dismissAll === 'function') {
-            $.iGrowl.prototype.dismissAll(placement || 'all');
-        }
-    };
-}
+  /**
+   * Show an error notification (red styling)
+   * @param {string} message - The message to display
+   * @param {string} title - Optional title
+   */
+  this.error = function (message, title) {
+    this.show(message, "error", title);
+  };
 
-// Initialize global notification system
-function initializeNotifications() {
-    if (typeof WPOS !== 'undefined') {
-        WPOS.notifications = new WPOSNotifications();
+  /**
+   * Direct replacement for alert() calls
+   * This function provides backward compatibility while migrating
+   * @param {string} message - The alert message
+   */
+  this.alert = function (message) {
+    // Determine notification type based on message content
+    var type = "info";
+    var title = null;
+
+    if (
+      message.toLowerCase().includes("error") ||
+      message.toLowerCase().includes("failed") ||
+      message.toLowerCase().includes("could not") ||
+      message.toLowerCase().includes("cannot") ||
+      message.toLowerCase().includes("access denied")
+    ) {
+      type = "error";
+      title = "Error";
+    } else if (message.toLowerCase().includes("warning") || message.toLowerCase().includes("please") || message.toLowerCase().includes("must")) {
+      type = "warning";
+      title = "Warning";
+    } else if (message.toLowerCase().includes("success") || message.toLowerCase().includes("completed") || message.toLowerCase().includes("updated")) {
+      type = "success";
+      title = "Success";
     }
-}
 
-// Create global shorthand functions with fallback to alert()
-window.showNotification = function(message, type, title) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.show(message, type, title);
-    } else {
-        // Fallback to browser alert
-        var displayMessage = title ? title + ': ' + message : message;
-        alert(displayMessage);
+    this.show(message, type, title);
+  };
+
+  /**
+   * Dismiss all notifications
+   * @param {string} placement - Optional placement to dismiss, or 'all' for all notifications
+   */
+  this.dismissAll = function (placement) {
+    if (typeof $.iGrowl.prototype.dismissAll === "function") {
+      $.iGrowl.prototype.dismissAll(placement || "all");
     }
-};
-
-window.showInfo = function(message, title) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.info(message, title);
-    } else {
-        var displayMessage = title ? title + ': ' + message : message;
-        alert(displayMessage);
-    }
-};
-
-window.showSuccess = function(message, title) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.success(message, title);
-    } else {
-        var displayMessage = title ? title + ': ' + message : message;
-        alert(displayMessage);
-    }
-};
-
-window.showWarning = function(message, title) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.warning(message, title);
-    } else {
-        var displayMessage = title ? title + ': ' + message : message;
-        alert(displayMessage);
-    }
-};
-
-window.showError = function(message, title) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.error(message, title);
-    } else {
-        var displayMessage = title ? title + ': ' + message : message;
-        alert(displayMessage);
-    }
-};
-
-// Global replacement for alert() calls
-window.wposAlert = function(message) {
-    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-        WPOS.notifications.alert(message);
-    } else {
-        alert(message);
-    }
-};
-
-// Try to initialize now, and setup for re-initialization when WPOS is ready
-initializeNotifications();
-
-// Re-initialize when WPOS becomes available
-if (typeof window !== 'undefined') {
-    var checkWPOS = setInterval(function() {
-        if (typeof WPOS !== 'undefined') {
-            initializeNotifications();
-            clearInterval(checkWPOS);
-        }
-    }, 100);
+  };
 }
