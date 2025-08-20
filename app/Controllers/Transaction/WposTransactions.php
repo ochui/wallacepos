@@ -147,16 +147,11 @@ class WposTransactions
         if ($qres === false) {
             $result['error'] = $transMdl->errorInfo;
         } else {
-            if (count($qres) > 1) {
-                $sales = [];
-                foreach ($qres as $sale) {
-                    $jsonObj = json_decode($sale['data'], true);
-                    $sales[$sale['ref']] = $jsonObj;
-                }
-                $result['data'] = $sales;
-            } else {
-                $result['data'][$qres[0]['ref']] = json_decode($qres[0]['data']);
+            foreach ($qres as $sale) {
+                $jsonObj = json_decode($sale['data'], true);
+                $sales[$sale['ref']] = $jsonObj;
             }
+            $result['data'] = $sales;
         }
         return $result;
     }
