@@ -312,8 +312,13 @@ class WposAdminStats
             }
             foreach ($stats as $key => $value) {
                 $taxitems = WposAdminUtilities::getTaxTable()['items'];
-                $stats[$key]->saletax = round($taxitems[$key]['multiplier'] * $stats[$key]->saletotal, 2);
-                $stats[$key]->refundtax = round($taxitems[$key]['multiplier'] * $stats[$key]->refundtotal, 2);
+                if (isset($taxitems[$key])) {
+                    $stats[$key]->saletax = round($taxitems[$key]['multiplier'] * $stats[$key]->saletotal, 2);
+                    $stats[$key]->refundtax = round($taxitems[$key]['multiplier'] * $stats[$key]->refundtotal, 2);
+                } else {
+                    $stats[$key]->saletax = 0;
+                    $stats[$key]->refundtax = 0;
+                }
                 $stats[$key]->balance = number_format($stats[$key]->saletax - $stats[$key]->refundtax, 2);
             }
             // Get cash rounding total
