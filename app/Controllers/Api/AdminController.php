@@ -1270,20 +1270,49 @@ class AdminController
     private function getRequestData()
     {
         if (isset($_REQUEST['data']) && $_REQUEST['data'] != "") {
-            // Sanitize JSON data
-            $config = \HTMLPurifier_Config::createDefault();
-            $purifier = new \HTMLPurifier($config);
-            $cleanData = $purifier->purify($_REQUEST['data']);
 
-            $data = json_decode($cleanData);
+            $data = json_decode($_REQUEST['data']);
             if ($data === false) {
                 $this->result['errorCode'] = "request";
                 $this->result['error'] = "Could not parse the provided json request";
                 $this->returnResult();
             }
+
+            // Sanitize JSON data
+            $config = \HTMLPurifier_Config::createDefault();
+            $purifier = new \HTMLPurifier($config);
+            $data = $this->sanitizeObject($data, $purifier);
+
+
             return $data;
         }
         return new \stdClass();
+    }
+
+
+    /**
+     * Recursively sanitize all string fields in an object or array
+     */
+    private function sanitizeObject($data, $purifier)
+    {
+        if (is_object($data)) {
+            foreach ($data as $key => $value) {
+                if (is_string($value)) {
+                    $data->$key = $purifier->purify($value);
+                } elseif (is_object($value) || is_array($value)) {
+                    $data->$key = $this->sanitizeObject($value, $purifier);
+                }
+            }
+        } elseif (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_string($value)) {
+                    $data[$key] = $purifier->purify($value);
+                } elseif (is_object($value) || is_array($value)) {
+                    $data[$key] = $this->sanitizeObject($value, $purifier);
+                }
+            }
+        }
+        return $data;
     }
 
     /**

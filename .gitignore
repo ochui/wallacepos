@@ -4,6 +4,7 @@ nbproject
 library/wpos/.dbconfig.json
 storage/backup/
 storage/logs/
+storage/templates/
 test-sw.html
 vendor/
 

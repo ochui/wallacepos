@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WallacePOS Application Bootstrap
  * 
@@ -13,28 +14,40 @@ if (!defined('APP_BASE_PATH')) {
 
 // Helper function for base path
 if (!function_exists('base_path')) {
-    function base_path($path = '') {
+    function base_path($path = '')
+    {
         return APP_BASE_PATH . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 }
 
 // Helper function for storage path
 if (!function_exists('storage_path')) {
-    function storage_path($path = '') {
+    function storage_path($path = '')
+    {
         return base_path('storage' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : ''));
+    }
+}
+
+// Helper function for resource path
+if (!function_exists('resource_path')) {
+    function resource_path($path = '')
+    {
+        return base_path('resources' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : ''));
     }
 }
 
 // Helper function for config path
 if (!function_exists('config_path')) {
-    function config_path($path = '') {
+    function config_path($path = '')
+    {
         return base_path('config' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : ''));
     }
 }
 
 // Helper function for configuration access
 if (!function_exists('config')) {
-    function config($key = null, $default = null) {
+    function config($key = null, $default = null)
+    {
         if (is_null($key)) {
             return App\Core\Config::all();
         }

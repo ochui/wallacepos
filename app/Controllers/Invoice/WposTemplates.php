@@ -148,16 +148,20 @@ class WposTemplates
      */
     public static function restoreDefaults($filename = null)
     {
-        $basePath = base_path();
         $storagePath = storage_path();
-        
+        $resourcePath = resource_path();
+
+        if (!is_dir($storagePath . "/templates/")) {
+            mkdir($storagePath . "/templates/", 0755, true);
+        }
+
         if ($filename != null) {
-            if (file_exists($basePath . "storage-template/templates/" . $filename))
-                copy($basePath . "storage-template/templates/" . $filename, $storagePath . "templates/" . $filename);
+            if (file_exists($resourcePath . "/default/templates/" . $filename))
+                copy($resourcePath . "/default/templates/" . $filename, $storagePath . "/templates/" . $filename);
             return;
         }
-        foreach (glob($basePath . "storage-template/templates/*") as $file) {
-            copy($file, $storagePath . "templates/" . basename($file));
+        foreach (glob($resourcePath . "/default/templates/*") as $file) {
+            copy($file, $storagePath . "/templates/" . basename($file));
         }
     }
 }
