@@ -13,7 +13,7 @@ use App\Controllers\Admin\WposAdminUtilities;
 use App\Controllers\Invoice\WposInvoices;
 use App\Controllers\Pos\WposPosSetup;
 use App\Controllers\Pos\WposPosData;
-use App\Transaction\WposTransactions;
+use App\Controllers\Transaction\WposTransactions;
 use App\Invoice\WposTemplates;
 use App\Communication\WposSocketControl;
 use App\Communication\WposSocketIO;
@@ -337,6 +337,18 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function saveInvoiceSettings()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('settings/invoice/set');
+
+        $data = $this->getRequestData();
+        $configMdl = new WposAdminSettings($data);
+        $configMdl->setName('invoice');
+        $this->result = $configMdl->saveSettings($this->result);
+        return $this->returnResult();
+    }
+
     public function getOverviewStats()
     {
         $this->checkAuthentication();
@@ -392,6 +404,61 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function getCategorySellingStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/categoryselling');
+
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getWhatsSellingStats($this->result, 1);
+        return $this->returnResult();
+    }
+
+    public function getSupplySellingStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/supplyselling');
+
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getWhatsSellingStats($this->result, 2);
+        return $this->returnResult();
+    }
+
+    public function getStockStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/stock');
+
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getStockLevels($this->result);
+        return $this->returnResult();
+    }
+
+    public function getUserStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/users');
+
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'user');
+        return $this->returnResult();
+    }
+
+    public function getTaxStats()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('stats/tax');
+
+        $data = $this->getRequestData();
+        $statsMdl = new WposAdminStats($data);
+        $this->result = $statsMdl->getTaxStats($this->result);
+        return $this->returnResult();
+    }
+
     public function getGeneralGraph()
     {
         $this->checkAuthentication();
@@ -400,6 +467,73 @@ class AdminController
         $data = $this->getRequestData();
         $graphMdl = new WposAdminGraph($data);
         $this->result = $graphMdl->getOverviewGraph($this->result);
+        return $this->returnResult();
+    }
+
+    public function getTakingsGraph()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('graph/takings');
+
+        $data = $this->getRequestData();
+        $graphMdl = new WposAdminGraph($data);
+        $this->result = $graphMdl->getMethodGraph($this->result);
+        return $this->returnResult();
+    }
+
+    public function getDevicesGraph()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('graph/devices');
+
+        $data = $this->getRequestData();
+        $graphMdl = new WposAdminGraph($data);
+        $this->result = $graphMdl->getDeviceGraph($this->result);
+        return $this->returnResult();
+    }
+
+    public function getLocationsGraph()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('graph/locations');
+
+        $data = $this->getRequestData();
+        $graphMdl = new WposAdminGraph($data);
+        $this->result = $graphMdl->getLocationGraph($this->result);
+        return $this->returnResult();
+    }
+
+    // Sales management
+    public function deleteSale()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('sales/delete');
+
+        $data = $this->getRequestData();
+        $aSaleMdl = new WposTransactions($data);
+        $this->result = $aSaleMdl->deleteSale($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteSaleVoid()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('sales/deletevoid');
+
+        $data = $this->getRequestData();
+        $aSaleMdl = new WposTransactions($data);
+        $this->result = $aSaleMdl->removeVoidRecord($this->result);
+        return $this->returnResult();
+    }
+
+    public function adminVoidSale()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('sales/adminvoid');
+
+        $data = $this->getRequestData();
+        $aSaleMdl = new WposTransactions($data);
+        $this->result = $aSaleMdl->voidSale($this->result);
         return $this->returnResult();
     }
 
@@ -714,6 +848,105 @@ class AdminController
         $data = $this->getRequestData();
         $invMdl = new WposInvoices($data);
         $this->result = $invMdl->removeInvoice($this->result);
+        return $this->returnResult();
+    }
+
+    public function getInvoiceHistory()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/history/get');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposTransactions($data);
+        $this->result = $invMdl->getTransactionHistory($this->result);
+        return $this->returnResult();
+    }
+
+    public function generateInvoice()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/generate');
+
+        $invMdl = new WposTransactions(null, $_REQUEST['id'], false);
+        $invMdl->generateInvoice();
+    }
+
+    public function emailInvoice()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/email');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposTransactions($data);
+        $this->result = $invMdl->emailInvoice($this->result);
+        return $this->returnResult();
+    }
+
+    // Invoice items management
+    public function addInvoiceItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/items/add');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->addItem($this->result);
+        return $this->returnResult();
+    }
+
+    public function editInvoiceItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/items/edit');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->updateItem($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteInvoiceItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/items/delete');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->removeItem($this->result);
+        return $this->returnResult();
+    }
+
+    // Invoice payments management
+    public function addInvoicePayment()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/payments/add');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->addPayment($this->result);
+        return $this->returnResult();
+    }
+
+    public function editInvoicePayment()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/payments/edit');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->updatePayment($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteInvoicePayment()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('invoices/payments/delete');
+
+        $data = $this->getRequestData();
+        $invMdl = new WposInvoices($data);
+        $this->result = $invMdl->removePayment($this->result);
         return $this->returnResult();
     }
 

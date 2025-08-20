@@ -58,6 +58,9 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/sales/void', [PosController::class, 'voidSale']);
             $r->addRoute(['GET', 'POST'], '/api/sales/search', [PosController::class, 'searchSales']);
             $r->addRoute(['GET', 'POST'], '/api/sales/updatenotes', [PosController::class, 'updateSaleNotes']);
+            $r->addRoute(['GET', 'POST'], '/api/sales/delete', [AdminController::class, 'deleteSale']);
+            $r->addRoute(['GET', 'POST'], '/api/sales/deletevoid', [AdminController::class, 'deleteSaleVoid']);
+            $r->addRoute(['GET', 'POST'], '/api/sales/adminvoid', [AdminController::class, 'adminVoidSale']);
             $r->addRoute(['GET', 'POST'], '/api/transactions/get', [PosController::class, 'getTransaction']);
             
             // Admin routes
@@ -129,6 +132,15 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/invoices/add', [AdminController::class, 'addInvoice']);
             $r->addRoute(['GET', 'POST'], '/api/invoices/edit', [AdminController::class, 'editInvoice']);
             $r->addRoute(['GET', 'POST'], '/api/invoices/delete', [AdminController::class, 'deleteInvoice']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/history/get', [AdminController::class, 'getInvoiceHistory']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/generate', [AdminController::class, 'generateInvoice']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/email', [AdminController::class, 'emailInvoice']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/items/add', [AdminController::class, 'addInvoiceItem']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/items/edit', [AdminController::class, 'editInvoiceItem']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/items/delete', [AdminController::class, 'deleteInvoiceItem']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/payments/add', [AdminController::class, 'addInvoicePayment']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/payments/edit', [AdminController::class, 'editInvoicePayment']);
+            $r->addRoute(['GET', 'POST'], '/api/invoices/payments/delete', [AdminController::class, 'deleteInvoicePayment']);
             
             // Tax management
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/add', [AdminController::class, 'addTaxRule']);
@@ -158,12 +170,21 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/settings/general/get', [AdminController::class, 'getGeneralSettings']);
             $r->addRoute(['GET', 'POST'], '/api/settings/general/set', [AdminController::class, 'saveGeneralSettings']);
             $r->addRoute(['GET', 'POST'], '/api/settings/invoice/get', [AdminController::class, 'getInvoiceSettings']);
+            $r->addRoute(['GET', 'POST'], '/api/settings/invoice/set', [AdminController::class, 'saveInvoiceSettings']);
             $r->addRoute(['GET', 'POST'], '/api/stats/general', [AdminController::class, 'getOverviewStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/itemselling', [AdminController::class, 'getItemSellingStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/takings', [AdminController::class, 'getTakingsStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/locations', [AdminController::class, 'getLocationStats']);
             $r->addRoute(['GET', 'POST'], '/api/stats/devices', [AdminController::class, 'getDeviceStats']);
+            $r->addRoute(['GET', 'POST'], '/api/stats/categoryselling', [AdminController::class, 'getCategorySellingStats']);
+            $r->addRoute(['GET', 'POST'], '/api/stats/supplyselling', [AdminController::class, 'getSupplySellingStats']);
+            $r->addRoute(['GET', 'POST'], '/api/stats/stock', [AdminController::class, 'getStockStats']);
+            $r->addRoute(['GET', 'POST'], '/api/stats/users', [AdminController::class, 'getUserStats']);
+            $r->addRoute(['GET', 'POST'], '/api/stats/tax', [AdminController::class, 'getTaxStats']);
             $r->addRoute(['GET', 'POST'], '/api/graph/general', [AdminController::class, 'getGeneralGraph']);
+            $r->addRoute(['GET', 'POST'], '/api/graph/takings', [AdminController::class, 'getTakingsGraph']);
+            $r->addRoute(['GET', 'POST'], '/api/graph/devices', [AdminController::class, 'getDevicesGraph']);
+            $r->addRoute(['GET', 'POST'], '/api/graph/locations', [AdminController::class, 'getLocationsGraph']);
             $r->addRoute(['GET', 'POST'], '/api/file/upload', [AdminController::class, 'uploadFile']);
             
             // Customer API routes
