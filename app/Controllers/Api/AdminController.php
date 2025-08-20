@@ -14,7 +14,7 @@ use App\Controllers\Invoice\WposInvoices;
 use App\Controllers\Pos\WposPosSetup;
 use App\Controllers\Pos\WposPosData;
 use App\Controllers\Transaction\WposTransactions;
-use App\Invoice\WposTemplates;
+use App\Controllers\Invoice\WposTemplates;
 use App\Communication\WposSocketControl;
 use App\Communication\WposSocketIO;
 use App\Integration\GoogleIntegration;
@@ -1225,6 +1225,41 @@ class AdminController
             }
         } else {
             $this->result['error'] = "No file selected";
+        }
+        return $this->returnResult();
+    }
+
+    // Template management
+    public function getTemplates()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('templates/get');
+
+        $this->result = WposTemplates::getTemplates($this->result);
+        return $this->returnResult();
+    }
+
+    public function editTemplate()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('templates/edit');
+
+        $data = $this->getRequestData();
+        $templatesObj = new WposTemplates($data);
+        $this->result = $templatesObj->editTemplate($this->result);
+        return $this->returnResult();
+    }
+
+    public function restoreTemplate()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('templates/restore');
+
+        $data = $this->getRequestData();
+        if (isset($data->filename)) {
+            WposTemplates::restoreDefaults($data->filename);
+        } else {
+            WposTemplates::restoreDefaults();
         }
         return $this->returnResult();
     }

@@ -197,6 +197,11 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/graph/locations', [AdminController::class, 'getLocationsGraph']);
             $r->addRoute(['GET', 'POST'], '/api/file/upload', [AdminController::class, 'uploadFile']);
             
+            // Template management
+            $r->addRoute(['GET', 'POST'], '/api/templates/get', [AdminController::class, 'getTemplates']);
+            $r->addRoute(['GET', 'POST'], '/api/templates/edit', [AdminController::class, 'editTemplate']);
+            $r->addRoute(['GET', 'POST'], '/api/templates/restore', [AdminController::class, 'restoreTemplate']);
+            
             // Customer API routes
             $r->addRoute(['GET', 'POST'], '/api/customer/auth', [AuthController::class, 'customerAuth']);
             $r->addRoute(['GET', 'POST'], '/api/customer/logout', [AuthController::class, 'logout']);
