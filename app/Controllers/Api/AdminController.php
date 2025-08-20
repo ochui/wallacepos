@@ -626,6 +626,72 @@ class AdminController
         return $this->returnResult();
     }
 
+    public function addCustomerContact()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/contacts/add');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->addContact($this->result);
+        return $this->returnResult();
+    }
+
+    public function editCustomerContact()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/contacts/edit');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->updateContact($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteCustomerContact()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/contacts/delete');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->deleteContact($this->result);
+        return $this->returnResult();
+    }
+
+    public function setCustomerAccess()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/setaccess');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->setAccess($this->result);
+        return $this->returnResult();
+    }
+
+    public function setCustomerPassword()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/setpassword');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->setPassword($this->result);
+        return $this->returnResult();
+    }
+
+    public function sendCustomerReset()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('customers/sendreset');
+
+        $data = $this->getRequestData();
+        $custMdl = new WposAdminCustomers($data);
+        $this->result = $custMdl->sendResetEmail($this->result);
+        return $this->returnResult();
+    }
+
     // User management
     public function getUsers()
     {
@@ -981,6 +1047,39 @@ class AdminController
         $data = $this->getRequestData();
         $tax = new WposAdminItems($data);
         $this->result = $tax->deleteTaxRule($this->result);
+        return $this->returnResult();
+    }
+
+    public function addTaxItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('tax/items/add');
+
+        $data = $this->getRequestData();
+        $tax = new WposAdminItems($data);
+        $this->result = $tax->addTaxItem($this->result);
+        return $this->returnResult();
+    }
+
+    public function editTaxItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('tax/items/edit');
+
+        $data = $this->getRequestData();
+        $tax = new WposAdminItems($data);
+        $this->result = $tax->updateTaxItem($this->result);
+        return $this->returnResult();
+    }
+
+    public function deleteTaxItem()
+    {
+        $this->checkAuthentication();
+        $this->checkPermission('tax/items/delete');
+
+        $data = $this->getRequestData();
+        $tax = new WposAdminItems($data);
+        $this->result = $tax->deleteTaxItem($this->result);
         return $this->returnResult();
     }
 

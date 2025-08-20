@@ -97,12 +97,19 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/customers/add', [AdminController::class, 'addCustomer']);
             $r->addRoute(['GET', 'POST'], '/api/customers/edit', [AdminController::class, 'editCustomer']);
             $r->addRoute(['GET', 'POST'], '/api/customers/delete', [AdminController::class, 'deleteCustomer']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/contacts/add', [AdminController::class, 'addCustomerContact']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/contacts/edit', [AdminController::class, 'editCustomerContact']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/contacts/delete', [AdminController::class, 'deleteCustomerContact']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/setaccess', [AdminController::class, 'setCustomerAccess']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/setpassword', [AdminController::class, 'setCustomerPassword']);
+            $r->addRoute(['GET', 'POST'], '/api/customers/sendreset', [AdminController::class, 'sendCustomerReset']);
             
             // User management
             $r->addRoute(['GET', 'POST'], '/api/users/get', [AdminController::class, 'getUsers']);
             $r->addRoute(['GET', 'POST'], '/api/users/add', [AdminController::class, 'addUser']);
             $r->addRoute(['GET', 'POST'], '/api/users/edit', [AdminController::class, 'editUser']);
             $r->addRoute(['GET', 'POST'], '/api/users/delete', [AdminController::class, 'deleteUser']);
+            $r->addRoute(['GET', 'POST'], '/api/users/disable', [AdminController::class, 'disableUser']);
             $r->addRoute(['GET', 'POST'], '/api/user/disable', [AdminController::class, 'disableUser']);
             
             // Device management
@@ -146,6 +153,9 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/add', [AdminController::class, 'addTaxRule']);
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/edit', [AdminController::class, 'editTaxRule']);
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/delete', [AdminController::class, 'deleteTaxRule']);
+            $r->addRoute(['GET', 'POST'], '/api/tax/items/add', [AdminController::class, 'addTaxItem']);
+            $r->addRoute(['GET', 'POST'], '/api/tax/items/edit', [AdminController::class, 'editTaxItem']);
+            $r->addRoute(['GET', 'POST'], '/api/tax/items/delete', [AdminController::class, 'deleteTaxItem']);
             
             // Node/Socket management
             $r->addRoute(['GET', 'POST'], '/api/node/status', [AdminController::class, 'getNodeStatus']);
