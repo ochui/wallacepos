@@ -265,7 +265,7 @@ class WposAdminSettings
                         unset($this->curconfig);
                     }
 
-                    $result['data'] = $this->curconfig;
+                    $result['data'] = $conf;
                 }
             } else {
                 // if current settings are null, create a new record with the specified name
