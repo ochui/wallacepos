@@ -324,16 +324,28 @@ function WPOSUtil() {
 
     this.getCurrencySymbol = function(){
         loadCurrencyValues();
+        if (curformat === null || !Array.isArray(curformat) || curformat.length < 1) {
+            return '$'; // Fallback currency symbol
+        }
         return curformat[0];
     };
 
     this.getCurrencyPlacedAfter = function(){
         loadCurrencyValues();
+        if (curformat === null || !Array.isArray(curformat) || curformat.length < 5) {
+            return false; // Fallback: place symbol before value
+        }
         return curformat[4]!=0;
     };
 
     this.currencyFormat = function(value, nosymbol, usesymboloverride){
         loadCurrencyValues();
+        // Guard against null curformat during initialization
+        if (curformat === null || !Array.isArray(curformat) || curformat.length < 5) {
+            // Fallback to basic formatting if currency config is not available
+            var formattedValue = parseFloat(value || 0).toFixed(2);
+            return nosymbol ? formattedValue : '$' + formattedValue;
+        }
         var result = number_format(value, curformat[1], curformat[2], curformat[3]);
         if (!nosymbol){
             var cursymbol = ((printcursymbol!="" && usesymboloverride)?printcursymbol:curformat[0]);

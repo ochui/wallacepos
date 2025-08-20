@@ -141,32 +141,77 @@ function WPOSNotifications() {
 }
 
 // Initialize global notification system
-if (typeof WPOS !== 'undefined') {
-    WPOS.notifications = new WPOSNotifications();
-    
-    // Create global shorthand functions for easy migration
-    window.showNotification = function(message, type, title) {
+function initializeNotifications() {
+    if (typeof WPOS !== 'undefined') {
+        WPOS.notifications = new WPOSNotifications();
+    }
+}
+
+// Create global shorthand functions with fallback to alert()
+window.showNotification = function(message, type, title) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.show(message, type, title);
-    };
-    
-    window.showInfo = function(message, title) {
+    } else {
+        // Fallback to browser alert
+        var displayMessage = title ? title + ': ' + message : message;
+        alert(displayMessage);
+    }
+};
+
+window.showInfo = function(message, title) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.info(message, title);
-    };
-    
-    window.showSuccess = function(message, title) {
+    } else {
+        var displayMessage = title ? title + ': ' + message : message;
+        alert(displayMessage);
+    }
+};
+
+window.showSuccess = function(message, title) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.success(message, title);
-    };
-    
-    window.showWarning = function(message, title) {
+    } else {
+        var displayMessage = title ? title + ': ' + message : message;
+        alert(displayMessage);
+    }
+};
+
+window.showWarning = function(message, title) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.warning(message, title);
-    };
-    
-    window.showError = function(message, title) {
+    } else {
+        var displayMessage = title ? title + ': ' + message : message;
+        alert(displayMessage);
+    }
+};
+
+window.showError = function(message, title) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.error(message, title);
-    };
-    
-    // Global replacement for alert() calls
-    window.wposAlert = function(message) {
+    } else {
+        var displayMessage = title ? title + ': ' + message : message;
+        alert(displayMessage);
+    }
+};
+
+// Global replacement for alert() calls
+window.wposAlert = function(message) {
+    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
         WPOS.notifications.alert(message);
-    };
+    } else {
+        alert(message);
+    }
+};
+
+// Try to initialize now, and setup for re-initialization when WPOS is ready
+initializeNotifications();
+
+// Re-initialize when WPOS becomes available
+if (typeof window !== 'undefined') {
+    var checkWPOS = setInterval(function() {
+        if (typeof WPOS !== 'undefined') {
+            initializeNotifications();
+            clearInterval(checkWPOS);
+        }
+    }, 100);
 }
