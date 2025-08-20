@@ -70,6 +70,7 @@
                             <option value="Rp">Rp Rupiah</option>
                             <option value="kr">kr Krone/Kroon/Krona</option>
                             <option value="Kč">Kč Koruna</option>
+                            <option value="₦">₦ Naira</option>
                         </select>
                         </div>
                     </div>
