@@ -459,6 +459,51 @@ function WPOSUtil() {
         }
     };
 
+    // Confirmation Dialog
+    var confirmDialogInit = false;
+    this.confirm = function (message, onConfirm, onCancel, title) {
+        title = title || "Confirmation";
+        
+        // Initialize dialog if not already done
+        if (!confirmDialogInit) {
+            // Check if dialog container exists, if not create it
+            if ($("#wpos-confirm-dialog").length === 0) {
+                $("body").append('<div id="wpos-confirm-dialog" style="display: none;"><p id="wpos-confirm-message"></p></div>');
+            }
+            
+            // Initialize the dialog
+            $("#wpos-confirm-dialog").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 400,
+                title: "Confirmation",
+                buttons: {
+                    "Yes": function() {
+                        $(this).dialog("close");
+                        if (onConfirm && typeof onConfirm === 'function') {
+                            onConfirm();
+                        }
+                    },
+                    "No": function() {
+                        $(this).dialog("close");
+                        if (onCancel && typeof onCancel === 'function') {
+                            onCancel();
+                        }
+                    }
+                }
+            });
+            confirmDialogInit = true;
+        }
+        
+        // Set message and title
+        $("#wpos-confirm-message").text(message);
+        $("#wpos-confirm-dialog").dialog("option", "title", title);
+        
+        // Open the dialog
+        $("#wpos-confirm-dialog").dialog("open");
+    };
+
     this.mobile = false;
     this.isandroid = false;
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {

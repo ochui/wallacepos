@@ -497,8 +497,7 @@ function WPOSTransactions() {
     };
 
     function updateSaleNotes(){
-        var answer = confirm("Save sale notes?");
-        if (answer){
+        WPOS.util.confirm("Save sale notes?", function() {
             // show loader
             WPOS.util.showLoader();
             var ref = $('#transref').text();
@@ -521,7 +520,7 @@ function WPOSTransactions() {
                 // hide loader
                 WPOS.util.hideLoader();
             });
-        }
+        });
     }
 
 }

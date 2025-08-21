@@ -690,10 +690,9 @@ function WPOSSales() {
      *
      */
     this.userAbortSale = function () {
-        var answer = confirm("Are you sure you want to abort this order?");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to abort this order?", function() {
             clearSalesForm();
-        }
+        });
     };
 
     this.resetSalesForm = function(){
@@ -972,8 +971,7 @@ function WPOSSales() {
     };
 
     this.removeOrder = function(ref){
-        var answer = confirm("Are you sure you want to delete this order?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this order?", function() {
             WPOS.util.showLoader();
             WPOS.sendJsonDataAsync("orders/remove", JSON.stringify({ref: ref}), function(result){
 
@@ -991,7 +989,7 @@ function WPOSSales() {
                 WPOS.util.hideLoader();
                 WPOS.trans.showTransactionView();
             });
-        }
+        });
     };
 
     function loadOrder(ref){
@@ -1142,10 +1140,9 @@ function WPOSSales() {
             if (psetting == "email" && recemailed){
                 return; // receipt has been emailed
             }
-            var answer = confirm("Would you like to print a receipt?");
-            if (answer){
+            WPOS.util.confirm("Would you like to print a receipt?", function() {
                 WPOS.print.printReceipt(salesobj.ref);
-            }
+            });
 
         }
     }
@@ -1473,15 +1470,14 @@ function WPOSSales() {
             WPOS.notifications.warning("Reason must not be blank.", "Missing Information");
             return;
         }
-        var answer = confirm("Are you sure you want to void this transaction?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to void this transaction?", function() {
             $("#procvoidbtn").prop('disabled', true);
             processVoidTransaction(ref, false);
             $("#formdiv").dialog('close');
             lasttransref = ref;
             // update transaction info
             WPOS.trans.populateTransactionInfo(ref);
-        }
+        });
     };
 
     this.processRefund = function(){
@@ -1494,15 +1490,14 @@ function WPOSSales() {
             return;
         }
         var ref = $("#refundref").val();
-        var answer = confirm("Are you sure you want to refund this transaction?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to refund this transaction?", function() {
             $("#procvoidbtn").prop('disabled', true);
             processVoidTransaction(ref, true);
             $("#formdiv").dialog('close');
             lasttransref = ref;
             // update transaction info
             WPOS.trans.populateTransactionInfo(ref);
-        }
+        });
     };
 
     this.eftposRefund = function(){
@@ -1542,10 +1537,9 @@ function WPOSSales() {
             if (WPOS.getLocalConfig().recask == "print"){
                 WPOS.print.printReceipt(refundobj.ref);
             } else {
-                var answer = confirm("Would you like to print a receipt?");
-                if (answer){
+                WPOS.util.confirm("Would you like to print a receipt?", function() {
                     WPOS.print.printReceipt(refundobj.ref);
-                }
+                });
             }
         }
         return true;

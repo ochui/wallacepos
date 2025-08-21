@@ -159,11 +159,10 @@ function WPOSClientDash(){
         $(loginbtn).removeAttr('disabled', 'disabled');
     }
     this.logout = function () {
-        var answer = confirm("Are you sure you want to logout?");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to logout?", function() {
             WPOS.util.showLoader();
             performLogout();
-        }
+        });
     };
     function performLogout(){
         WPOS.util.showLoader();

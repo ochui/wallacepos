@@ -185,14 +185,13 @@ function WPOSKitchen() {
     };
 
     this.logout = function () {
-        var answer = confirm("Are you sure you want to logout?");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to logout?", function() {
             WPOS.util.showLoader();
             stopSocket();
             WPOS.getJsonData("logout");
             showLogin();
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     function authenticate(user, hashpass) {
@@ -1286,8 +1285,10 @@ function WPOSKitchenMod(){
         playChime();
         switch (WPOS.getLocalConfig().printing.recask) {
             case "ask":
-                var answer = confirm("Print order ticket?");
-                if (!answer) break;
+                WPOS.util.confirm("Print order ticket?", function() {
+                    WPOS.print.printOrderTicket("orders", saleobj, orderid, null);
+                });
+                break;
             case "print":
                 WPOS.print.printOrderTicket("orders", saleobj, orderid, null);
         }
@@ -1302,8 +1303,10 @@ function WPOSKitchenMod(){
         playChime();
         switch (WPOS.getLocalConfig().printing.recask) {
             case "ask":
-                var answer = confirm("Print order ticket?");
-                if (!answer) break;
+                WPOS.util.confirm("Print order ticket?", function() {
+                    WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
+                });
+                break;
             case "print":
                 WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
         }
@@ -1317,8 +1320,10 @@ function WPOSKitchenMod(){
         playChime();
         switch (WPOS.getLocalConfig().printing.recask) {
             case "ask":
-                var answer = confirm("Print order ticket?");
-                if (!answer) break;
+                WPOS.util.confirm("Print order ticket?", function() {
+                    WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
+                });
+                break;
             case "print":
                 WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
         }

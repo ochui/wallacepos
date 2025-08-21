@@ -101,10 +101,9 @@ function WPOSOrders(){
 
     function kitchenTerminalFallback(orderdata, olddata){
         // TODO: have kitchen printer for a fallback option
-       var answer = confirm("The last order has not been received by the kitchen terminal,\nwould you like to print and order tickets here to take to the kitchen?");
-       if (answer){
+       WPOS.util.confirm("The last order has not been received by the kitchen terminal,\nwould you like to print and order tickets here to take to the kitchen?", function() {
            processOrders(orderdata, olddata, 'receipts', false);
-       }
+       });
     }
 
     function insertOrder(saleobj, orderid){

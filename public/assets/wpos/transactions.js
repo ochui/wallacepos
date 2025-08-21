@@ -537,19 +537,19 @@ function WPOSTransactions() {
 
     // DATA FUNCTIONS
     this.updateInvoice = function() {
-        var answer = confirm("Save invoice details?");
-        if (answer) {
+        var self = this;
+        WPOS.util.confirm("Save invoice details?", function() {
             // show loader
             WPOS.util.showLoader();
             var result = WPOS.sendJsonData("invoices/edit", JSON.stringify({id: curid, processdt: $("#invprocessdt").datepicker("getDate").getTime(), duedt: $("#invduedt").datepicker("getDate").getTime(), closedt: ($("#invclosedt").val() == "" ? "" : $("#invclosedt").datepicker("getDate").getTime()), discount: $("#invdiscountval").val(), notes: $('#transnotes').val()}));
             if (result !== false) {
                 transactions[curref] = result;
-                this.openTransactionDialog(curref);
+                self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     this.saveInvoiceItem = function() {

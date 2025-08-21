@@ -243,18 +243,26 @@ function WPOS() {
     };
 
     this.logout = function () {
-        var answer = confirm("Are you sure you want to logout?");
-        if (answer) {
+        var self = this;
+        WPOS.util.confirm("Are you sure you want to logout?", function() {
             var sales = WPOS.sales.getOfflineSalesNum();
-            if (sales>0) {
-                answer = confirm("You have offline sales that have not been uploaded to the server.\nWould you like to back them up?");
-                if (answer)
-                    this.backupOfflineSales();
+            if (sales > 0) {
+                WPOS.util.confirm("You have offline sales that have not been uploaded to the server.\nWould you like to back them up?", function() {
+                    self.backupOfflineSales();
+                    WPOS.util.showLoader();
+                    logout();
+                    WPOS.util.hideLoader();
+                }, function() {
+                    WPOS.util.showLoader();
+                    logout();
+                    WPOS.util.hideLoader();
+                });
+            } else {
+                WPOS.util.showLoader();
+                logout();
+                WPOS.util.hideLoader();
             }
-            WPOS.util.showLoader();
-            logout();
-            WPOS.util.hideLoader();
-        }
+        });
     };
 
     function logout(){
@@ -526,8 +534,7 @@ function WPOS() {
 
     this.removeDeviceRegistration = function(){
         if (isUserAdmin()){
-            var answer = confirm("Are you sure you want to delete this devices registration?\nYou will be logged out and this device will need to be re registered.");
-            if (answer){
+            WPOS.util.confirm("Are you sure you want to delete this devices registration?\nYou will be logged out and this device will need to be re registered.", function() {
                 // show loader
                 WPOS.util.showLoader();
                 var regid = WPOS.getConfigTable().registration.id;
@@ -539,7 +546,7 @@ function WPOS() {
                     // hide loader
                     WPOS.util.hideLoader();
                 });
-            }
+            });
             return;
         }
         WPOS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
@@ -547,21 +554,20 @@ function WPOS() {
 
     this.resetLocalConfig = function(){
         if (isUserAdmin()){
-            var answer = confirm("Are you sure you want to restore local settings to their defaults?\n");
-            if (answer){
+            WPOS.util.confirm("Are you sure you want to restore local settings to their defaults?\n", function() {
                 localStorage.removeItem("wpos_lconfig");
                 WPOS.print.loadPrintSettings();
                 setKeypad(true);
-            }
+            });
             return;
         }
         WPOS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
     };
 
     this.clearLocalData = function(){
+        var self = this;
         if (isUserAdmin()){
-            var answer = confirm("Are you sure you want to clear all local data?\nThis removes all locally stored data except device registration key.\nOffline Sales will be deleted.");
-            if (answer){
+            WPOS.util.confirm("Are you sure you want to clear all local data?\nThis removes all locally stored data except device registration key.\nOffline Sales will be deleted.", function() {
                 localStorage.removeItem("wpos_auth");
                 localStorage.removeItem("wpos_config");
                 localStorage.removeItem("wpos_csales");
@@ -570,8 +576,8 @@ function WPOS() {
                 localStorage.removeItem("wpos_customers");
                 localStorage.removeItem("wpos_lconfig");
                 // Also clear Service Worker cache
-                this.clearServiceWorkerCache();
-            }
+                self.clearServiceWorkerCache();
+            });
             return;
         }
         WPOS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
@@ -592,10 +598,9 @@ function WPOS() {
     };
 
     this.refreshRemoteData = function(){
-        var answer = confirm("Are you sure you want to reload data from the server?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to reload data from the server?", function() {
             loadOnlineData(1, false);
-        }
+        });
     };
 
     this.backupOfflineSales = function(){
