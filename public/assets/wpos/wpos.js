@@ -332,7 +332,7 @@ function WPOSAdmin(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
@@ -340,13 +340,13 @@ function WPOSAdmin(){
                     WPOS.sessionExpired();
                     return false;
                 } else {
-                    alert(err);
+                    WPOS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
 
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     }
 
@@ -365,7 +365,7 @@ function WPOSAdmin(){
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            alert(json.warning);
+                            WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         if (callback)
                             callback(json.data);
@@ -374,19 +374,19 @@ function WPOSAdmin(){
                             WPOS.sessionExpired();
                             return false;
                         }
-                        alert(err);
+                        WPOS.notifications.error(err, "Error", {delay: 0});
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    alert(error);
+                    WPOS.notifications.error(error, "Request Error", {delay: 0});
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            alert("Exception: "+ex);
+            WPOS.notifications.error("Exception: "+ex, "Exception", {delay: 0});
             if (callback)
                 callback(false);
         }
@@ -406,7 +406,7 @@ function WPOSAdmin(){
         if (response.status == "200") {
             var json = JSON.parse(response.responseText);
             if (json == null) {
-                alert("Error: The response that was returned from the server could not be parsed!");
+                WPOS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
                 return false;
             }
             var errCode = json.errorCode;
@@ -414,7 +414,7 @@ function WPOSAdmin(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
@@ -422,12 +422,12 @@ function WPOSAdmin(){
                     WPOS.sessionExpired();
                     return false;
                 } else {
-                    alert(err);
+                    WPOS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     };
 
@@ -447,7 +447,7 @@ function WPOSAdmin(){
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            alert(json.warning);
+                            WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         callback(json.data);
                     } else {
@@ -456,7 +456,7 @@ function WPOSAdmin(){
                         } else {
                             if (typeof errorCallback == "function")
                                 return errorCallback(json.error);
-                            alert(err);
+                            WPOS.notifications.error(err, "Error", {delay: 0});
                         }
                         callback(false);
                     }
@@ -465,7 +465,7 @@ function WPOSAdmin(){
                     if (typeof errorCallback == "function")
                         return errorCallback(error);
 
-                    alert(error);
+                    WPOS.notifications.error(error, "Request Error", {delay: 0});
                     callback(false);
                 }
             });
@@ -474,7 +474,7 @@ function WPOSAdmin(){
             if (typeof errorCallback == "function")
                 return errorCallback(error.message);
 
-            alert(ex.message);
+            WPOS.notifications.error(ex.message, "Exception", {delay: 0});
             callback(false);
             return false;
         }
@@ -507,7 +507,7 @@ function WPOSAdmin(){
                         WPOS.sessionExpired();
                         return false;
                     } else {
-                        alert(err);
+                        WPOS.notifications.error(err, "Upload Error", {delay: 0});
                         return false;
                     }
                 }
@@ -517,7 +517,7 @@ function WPOSAdmin(){
             },
             error: function(jqXHR, textStatus, errorThrown){
                 // Handle errors here
-                alert("There was an error connecting to the server: \n"+response.statusText);
+                WPOS.notifications.error("There was an error connecting to the server: \n"+textStatus, "Connection Error", {delay: 0});
                 // hide loader
                 WPOS.util.hideLoader();
             }
@@ -527,7 +527,7 @@ function WPOSAdmin(){
     // function for event source processes
     this.startEventSourceProcess = function(url, dataCallback, errorCallback){
         if (typeof(EventSource) === "undefined"){
-            alert("Your browser does not support EventSource, please update your browser to continue.");
+            WPOS.notifications.error("Your browser does not support EventSource, please update your browser to continue.", "Browser Compatibility", {delay: 0});
             return;
         }
         showModalLoader();
@@ -604,7 +604,7 @@ function WPOSAdmin(){
                             }
                         }
 
-                        alert(data.data.message);
+                        WPOS.notifications.error(data.data.message, "Authentication Error", {delay: 0});
                         break;
                 }
                 //alert(data.a);
@@ -617,7 +617,7 @@ function WPOSAdmin(){
 
     function socketError(){
         if (socketon) // A fix for mod_proxy_wstunnel causing error on disconnect
-            alert("Update feed could not be connected, \nyou will not receive realtime updates!");
+            WPOS.notifications.error("Update feed could not be connected, \nyou will not receive realtime updates!", "Connection Error", {delay: 0});
         socketon = false;
         authretry = false;
         //socket = null;

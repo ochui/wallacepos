@@ -434,7 +434,7 @@ function WPOSPrint(kitchenMode) {
                 browserPrintHtml("<pre style='text-align: center; background-color: white;'>" + text + "</pre>", 'WallacePOS Receipt', 310, 600);
                 return true;
             case "qz":
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return false;
             case "ht":
             case "wp":
@@ -461,7 +461,7 @@ function WPOSPrint(kitchenMode) {
                 }
                 return true;
             case "qz":
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return false;
             case "ht":
             case "wp":
@@ -494,7 +494,7 @@ function WPOSPrint(kitchenMode) {
         var method = getPrintSetting(printer, 'method');
         switch (method) {
             case "qz":
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return false;
             case "ht":
             case "wp":
@@ -512,7 +512,7 @@ function WPOSPrint(kitchenMode) {
             testReceipt(printer);
         } else {
             if (method == "qz"){
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return;
             }
             WPOS.notifications.error("Receipt printer not configured!", "Printer Configuration Error");
@@ -564,7 +564,7 @@ function WPOSPrint(kitchenMode) {
         var method = getPrintSetting(printer, 'method');
         switch (method) {
             case "qz":
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return false;
             case "wp":
             case "ht":

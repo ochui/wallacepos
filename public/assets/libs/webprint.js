@@ -34,7 +34,11 @@ var WebPrint = function (init, opt) {
 
     this.printSerial = function (data, port) {
         if (isAndroid){
-            alert("Serial port printing is not available in Android.");
+            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                WPOS.notifications.error("Serial port printing is not available in Android.", "Platform Limitation", {delay: 0});
+            } else {
+                alert("Serial port printing is not available in Android.");
+            }
             return;
         }
         var request = {a: "printraw", port: port, data: btoa(data)};
@@ -48,7 +52,11 @@ var WebPrint = function (init, opt) {
 
     this.printHtml = function (data, printer) {
         if (isAndroid){
-            alert("HTML printing is not available in Android.");
+            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                WPOS.notifications.error("HTML printing is not available in Android.", "Platform Limitation", {delay: 0});
+            } else {
+                alert("HTML printing is not available in Android.");
+            }
             return;
         }
         var request = {a: "printhtml", printer: printer, data: data};
@@ -135,7 +143,11 @@ var WebPrint = function (init, opt) {
                     if (options.listPrinterCallback instanceof Function)
                         options.listPrinterCallback(response.printers);
                 } else if (response.hasOwnProperty('error')) {
-                    alert(response.error);
+                    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                        WPOS.notifications.error(response.error, "WebPrint Error", {delay: 0});
+                    } else {
+                        alert(response.error);
+                    }
                 }
                 if (response.hasOwnProperty("cookie")){
                     cookie = response.cookie;

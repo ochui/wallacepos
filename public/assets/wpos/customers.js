@@ -72,7 +72,7 @@ function WPOSCustomers() {
     function loadCustomer(id){
         var customer = WPOS.sendJsonData("customers/get", JSON.stringify({id: id}));
         if (!customer.hasOwnProperty(id)){
-            alert("Could not load the selected customer.");
+            WPOS.notifications.error("Could not load the selected customer.", "Customer Load Error", {delay: 0});
             return false;
         }
         customers[id] = customer[id];
@@ -157,7 +157,7 @@ function WPOSCustomers() {
         var customer = customers[curcustid];
         var newpass = $("#newcustpass").val();
         if (newpass==""){
-            alert('Please enter a new password.');
+            WPOS.notifications.warning('Please enter a new password.', "Password Required", {delay: 0});
             return;
         }
         var answer = confirm('Are you sure you want to set this users password and activate their account?');

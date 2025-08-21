@@ -93,10 +93,19 @@ $(function() {
                 },
                 reject: function(filname, errors) {
                     if (errors.maxSize) {
-                        alert("Only CSV files less than 10mb can be imported.");
+                        // Use WPOS notifications if available, otherwise fall back to alert
+                        if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                            WPOS.notifications.error("Only CSV files less than 10mb can be imported.", "File Size Error", {delay: 0});
+                        } else {
+                            alert("Only CSV files less than 10mb can be imported.");
+                        }
                         return;
                     }
-                    alert("There was an error loading the file: "+JSON.stringify(errors));
+                    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                        WPOS.notifications.error("There was an error loading the file: "+JSON.stringify(errors), "File Load Error", {delay: 0});
+                    } else {
+                        alert("There was an error loading the file: "+JSON.stringify(errors));
+                    }
                 }
             });
 
@@ -129,11 +138,19 @@ $(function() {
                 if (widget.csvData!=null){
                     widget.populateSourceFields();
                 } else {
-                    alert("Could not parse the CSV file");
+                    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                        WPOS.notifications.error("Could not parse the CSV file", "Parse Error", {delay: 0});
+                    } else {
+                        alert("Could not parse the CSV file");
+                    }
                 }
             };
             reader.onerror = function(){
-                alert("Could not read the CSV file");
+                if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                    WPOS.notifications.error("Could not read the CSV file", "File Read Error", {delay: 0});
+                } else {
+                    alert("Could not read the CSV file");
+                }
             };
             reader.readAsText(file);
         },
@@ -226,7 +243,11 @@ $(function() {
 
         generateJson: function(){
             if (this.csvData==null){
-                alert("Please add a valid CSV file before proceeding.");
+                if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                    WPOS.notifications.warning("Please add a valid CSV file before proceeding.", "No File", {delay: 0});
+                } else {
+                    alert("Please add a valid CSV file before proceeding.");
+                }
                 return;
             }
 
@@ -247,7 +268,11 @@ $(function() {
                             console.log(source_table.eq(i).attr('id'));
                             console.log(fields[x].required);
                             console.log(fields[x].value);
-                            alert("The " + x + " column is required and does not have a default value.");
+                            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                                WPOS.notifications.error("The " + x + " column is required and does not have a default value.", "Required Field Missing", {delay: 0});
+                            } else {
+                                alert("The " + x + " column is required and does not have a default value.");
+                            }
                             return;
                         }
                     }
@@ -269,7 +294,11 @@ $(function() {
                                 value = this.csvData[i][fields[x].idx];
                         }
                         if (value==null && fields[x].required) {
-                            alert("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.");
+                            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
+                                WPOS.notifications.error("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.", "Required Field Missing", {delay: 0});
+                            } else {
+                                alert("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.");
+                            }
                             return;
                         }
 

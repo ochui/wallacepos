@@ -121,7 +121,7 @@ function WOMSPluginBase(){
         // check passwords & hash
         var passres = validatePassword(data.pass, $("#register_cpass").val());
         if (passres!==true){
-            alert(passres);
+            WOMS.notifications.warning(passres, "Password Validation", {delay: 0});
             return;
         }
         data.pass = WOMS.util.SHA256(data.pass);
@@ -154,13 +154,13 @@ function WOMSPluginBase(){
             pass:$("#reset_pass").val()
         };
         if (data.token==''){
-            alert("No valid auth token received!");
+            WOMS.notifications.error("No valid auth token received!", "Authentication Error", {delay: 0});
             return;
         }
         // check passwords & hash
         var passres = validatePassword(data.pass, $("#reset_cpass").val());
         if (passres!==true){
-            alert(passres);
+            WOMS.notifications.warning(passres, "Password Validation", {delay: 0});
             return;
         }
         data.pass = WOMS.util.SHA256(data.pass);
@@ -169,7 +169,7 @@ function WOMSPluginBase(){
         var result = WOMS.sendJsonData('resetpassword', JSON.stringify(data));
         // show success
         if (result!==false){
-            alert("Password Successfully Reset!");
+            WOMS.notifications.success("Password Successfully Reset!", "Success");
             redirect();
         }
         WOMS.util.hideLoader();
@@ -207,16 +207,16 @@ function WOMSPluginBase(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WOMS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
-                alert(err);
+                WOMS.notifications.error(err, "Error", {delay: 0});
                 return false;
             }
         }
 
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WOMS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     }
 
@@ -237,7 +237,7 @@ function WOMSPluginBase(){
         if (response.status == "200") {
             var json = JSON.parse(response.responseText);
             if (json == null) {
-                alert("Error: The response that was returned from the server could not be parsed!");
+                WOMS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
                 return false;
             }
             if (returnfull==true)
@@ -247,15 +247,15 @@ function WOMSPluginBase(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WOMS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
-                alert(err);
+                WOMS.notifications.error(err, "Error", {delay: 0});
                 return false;
             }
         }
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WOMS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     };
 

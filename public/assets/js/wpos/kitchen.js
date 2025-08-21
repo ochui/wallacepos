@@ -581,7 +581,7 @@ function WPOSKitchen() {
                             return false;
                         }
                     } else {
-                        alert(err);
+                        WPOS.notifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
@@ -673,7 +673,7 @@ function WPOSKitchen() {
                             return false;
                         }
                     } else {
-                        alert(err);
+                        WPOS.notifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
@@ -701,7 +701,7 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            alert(json.warning);
+                            WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         if (callback)
                             callback(json.data);
@@ -717,19 +717,19 @@ function WPOSKitchen() {
                                 }
                             }
                         }
-                        alert(err);
+                        WPOS.notifications.error(err, "Error", {delay: 0});
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    alert(error);
+                    WPOS.notifications.error(error, "Request Error", {delay: 0});
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            alert("Exception: "+ex);
+            WPOS.notifications.error("Exception: "+ex, "Exception", {delay: 0});
             if (callback)
                 callback(false);
         }
@@ -1038,7 +1038,7 @@ function WPOSKitchen() {
                         break;
 
                     case "msg":
-                        alert(data.data);
+                        WPOS.notifications.info(data.data, "Message");
                         break;
 
                     case "reset":
@@ -1056,7 +1056,7 @@ function WPOSKitchen() {
                             }
                         }
 
-                        alert(data.data);
+                        WPOS.notifications.error(data.data, "Error");
                         break;
                 }
                 var statustypes = ['item', 'sale', 'customer', 'config'];
