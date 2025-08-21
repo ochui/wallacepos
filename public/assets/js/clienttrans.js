@@ -90,7 +90,7 @@ function WPOSCustomerTransactions() {
     function loadTransaction(ref){
         var trans = WPOS.sendJsonData("transactions/get", JSON.stringify({ref: ref}));
         if (!trans.hasOwnProperty(ref)){
-            alert("Could not load the selected transaction.");
+            WPOS.notifications.error("Could not load the selected transaction.", "Transaction Load Error", {delay: 0});
             return false;
         }
         transactions[ref] = trans[ref];

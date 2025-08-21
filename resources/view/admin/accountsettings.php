@@ -330,12 +330,12 @@
             WPOS.util.showLoader();
             var result = WPOS.getJsonData("settings/xero/oauthremove");
             if (result!==false){
-                alert("Xero account successfully disconnected.");
+                WPOS.notifications.success("Xero account successfully disconnected.", "Xero Disconnected");
                 options.xeroenabled=0;
                 options.xeroaval=0;
                 setXeroUI();
             } else {
-                alert("Xero account removal failed.");
+                WPOS.notifications.error("Xero account removal failed.", "Disconnection Failed", {delay: 0});
             }
             // hide loader
             WPOS.util.hideLoader();
@@ -409,7 +409,8 @@
         etime.setHours(23); etime.setMinutes(59); etime.setSeconds(59);
         etime = etime.getTime();
         if (etime<stime){
-            alert("The start date cannot come before the end date");
+            WPOS.notifications.warning("The start date cannot come before the end date", "Date Range Error");
+            return; // Added return to prevent further execution
         }
         // find out how many days
         var days = Math.round((etime-stime)/86400000);
@@ -618,13 +619,13 @@
         id = parseInt(id);
         for (var i in taxtable.rules){
             if (taxtable.rules[i].base.indexOf(id)!==-1){
-                alert("This tax item is being used in a rule, remove it from the rule first");
+                WPOS.notifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
                 return;
             }
             for (var x in taxtable.rules[i].locations){
                 if (taxtable.rules[i].locations[x].indexOf(id)!==-1){
                     console.log(taxtable.rules[i].locations[x].indexOf(id));
-                    alert("This tax item is being used in a rule, remove it from the rule first");
+                    WPOS.notifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
                     return;
                 }
             }

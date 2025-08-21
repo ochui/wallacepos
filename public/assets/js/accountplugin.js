@@ -27,6 +27,8 @@ function WOMSPluginBase(){
         $.getScript('assets/js/wpos/utilities.js', function(){
             WOMS.util = new WPOSUtil();
         });
+        // Initialize notifications
+        this.notifications = new WPOSNotifications();
         if ($.fancybox)
             $.fancybox.init();
     };

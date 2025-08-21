@@ -49,6 +49,10 @@ function WPOSClientDash(){
     var currentAnchor = '0';
     var currentsec = '';
     var lastAnchor = null;
+    
+    // Initialize notifications
+    this.notifications = new WPOSNotifications();
+    
     // Are there anchor changes, if there are, calculate request and send
     this.checkAnchor = function(){
         //Check if it has changes
@@ -171,7 +175,7 @@ function WPOSClientDash(){
     this.sessionExpired = function(){
         WPOS.stopPageLoader();
         $("#modaldiv").show();
-        alert("Your session has expired, please login again.");
+        WPOS.notifications.error("Your session has expired, please login again.", "Session Expired", {delay: 0});
         WPOS.util.hideLoader();
     };
     this.initCustomers = function(){
@@ -200,7 +204,7 @@ function WPOSClientDash(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
@@ -208,13 +212,13 @@ function WPOSClientDash(){
                     WPOS.sessionExpired();
                     return false;
                 } else {
-                    alert(err);
+                    WPOS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
 
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     }
 
@@ -232,7 +236,7 @@ function WPOSClientDash(){
         if (response.status == "200") {
             var json = JSON.parse(response.responseText);
             if (json == null) {
-                alert("Error: The response that was returned from the server could not be parsed!");
+                WPOS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
                 return false;
             }
             if (returnfull==true)
@@ -242,7 +246,7 @@ function WPOSClientDash(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    alert(json.warning);
+                    WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
@@ -250,12 +254,12 @@ function WPOSClientDash(){
                     WPOS.sessionExpired();
                     return false;
                 } else {
-                    alert(err);
+                    WPOS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
-        alert("There was an error connecting to the server: \n"+response.statusText);
+        WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     };
     // data & config
