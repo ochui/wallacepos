@@ -127,7 +127,7 @@
         var stat = WPOS.getJsonData("node/restart");
         if (stat==true){
             setUIStatus(true);
-            alert("Feed server successfully restarted!");
+            WPOS.notifications.success("Feed server successfully restarted!", "Server Restarted");
         } else {
             setUIStatus(false);
         }

@@ -447,12 +447,12 @@
             WPOS.util.showLoader();
             var result = WPOS.getJsonData("settings/google/authremove");
             if (result!==false){
-                alert("Google account successfully disconnected.");
+                WPOS.notifications.success("Google account successfully disconnected.", "Google Disconnected");
                 options.gcontact=0;
                 options.gcontactaval=0;
                 setGoogleUI();
             } else {
-                alert("Google account removal failed.");
+                WPOS.notifications.error("Google account removal failed.", "Disconnection Failed", {delay: 0});
             }
             // hide loader
             WPOS.util.hideLoader();

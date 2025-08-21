@@ -120,7 +120,7 @@
     function doSearch(){
         var ref = $("#refsearch").val();
         if (ref==""){
-            alert("Please enter a full or partial transaction reference.");
+            WPOS.notifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
             return;
         }
         var data = {ref: ref};
@@ -442,7 +442,7 @@
             WPOS.util.hideLoader();
         }).catch(function(error) {
             console.error("Error loading data:", error);
-            alert("Failed to load data: " + error.message);
+            WPOS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
             WPOS.util.hideLoader();
         });
     });

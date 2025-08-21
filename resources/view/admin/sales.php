@@ -89,7 +89,7 @@
     function doSearch(){
         var ref = $("#refsearch").val();
         if (ref==""){
-            alert("Please enter a full or partial transaction reference.");
+            WPOS.notifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
             return;
         }
         var data = {ref: ref};

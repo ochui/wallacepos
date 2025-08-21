@@ -151,7 +151,7 @@ function WPOSAdmin(){
 
                     WPOS.initAdmin();
                 } else {
-                    alert("You do not have permission to enter this area");
+                    WPOS.notifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
                 }
             }
             $('#loadingdiv').hide();
@@ -226,7 +226,7 @@ function WPOSAdmin(){
 
                     WPOS.initAdmin();
                 } else {
-                    alert("You do not have permission to enter this area");
+                    WPOS.notifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
                 }
             }
             passfield.val('');
