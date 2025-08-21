@@ -241,7 +241,7 @@
             // set logo images
             $("#reclogoprev").attr("src", options.reclogo + "?t=" + new Date().getTime());
             $("#emaillogoprev").attr("src", options.recemaillogo + "?t=" + new Date().getTime());
-            $("#qrpreview").attr("src", (options.recqrcode!=="" ? "/storage/qrcode.png?t=" + new Date().getTime() : ""));
+            $("#qrpreview").attr("src", (options.recqrcode!=="" ? "/assets/qrcode.png?t=" + new Date().getTime() : ""));
         }
 
         function refreshTemplateList(selectedid){

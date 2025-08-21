@@ -44,6 +44,13 @@ if (!function_exists('asset_path')) {
     }
 }
 
+if (!function_exists('asset_url')) {
+    function asset_url($path = '')
+    {
+        return '/assets' . ($path ? '/' . ltrim(str_replace('\\', '/', $path), '/') : '');
+    }
+}
+
 // Helper function for config path
 if (!function_exists('config_path')) {
     function config_path($path = '')

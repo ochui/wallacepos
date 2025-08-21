@@ -532,7 +532,7 @@ function WPOSPrint(kitchenMode) {
 
     function appendQrcode(printer, data) {
         if (WPOS.getConfigTable().pos.recqrcode != "") {
-            getESCPImageString(window.location.protocol + "//" + document.location.hostname + "/storage/qrcode.png", function (imgdata) {
+            getESCPImageString("/assets/qrcode.png", function (imgdata) {
                 sendESCPPrintData(printer, data + imgdata + getFeedAndCutCommands(printer));
             });
         } else {
@@ -1166,7 +1166,7 @@ function WPOSPrint(kitchenMode) {
             thermalprint: escpprint,
             print_id: config.pos.recprintid,
             print_desc: config.pos.recprintdesc,
-            qrcode_url: config.pos.recqrcode!=""?document.location.protocol+"//"+document.location.host+"/storage/qrcode.png":null,
+            qrcode_url: config.pos.recqrcode!=""? "/assets/qrcode.png":null,
             currency: function() {
                 return function (text, render) {
                     return WPOS.util.currencyFormat(render(text));

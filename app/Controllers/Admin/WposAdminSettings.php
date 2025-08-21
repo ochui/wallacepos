@@ -337,8 +337,8 @@ class WposAdminSettings
         $qrCode->setErrorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Low);
         $writer = new \Endroid\QrCode\Writer\PngWriter();
         $result = $writer->write($qrCode);
-        
-        $qrPath = storage_path('qrcode.png');
+
+        $qrPath = asset_path('qrcode.png');
         file_put_contents($qrPath, $result->getString());
     }
 }
