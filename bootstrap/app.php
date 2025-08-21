@@ -36,6 +36,14 @@ if (!function_exists('resource_path')) {
     }
 }
 
+// Helper function for asset path
+if (!function_exists('asset_path')) {
+    function asset_path($path = '')
+    {
+        return base_path('public/assets' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : ''));
+    }
+}
+
 // Helper function for config path
 if (!function_exists('config_path')) {
     function config_path($path = '')

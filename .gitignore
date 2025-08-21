@@ -34,3 +34,6 @@ npm-debug.log*
 .cache/
 
 .env
+
+public/assets/uploads/
+public/assets/qrcode.png

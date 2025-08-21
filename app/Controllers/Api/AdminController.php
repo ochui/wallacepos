@@ -1208,7 +1208,7 @@ class AdminController
 
         if (isset($_FILES['file'])) {
             $uploaddir = 'storage';
-            $file_type = $_FILES['foreign_character_upload']['type'];
+            $file_type = $_FILES['file']['type'];
 
             $allowed = array("image/jpeg", "image/gif", "image/png", "application/pdf");
             if (!in_array($file_type, $allowed)) {
@@ -1216,10 +1216,16 @@ class AdminController
                 return $this->returnResult();
             }
 
-            $newpath = $uploaddir . DIRECTORY_SEPARATOR . basename($_FILES['file']['name']);
+            $assetPath = asset_path('uploads');
 
-            if (move_uploaded_file($_FILES['file']['tmp_name'], base_path($newpath)) !== false) {
-                $this->result['data'] = ["path" => "/" . $newpath];
+            $newpath = $assetPath . DIRECTORY_SEPARATOR . basename($_FILES['file']['name']);
+
+
+            if (move_uploaded_file($_FILES['file']['tmp_name'], $newpath) !== false) {
+                $publicDir = realpath(base_path('public')) . DIRECTORY_SEPARATOR;
+                $relativePath = str_replace($publicDir, '/', $newpath);
+                $relativePath = str_replace(DIRECTORY_SEPARATOR, '/', $relativePath); // Normalize slashes
+                $this->result['data'] = ["path" => $relativePath];
             } else {
                 $this->result['error'] = "There was an error uploading the file " . $newpath;
             }
