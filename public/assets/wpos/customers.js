@@ -143,14 +143,13 @@ function WPOSCustomers() {
     this.setOnlineAccess = function(){
         var customer = customers[curcustid];
         var disable = customer.disabled==1?0:1;
-        var answer = confirm('Are you sure you want to '+(disable==1?'disable':'enable')+' this customer from accessing their online account?');
-        if (answer){
+        WPOS.util.confirm('Are you sure you want to '+(disable==1?'disable':'enable')+' this customer from accessing their online account?', function() {
             var result = WPOS.sendJsonData("customers/setaccess", JSON.stringify({id:curcustid, disabled: disable}));
             if (result!==false){
                 customers[curcustid].disabled = disable;
                 $("#custdisbtn").text((disable==1?"Enable":"Disable")+" Customer Access");
             }
-        }
+        });
     };
 
     this.setOnlinePassword = function(){
@@ -160,8 +159,7 @@ function WPOSCustomers() {
             WPOS.notifications.warning('Please enter a new password.', "Password Required", {delay: 0});
             return;
         }
-        var answer = confirm('Are you sure you want to set this users password and activate their account?');
-        if (answer){
+        WPOS.util.confirm('Are you sure you want to set this users password and activate their account?', function() {
             var hash = WPOS.util.SHA256(newpass);
             var result = WPOS.sendJsonData("customers/setpassword", JSON.stringify({id:curcustid, hash: hash}));
             if (result!==false){
@@ -169,28 +167,26 @@ function WPOSCustomers() {
                 $("#custdisbtn").text("Disable Customer Access");
                 $("#newcustpass").val('');
             }
-        }
+        });
     };
 
     this.sendResetEmail = function(){
-        var answer = confirm('Are you sure you want to send a password reset to this user?');
-        if (answer){
+        WPOS.util.confirm('Are you sure you want to send a password reset to this user?', function() {
             var result = WPOS.sendJsonData("customers/sendreset", JSON.stringify({id:curcustid}));
-        }
+        });
     };
 
     this.deleteCustomer= function(id) {
-        var answer = confirm("Are you sure you want to delete this customer? We recommend backing up data before making deletions.");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to delete this customer? We recommend backing up data before making deletions.", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("customers/delete", '{"id":' + id + '}') !== false) {
                 delete customers[id];
                 reloadCustomerTables();
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     function reloadCustomerTables(){
@@ -247,17 +243,16 @@ function WPOSCustomers() {
     };
 
     this.removeContactItem = function(id) {
-        var answer = confirm("Are you sure you want to delete this contact? We recommend backing up data before making deletions.");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to delete this contact? We recommend backing up data before making deletions.", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("customers/contacts/delete", '{"id":' + id + '}')) {
                 delete customers[curcustid].contacts[id];
                 populateContactsTable();
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     var uiinit = false;

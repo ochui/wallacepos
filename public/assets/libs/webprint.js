@@ -165,18 +165,33 @@ var WebPrint = function (init, opt) {
     }
 
     function dispatchWebPrint() {
-        var answer = confirm("Cannot communicate with the printing app.\nWould you like to open/install the printing app?");
-        if (answer) {
-            if (isAndroid){
-                deployAndroid();
-                return;
+        if (typeof WPOS !== 'undefined' && WPOS.util && WPOS.util.confirm) {
+            WPOS.util.confirm("Cannot communicate with the printing app.\nWould you like to open/install the printing app?", function() {
+                if (isAndroid){
+                    deployAndroid();
+                    return;
+                }
+                var installFile="WebPrint.jar";
+                if (navigator.appVersion.indexOf("Win")!=-1) installFile="WebPrint_windows_1_1_1.exe";
+                if (navigator.appVersion.indexOf("Mac")!=-1) installFile="WebPrint_macos_1_1_1.dmg";
+                if (navigator.appVersion.indexOf("X11")!=-1) installFile="WebPrint_unix_1_1_1.sh";
+                if (navigator.appVersion.indexOf("Linux")!=-1) installFile="WebPrint_unix_1_1_1.sh";
+                window.open("https://content.wallaceit.com.au/webprint/"+installFile, '_blank');
+            });
+        } else {
+            var answer = confirm("Cannot communicate with the printing app.\nWould you like to open/install the printing app?");
+            if (answer) {
+                if (isAndroid){
+                    deployAndroid();
+                    return;
+                }
+                var installFile="WebPrint.jar";
+                if (navigator.appVersion.indexOf("Win")!=-1) installFile="WebPrint_windows_1_1_1.exe";
+                if (navigator.appVersion.indexOf("Mac")!=-1) installFile="WebPrint_macos_1_1_1.dmg";
+                if (navigator.appVersion.indexOf("X11")!=-1) installFile="WebPrint_unix_1_1_1.sh";
+                if (navigator.appVersion.indexOf("Linux")!=-1) installFile="WebPrint_unix_1_1_1.sh";
+                window.open("https://content.wallaceit.com.au/webprint/"+installFile, '_blank');
             }
-            var installFile="WebPrint.jar";
-            if (navigator.appVersion.indexOf("Win")!=-1) installFile="WebPrint_windows_1_1_1.exe";
-            if (navigator.appVersion.indexOf("Mac")!=-1) installFile="WebPrint_macos_1_1_1.dmg";
-            if (navigator.appVersion.indexOf("X11")!=-1) installFile="WebPrint_unix_1_1_1.sh";
-            if (navigator.appVersion.indexOf("Linux")!=-1) installFile="WebPrint_unix_1_1_1.sh";
-            window.open("https://content.wallaceit.com.au/webprint/"+installFile, '_blank');
         }
     }
 

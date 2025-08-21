@@ -575,17 +575,17 @@ function WPOSTransactions() {
     };
 
     this.deleteInvoiceItem = function(id) {
-        var answer = confirm("Are you sure you want to delete this invoice item?");
-        if (answer) {
+        var self = this;
+        WPOS.util.confirm("Are you sure you want to delete this invoice item?", function() {
             WPOS.util.showLoader();
             var result = WPOS.sendJsonData("invoices/items/delete", JSON.stringify({id: curid, itemid: id}));
             if (result !== false) {
                 transactions[curref] = result;
-                this.openTransactionDialog(curref);
+                self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     this.saveInvoicePayment = function(){
@@ -611,22 +611,21 @@ function WPOSTransactions() {
     };
 
     this.deleteInvoicePayment = function(id){
-        var answer = confirm("Are you sure you want to delete this invoice payment?");
-        if (answer) {
+        var self = this;
+        WPOS.util.confirm("Are you sure you want to delete this invoice payment?", function() {
             WPOS.util.showLoader();
             var result = WPOS.sendJsonData("invoices/payments/delete", JSON.stringify({id: curid, paymentid: id}));
             if (result !== false) {
                 transactions[curref] = result;
-                this.openTransactionDialog(curref);
+                self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     this.addVoid = function() {
-        var answer = confirm("Are you sure you want to void this transaction?");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to void this transaction?", function() {
             // show loader
             WPOS.util.showLoader();
             var reason = $("#voidreason").val();
@@ -639,12 +638,11 @@ function WPOSTransactions() {
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     this.updateNotes = function(){
-        var answer = confirm("Save sale notes?");
-        if (answer) {
+        WPOS.util.confirm("Save sale notes?", function() {
             // show loader
             WPOS.util.showLoader();
             var notes = $('#transnotes').val();
@@ -655,13 +653,12 @@ function WPOSTransactions() {
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     // Delete all data associated with a invoice (except customer acount)
     this.deleteTransaction = function(ref){
-        var answer = confirm("Are you sure you want to delete this transaction? It is recommended to backup your database first as this action is irreversible!");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to delete this transaction? It is recommended to backup your database first as this action is irreversible!", function() {
             if (!transactions.hasOwnProperty(ref)) {
                 return;
             }
@@ -676,13 +673,12 @@ function WPOSTransactions() {
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     // remove a void or refund record associated with a invoice
     this.removeVoid = function(id, processdt) {
-        var answer = confirm("Are you sure you want to delete this void/refund? It is recommended to backup your database first as this action is irreversible!");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to delete this void/refund? It is recommended to backup your database first as this action is irreversible!", function() {
             // show loader
             WPOS.util.showLoader();
             var result = WPOS.sendJsonData("sales/deletevoid", JSON.stringify({"id": id, "processdt": processdt}));
@@ -693,7 +689,7 @@ function WPOSTransactions() {
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     };
 
     this.generateInvoice = function(type, download, template) {
