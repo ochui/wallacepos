@@ -61,7 +61,7 @@
             $("#sender_message").val('');
             $("#code").val('');
         } else {
-            alert(data);
+            WPOS.notifications.error(data, "Message Send Error", {delay: 0});
             submitbtn.val('Send Message');
             submitbtn.prop('disabled', false);
         }

@@ -89,7 +89,17 @@ function WPOSNotifications() {
    * @param {object} options - Optional additional settings
    */
   this.warning = function (message, title, options) {
-    this.show(message, "warning", title, options);
+    this.show(message, "notice", title, options);
+  };
+
+  /**
+   * Show a notice notification (same as warning)
+   * @param {string} message - The message to display
+   * @param {string} title - Optional title
+   * @param {object} options - Optional additional settings
+   */
+  this.notice = function (message, title, options) {
+    this.show(message, "notice", title, options);
   };
 
   /**
