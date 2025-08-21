@@ -210,8 +210,11 @@ class DevicesModel extends DbConfig
      */
     public function edit($id, $data)
     {
-        $sql = "UPDATE devices SET name= :name, locationid= :locationid, data= :data WHERE id= :id";
-        $placeholders = [':id' => $id, ':name' => $data->name, ':locationid' => $data->locationid, ':data' => json_encode($data)];
+        $sql = "UPDATE devices SET name= :name, " . (isset($data->locationid) ? "locationid= :locationid, " : "") . " data= :data WHERE id= :id";
+        $placeholders = [':id' => $id, ':name' => $data->name, ':data' => json_encode($data)];
+        if (isset($data->locationid)) {
+            $placeholders[':locationid'] = $data->locationid;
+        }
 
         return $this->update($sql, $placeholders);
     }

@@ -566,7 +566,7 @@ class WposPosSetup
             $result['error'] = $errors;
             return $result;
         }
-        if ($this->devMdl->edit($this->data->id, $this->data->name) !== false) {
+        if ($this->devMdl->edit($this->data->id, $this->data) !== false) {
             $result['data'] = $this->data;
             // log data
             Logger::write("Location updated", "CONFIG", json_encode($this->data));
