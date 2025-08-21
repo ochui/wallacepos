@@ -116,10 +116,9 @@
 </div>
 <script type="text/javascript">
     function restartNode(){
-        var answer = confirm("Are you sure you want to restart the feed server?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to restart the feed server?", function() {
             doFeedServerRestart();
-        }
+        });
     }
     function doFeedServerRestart(){
         // show loader
@@ -135,8 +134,7 @@
         WPOS.util.hideLoader();
     }
     function stopNode(){
-        var answer = confirm("Are you sure you want to stop the feed server?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to stop the feed server?", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.getJsonData("node/stop")!==false){
@@ -146,7 +144,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
     function startNode(){
         // show loader
@@ -219,9 +217,9 @@
     }
 
     function restoreTemplates(){
-        var answer = confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.");
-        if (answer)
+        WPOS.util.confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.", function() {
             WPOS.getJsonData('templates/restore');
+        });
     }
 
     function loadFeedSettings(){
@@ -231,8 +229,7 @@
     }
 
     function saveFeedSettings(){
-        var answer = confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.", function() {
             WPOS.util.showLoader();
 
             var port = parseInt($("#feedserver_port").val());
@@ -249,7 +246,7 @@
             }
 
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     $(function(){

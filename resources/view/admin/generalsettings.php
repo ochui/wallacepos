@@ -441,8 +441,7 @@
         window.open('/api/settings/google/authinit','Connect with Google','width=500,height=500');
     }
     function removeGoogleAuth(){
-        var answer = confirm("Are you sure you want to remove the current google acount & turn off intergration?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to remove the current google acount & turn off intergration?", function() {
             // show loader
             WPOS.util.showLoader();
             var result = WPOS.getJsonData("settings/google/authremove");
@@ -456,7 +455,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     $('#bizlogofile').on('change',uploadLogo);

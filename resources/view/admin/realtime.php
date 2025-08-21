@@ -283,25 +283,23 @@ function sendReset() {
         WPOS.notifications.warning("There are no devices online to reset", "No Devices", {delay: 0});
         return;
     }
-    var answer = confirm("Are you sure you want to reset the selected devices?");
-    if (!answer){
-        return;
-    }
-    // show loader
-    WPOS.util.showLoader();
+    WPOS.util.confirm("Are you sure you want to reset the selected devices?", function() {
+        // show loader
+        WPOS.util.showLoader();
 
-    var devid = $("#msgdevice option:selected").val();
-    var result;
-    if (devid == "all") {
-        result = WPOS.sendJsonData("device/reset", JSON.stringify({device: null}));
-    } else {
-        result = WPOS.sendJsonData("device/reset", JSON.stringify({device: devid}));
-    }
-    if (result!==false){
-        WPOS.notifications.success("The reset request has been sent to the selected devices.", "Reset Sent");
-    }
-    // hide loader
-    WPOS.util.hideLoader();
+        var devid = $("#msgdevice option:selected").val();
+        var result;
+        if (devid == "all") {
+            result = WPOS.sendJsonData("device/reset", JSON.stringify({device: null}));
+        } else {
+            result = WPOS.sendJsonData("device/reset", JSON.stringify({device: devid}));
+        }
+        if (result!==false){
+            WPOS.notifications.success("The reset request has been sent to the selected devices.", "Reset Sent");
+        }
+        // hide loader
+        WPOS.util.hideLoader();
+    });
 }
 
 function populateOnlineDevices(devices) {

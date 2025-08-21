@@ -111,11 +111,10 @@
     }
 
     function restoreTemplate(){
-        var answer = confirm("Are you sure you want to restore the current template?\nThis will destroy all changes you have made.");
-        if (answer) {
+        WPOS.util.confirm("Are you sure you want to restore the current template?\nThis will destroy all changes you have made.", function() {
             WPOS.sendJsonData('templates/restore', '{"filename":"'+templates[curId].filename+'"}');
             loadTemplates();
-        }
+        });
     }
 
     $(function(){

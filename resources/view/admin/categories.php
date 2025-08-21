@@ -227,26 +227,24 @@
     }
     function removeCategory(id){
 
-        var answer = confirm("Are you sure you want to delete this category?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this category?", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("categories/delete", '{"id":'+id+'}')){
                 delete categories[id];
                 reloadTable();
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function removeSelectedCategories(){
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id });
 
-        var answer = confirm("Are you sure you want to delete "+ids.length+" selected items?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("categories/delete", '{"id":"'+ids.join(",")+'"}')){
                 for (var i=0; i<ids.length; i++){
                     delete categories[ids[i]];
@@ -255,7 +253,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function reloadData(){

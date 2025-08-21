@@ -434,8 +434,7 @@
     }
     function removeItem(id){
 
-        var answer = confirm("Are you sure you want to delete this item? It's recommended to either back up first or disable the user instead.");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this item? It's recommended to either back up first or disable the user instead.", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("users/delete", '{"id":'+id+'}')){
@@ -443,11 +442,10 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
     function setUserDisabled(id, disable){
-        var answer = confirm("Are you sure you want to disable this user?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to disable this user?", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("users/disable", '{"id":'+id+', "disable":'+disable+'}')!==false){
@@ -455,7 +453,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
     function reloadTable(){
         users = WPOS.getJsonData("users/get");

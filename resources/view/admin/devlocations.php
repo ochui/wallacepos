@@ -367,8 +367,7 @@
         WPOS.util.hideLoader();
     }
     function removeLocItem(id){
-        var answer = confirm("Are you sure you want to delete this location?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this location?", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("locations/delete", '{"id":'+id+'}')){
@@ -377,7 +376,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
     function loadDeviceRegistrations(){
         var id = $('#devid').val();
@@ -400,8 +399,7 @@
         }, null);
     }
     function deleteDeviceRegistration(id){
-        var answer = confirm("Are you sure you want to delete this registration?\nThe device affected will need to be re-registered.");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this registration?\nThe device affected will need to be re-registered.", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("devices/registrations/delete", '{"id":'+id+'}')){
@@ -409,7 +407,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
     function openDevDialog(id){
         var idfield = $("#devid");
@@ -474,8 +472,7 @@
         WPOS.util.hideLoader();
     }
     function removeDevItem(id){
-        var answer = confirm("Are you sure you want to delete this device?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this device?", function() {
             // show loader
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("devices/delete", '{"id":'+id+'}')){
@@ -485,12 +482,11 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function setItemDisabled(type, id, disable){
-        var answer = confirm("Are you sure you want to "+(disable?"disable":"enable")+" this item.");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to "+(disable?"disable":"enable")+" this item.", function() {
             // show loader
             WPOS.util.showLoader();
             var result;
@@ -510,7 +506,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function refreshDevTable(){
