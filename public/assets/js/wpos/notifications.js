@@ -66,46 +66,51 @@ function WPOSNotifications() {
    * Show an info notification (default blue styling)
    * @param {string} message - The message to display
    * @param {string} title - Optional title
+   * @param {object} options - Optional additional settings
    */
-  this.info = function (message, title) {
-    this.show(message, "info", title);
+  this.info = function (message, title, options) {
+    this.show(message, "info", title, options);
   };
 
   /**
    * Show a success notification (green styling)
    * @param {string} message - The message to display
    * @param {string} title - Optional title
+   * @param {object} options - Optional additional settings
    */
-  this.success = function (message, title) {
-    this.show(message, "success", title);
+  this.success = function (message, title, options) {
+    this.show(message, "success", title, options);
   };
 
   /**
    * Show a warning notification (yellow/orange styling)
    * @param {string} message - The message to display
    * @param {string} title - Optional title
+   * @param {object} options - Optional additional settings
    */
-  this.warning = function (message, title) {
-    this.show(message, "notice", title);
+  this.warning = function (message, title, options) {
+    this.show(message, "warning", title, options);
   };
 
   /**
    * Show an error notification (red styling)
    * @param {string} message - The message to display
    * @param {string} title - Optional title
+   * @param {object} options - Optional additional settings
    */
-  this.error = function (message, title) {
-    this.show(message, "error", title);
+  this.error = function (message, title, options) {
+    this.show(message, "error", title, options);
   };
 
   /**
    * Direct replacement for alert() calls
    * This function provides backward compatibility while migrating
    * @param {string} message - The alert message
+   * @param {object} options - Optional additional settings
    */
-  this.alert = function (message) {
+  this.alert = function (message, options) {
     // Determine notification type based on message content
-    var type = "info";
+    var type = "info"; //Type of alert, available options are: info, success, notice, error, simple
     var title = null;
 
     if (
@@ -118,14 +123,14 @@ function WPOSNotifications() {
       type = "error";
       title = "Error";
     } else if (message.toLowerCase().includes("warning") || message.toLowerCase().includes("please") || message.toLowerCase().includes("must")) {
-      type = "warning";
+      type = "notice";
       title = "Warning";
     } else if (message.toLowerCase().includes("success") || message.toLowerCase().includes("completed") || message.toLowerCase().includes("updated")) {
       type = "success";
       title = "Success";
     }
 
-    this.show(message, type, title);
+    this.show(message, type, title, options);
   };
 
   /**
