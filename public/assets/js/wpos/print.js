@@ -122,7 +122,7 @@ function WPOSPrint(kitchenMode) {
             loadDefaultSettings();
         //deploy qz if not deployed and print method is qz.
         if (doesAnyPrinterHave('method', 'qz')) {
-            alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+            WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
         } else if (doesAnyPrinterHave('method', 'wp') || doesAnyPrinterHave('method', 'ht')) {
             var receiptmethod = curset.printers['receipts'].method;
             if ((receiptmethod=="wp" || receiptmethod=="ht") || WPOS.isOrderTerminal()) {
@@ -381,7 +381,7 @@ function WPOSPrint(kitchenMode) {
                 browserPrintHtml($("#reportcontain").html(), 'WallacePOS Report', 600, 800);
                 break;
             case "qz":
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 break;
             case "wp":
                 html = '<html><head><title>Wpos Report</title><link media="all" href="assets/css/bootstrap.min.css" rel="stylesheet"/><link media="all" rel="stylesheet" href="assets/css/font-awesome.min.css"/><link media="all" rel="stylesheet" href="assets/css/ace-fonts.css"/><link media="all" rel="stylesheet" href="assets/css/ace.min.css"/></head><body style="background-color: #FFFFFF;">' + $("#reportcontain").html() + '</body></html>';
@@ -402,7 +402,7 @@ function WPOSPrint(kitchenMode) {
         var method = getPrintSetting('receipts', 'method');
         if (curset.cashdraw && (method == "ht" || method == "wp")) {
             if (method == "qz"){
-                alert("QZ-Print integration is no longer available, switch to the new webprint applet");
+                WPOS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
                 return false;
             }
             if (method == "wp") {

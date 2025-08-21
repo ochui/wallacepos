@@ -568,7 +568,7 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        alert(json.warning);
+                        WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
                     }
                     return json.data;
                 } else {
