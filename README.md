@@ -1,6 +1,6 @@
 # FreePOS - Point Of Sales
 ## An intuitive & modern web based POS system
-![logo](https://wallacepos.com/images/wallacepos_logo_600.png)
+![logo](./public/git/free_pos_600.png)
 
 FreePOS uses the power of the modern web to provide an easy to use & extensible POS system.
 
