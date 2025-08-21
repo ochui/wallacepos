@@ -1,10 +1,10 @@
-# FreePOS - Point Of Sales
-## An intuitive & modern web based POS system
+# FreePOS - Open Source Point Of Sale
 ![logo](./public/git/free_pos_600.png)
+## An intuitive & modern web based POS system for retail businesses
 
 FreePOS uses the power of the modern web to provide an easy to use & extensible POS system.
 
-It supports standard POS hardware including receipt printers, cashdraws and barcode scanners.
+It supports standard POS hardware including receipt printers, cashdraws and barcode scanners. Runs on any device with a web browser.
 
 With a rich administration dashboard and reporting features, FreePOS brings benefits to managers and staff alike.
 
