@@ -570,26 +570,24 @@
     }
     function removeItem(id){
 
-        var answer = confirm("Are you sure you want to delete this item?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this item?", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("items/delete", '{"id":'+id+'}')){
                 delete stock[id];
                 reloadTable();
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function removeSelectedItems(){
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id });
 
-        var answer = confirm("Are you sure you want to delete "+ids.length+" selected items?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
-            WPOS.util.hideLoader();
+            WPOS.util.showLoader();
             if (WPOS.sendJsonData("items/delete", '{"id":"'+ids.join(",")+'"}')){
                 for (var i=0; i<ids.length; i++){
                     delete stock[ids[i]];
@@ -598,7 +596,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function reloadData(){

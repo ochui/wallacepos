@@ -324,8 +324,7 @@
         }
     }
     function removeXeroAuth(){
-        var answer = confirm("Are you sure you want to remove the current Xero account & turn off integration?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to remove the current Xero account & turn off integration?", function() {
             // show loader
             WPOS.util.showLoader();
             var result = WPOS.getJsonData("settings/xero/oauthremove");
@@ -339,7 +338,7 @@
             }
             // hide loader
             WPOS.util.hideLoader();
-        }
+        });
     }
 
     function showSalesExportDialog(){
@@ -630,8 +629,7 @@
                 }
             }
         }
-        var answer = confirm("Are you sure you want to delete this tax item?");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this tax item?", function() {
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("tax/items/delete", '{"id":'+id+'}')){
                 delete taxtable.items[id];
@@ -639,7 +637,7 @@
                 reloadTaxItemTable();
             }
             WPOS.util.hideLoader();
-        }
+        });
     }
     function openTaxRuleDialog(id){
         $("#taxruleid").val(id);
@@ -709,8 +707,7 @@
         WPOS.util.hideLoader();
     }
     function deleteTaxRule(id){
-        var answer = confirm("Are you sure you want to delete this tax rule?\nIf the rule is applied to stored items, this tax will no longer apply.");
-        if (answer){
+        WPOS.util.confirm("Are you sure you want to delete this tax rule?\nIf the rule is applied to stored items, this tax will no longer apply.", function() {
             WPOS.util.showLoader();
             if (WPOS.sendJsonData("tax/rules/delete", '{"id":'+id+'}')){
                 delete taxtable.rules[id];
@@ -718,7 +715,7 @@
                 reloadTaxRuleTable();
             }
             WPOS.util.hideLoader();
-        }
+        });
     }
     $(function(){
         initTaxTables();
