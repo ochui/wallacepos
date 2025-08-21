@@ -510,7 +510,7 @@ function WPOS() {
         loadItemsTable();
         loadCustTable();
         loadSalesTable();
-        showInfo("Your internet connection is not active and WPOS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available WPOS will process your transactions on the server.", "Offline Mode");
+        WPOS.notifications.info("Your internet connection is not active and WPOS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available WPOS will process your transactions on the server.", "Offline Mode");
         initDataSuccess(loginloader);
     }
 
@@ -1404,7 +1404,7 @@ function WPOS() {
             var proxy = WPOS.getConfigTable().general.feedserver_proxy;
             var port = WPOS.getConfigTable().general.feedserver_port;
             var socketPath = window.location.protocol+'//'+window.location.hostname+(proxy==false ? ':'+port : '');
-            socket = io.connect(socketPath);
+            socket = io.connect('http://127.0.0.1:3000');
             socket.on('connection', onSocketConnect);
             socket.on('reconnect', onSocketConnect);
             socket.on('connect_error', socketError);
@@ -1434,7 +1434,7 @@ function WPOS() {
                         break;
 
                     case "msg":
-                        showInfo(data.data, "Message");
+                        WPOS.notifications.info(data.data, "Message");
                         break;
 
                     case "reset":

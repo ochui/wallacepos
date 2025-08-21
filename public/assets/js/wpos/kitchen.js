@@ -376,7 +376,7 @@ function WPOSKitchen() {
         loadConfigTable();
         loadItemsTable();
         loadSalesTable();
-        showInfo("Your internet connection is not active and WPOS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available WPOS will process your transactions on the server.", "Offline Mode");
+        WPOS.notifications.info("Your internet connection is not active and WPOS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available WPOS will process your transactions on the server.", "Offline Mode");
         initDataSuccess(loginloader);
     }
 

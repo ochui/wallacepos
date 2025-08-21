@@ -558,13 +558,14 @@ function WPOSAdmin(){
             var proxy = this.getConfigTable().general.feedserver_proxy;
             var port = this.getConfigTable().general.feedserver_port;
             var socketPath = window.location.protocol+'//'+window.location.hostname+(proxy==false ? ':'+port : '');
-            socket = io.connect(socketPath);
+            socket = io.connect('http://127.0.0.1:3000');
             socketon = true;
             socket.on('connect_error', socketError);
             socket.on('reconnect_error', socketError);
             socket.on('error', socketError);
 
             socket.on('updates', function (data) {
+                console.log("Received update:", data);
                 switch (data.a) {
                     case "devices":
                         onlinedev = JSON.parse(data.data);

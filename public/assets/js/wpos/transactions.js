@@ -49,7 +49,7 @@ function WPOSTransactions() {
     this.recallLastTransaction = function(){
         var lastref = WPOS.sales.getLastRef();
         if (lastref == null){
-            showInfo("No transactions yet for this session.", "No Transactions");
+            WPOS.notifications.info("No transactions yet for this session.", "No Transactions");
             return;
         }
         WPOS.trans.showTransactionInfo(lastref);

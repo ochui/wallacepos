@@ -3,7 +3,7 @@
 namespace App\Communication;
 
 use ElephantIO\Client as Client;
-use ElephantIO\Engine\SocketIO\Version1X as Version1X;
+use ElephantIO\Engine\SocketIO\Version4X as Version4X;
 use App\Controllers\Admin\WposAdminSettings;
 use App\Controllers\Admin\WposAdminUtilities;
 
@@ -40,7 +40,7 @@ class WposSocketIO
     /**
      * @var string This hashkey provides authentication for php operations
      */
-    private $hashkey = "5d40b50e172646b845640f50f296ac3fcbc191a7469260c46903c43cc6310ace";
+    private $hashkey = "supersecretkey";
 
     /**
      * Initialise the elephantIO object and set the hashkey
@@ -48,10 +48,11 @@ class WposSocketIO
     function __construct()
     {
         $conf = WposAdminSettings::getConfigFileValues(true);
-        if (isset($conf->feedserver_key))
+        if (isset($conf->feedserver_key)) {
             $this->hashkey = $conf->feedserver_key;
+        }
 
-        $this->elephant = new Client(new Version1X('http://127.0.0.1:' . $conf->feedserver_port . '/?hashkey=' . $this->hashkey));
+        $this->elephant = new Client(new Version4X($conf->feedserver_host . ':' . $conf->feedserver_port . '/?hashkey=' .  $this->hashkey));
     }
 
     /**
@@ -67,7 +68,6 @@ class WposSocketIO
         try {
             $this->elephant->connect();
             $this->elephant->emit($event, $data);
-            $this->elephant->close();
         } catch (\Exception $e) {
             restore_error_handler();
             return $e->getMessage();
