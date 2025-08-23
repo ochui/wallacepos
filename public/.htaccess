@@ -1,15 +1,5 @@
-# WallacePOS - Modern Directory Structure
 # Enable URL rewriting
 RewriteEngine On
-
-# Handle application cache files
-AddType application/x-httpd-php .appcache
-<IfModule mod_expires.c>
-  <Files *.appcache>
-      ExpiresActive On
-      ExpiresDefault "access plus 0 seconds"
-  </Files>
-</IfModule>
 
 # Serve static assets efficiently
 <IfModule mod_expires.c>
@@ -52,18 +42,6 @@ AddType application/x-httpd-php .appcache
 RewriteRule ^$ index.html [L]
 RewriteRule ^pos/?$ index.html [L]
 
-# Admin interface
-RewriteRule ^admin/?$ admin/index.html [L]
-RewriteRule ^admin/content/(.+)$ api/index.php [L,E=CONTENT_REQUEST:1]
-
-# Kitchen display
-RewriteRule ^kitchen/?$ kitchen/index.html [L]
-RewriteRule ^kitchen/(.*)$ kitchen/$1 [L]
-
-# Customer portal
-RewriteRule ^customer/?$ customer/index.html [L]
-RewriteRule ^customer/content/(.+)$ api/index.php [L,E=CONTENT_REQUEST:1]
-RewriteRule ^customer/(.*)$ customer/$1 [L]
 
 # API requests - route to local api directory
 RewriteRule ^api/(.*)$ api/index.php?a=$1 [L,QSA]
@@ -72,8 +50,6 @@ RewriteRule ^api/(.*)$ api/index.php?a=$1 [L,QSA]
 # Service worker - local file
 RewriteRule ^sw\.js$ sw.js [L]
 
-# App cache manifest - proxy to parent directory  
-RewriteRule ^wpos\.appcache$ ../wpos.appcache [L]
 
 # Block access to sensitive files
 <Files "*.json">
