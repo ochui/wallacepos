@@ -566,12 +566,12 @@ class WposPosSetup
             $result['error'] = $errors;
             return $result;
         }
-        if ($this->devMdl->edit($this->data->id, $this->data) !== false) {
+        if ($this->locMdl->edit($this->data->id, $this->data->name) !== false) {
             $result['data'] = $this->data;
             // log data
             Logger::write("Location updated", "CONFIG", json_encode($this->data));
         } else {
-            $result['error'] = "Could not update the location: " . $this->devMdl->errorInfo;
+            $result['error'] = "Could not update the location: " . $this->locMdl->errorInfo;
         }
         return $result;
     }
