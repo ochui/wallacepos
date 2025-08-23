@@ -50,6 +50,10 @@ class Application
             // Installation routes
             $r->addRoute(['GET', 'POST'], '/api/install/status', [InstallController::class, 'status']);
             $r->addRoute(['GET', 'POST'], '/api/install/requirements', [InstallController::class, 'requirements']);
+            $r->addRoute(['GET', 'POST'], '/api/install/test-database', [InstallController::class, 'testDatabase']);
+            $r->addRoute(['GET', 'POST'], '/api/install/save-database', [InstallController::class, 'saveDatabaseConfig']);
+            $r->addRoute(['GET', 'POST'], '/api/install/configure-admin', [InstallController::class, 'configureAdmin']);
+            $r->addRoute(['GET', 'POST'], '/api/install/install-with-config', [InstallController::class, 'installWithConfig']);
             $r->addRoute(['GET', 'POST'], '/api/install', [InstallController::class, 'install']);
             $r->addRoute(['GET', 'POST'], '/api/install/upgrade', [InstallController::class, 'upgrade']);
 
