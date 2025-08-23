@@ -70,7 +70,7 @@
 					</a><!-- /.brand -->
 				</div><!-- /.navbar-header -->
                 <div style="position: absolute; right: 0;">
-                    <button class="btn" style="height: 45px;" onclick="POSlogout();">Logout</button>
+                    <button class="btn" style="height: 45px;" onclick="POS.logout();">Logout</button>
                 </div>
 			</div><!-- /.container -->
 		</div>
@@ -150,7 +150,7 @@
 						<ul class="breadcrumb">
 							<li>
 								<i class="icon-home home-icon"></i>
-								<a onclick="POSgoToHome();">Home</a>
+								<a onclick="POS.goToHome();">Home</a>
 							</li>
 						</ul><!-- .breadcrumb -->
 					</div>
@@ -184,12 +184,12 @@
                         </label>
                         <label class="block clearfix">
                     <span class="block input-icon input-icon-right">
-                        <input class="form-control" id="logpass" onkeypress="if(event.keyCode == 13){POSlogin();}" type="password"  placeholder="Password"/>
+                        <input class="form-control" id="logpass" onkeypress="if(event.keyCode == 13){POS.login();}" type="password"  placeholder="Password"/>
                         <i class="icon-lock"></i>
                     </span>
                         </label>
                         <div class="space-6"></div>
-                        <button id="loginbutton" onClick="POSlogin();" class="btn btn-primary width-35">
+                        <button id="loginbutton" onClick="POS.login();" class="btn btn-primary width-35">
                             <i class="icon-key"></i>Login
                         </button>
                         <div class="space-6"></div>
@@ -309,7 +309,7 @@
                     <div class="tab-pane" id="transoptions">
                         <h4>Options:</h4>
                         <div style="text-align: center;">
-                            <button onclick="POStransactions.showGenerateDialog();" class="btn btn-sm btn-primary" style="padding: 5px;"><i class="icon-file"></i> Generate Invoice</button>
+                            <button onclick="POS.transactions.showGenerateDialog();" class="btn btn-sm btn-primary" style="padding: 5px;"><i class="icon-file"></i> Generate Invoice</button>
                         </div>
                     </div>
                 </div>
@@ -318,11 +318,11 @@
         <div id="miscdialog" class="hide">
             <div id="geninvoiceform" style="text-align: center; min-width: 150px;">
                 <h3>View</h3>
-                <button onclick="POStransactions.generateInvoice('html', 0);" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
-                <button onclick="POStransactions.generateInvoice('pdf', 0);" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
+                <button onclick="POS.transactions.generateInvoice('html', 0);" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
+                <button onclick="POS.transactions.generateInvoice('pdf', 0);" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
                 <h3>Download</h3>
-                <button onclick="POStransactions.generateInvoice('html', 1);" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
-                <button onclick="POStransactions.generateInvoice('pdf', 1);" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
+                <button onclick="POS.transactions.generateInvoice('html', 1);" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
+                <button onclick="POS.transactions.generateInvoice('pdf', 1);" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
             </div>
             <div id="voiddetails">
                 <label class="fixedlabel">Time: </label><span id="reftime"></span><br/>

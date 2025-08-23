@@ -75,7 +75,7 @@
 					</a><!-- /.brand -->
 				</div><!-- /.navbar-header -->
                 <div style="position: absolute; right: 0; overflow:hidden;">
-                    <button class="btn logout_btn" onclick="POSlogout();">Logout</button>
+                    <button class="btn logout_btn" onclick="POS.logout();">Logout</button>
                 </div>
 			</div><!-- /.container -->
 		</div>
@@ -290,10 +290,10 @@
 						<ul class="breadcrumb">
 							<li>
 								<i class="icon-home home-icon"></i>
-								<a onclick="POSgoToHome();">Home</a>
+								<a onclick="POS.goToHome();">Home</a>
 							</li>
 						</ul><!-- .breadcrumb -->
-                        <button class="btn btn-xs btn-primary pull-right" style="margin-top: 10px;" onclick="POSstopSocket(); POSloadPageContent(sec);"><i class="icon-refresh"></i> Refresh</button>
+                        <button class="btn btn-xs btn-primary pull-right" style="margin-top: 10px;" onclick="POS.stopSocket(); POS.loadPageContent(sec);"><i class="icon-refresh"></i> Refresh</button>
 					</div>
 
 					<div id="maincontent" class="page-content">
@@ -329,13 +329,13 @@
                         </label>
                         <label class="block clearfix">
                     <span class="block input-icon input-icon-right">
-                        <input class="form-control" id="logpass" onkeypress="if(event.keyCode == 13){POSlogin();}" type="password"  placeholder="Password"/>
+                        <input class="form-control" id="logpass" onkeypress="if(event.keyCode == 13){POS.login();}" type="password"  placeholder="Password"/>
                         <i class="icon-lock" style="margin-right: 1px;"></i>
                     </span>
                         </label>
                         <div class="space-6"></div>
                         <div class="space-6"></div>
-                        <button id="loginbutton" onClick="POSlogin();" class="btn btn-primary width-35">
+                        <button id="loginbutton" onClick="POS.login();" class="btn btn-primary width-35">
                             <i class="icon-key"></i>Login
                         </button>
                         <div class="space-6"></div>
@@ -422,7 +422,7 @@
                         <textarea style="width: 100%; height: 100%;" id="custnotes"></textarea>
                     </div>
                     <div class="tab-pane" id="contacts">
-                        <button onclick="POScustomers.openEditContactDialog(null);" class="btn btn-sm btn-primary pull-right">Add</button>
+                        <button onclick="POS.customers.openEditContactDialog(null);" class="btn btn-sm btn-primary pull-right">Add</button>
                         <table class="table table-stripped">
                             <thead>
                             <tr>
@@ -439,12 +439,12 @@
                         </table>
                     </div>
                     <div class="tab-pane" id="options" style="text-align: center;">
-                        <button id="custdisbtn" class="btn btn-primary" onclick="POScustomers.setOnlineAccess();">Disable Customer Access</button>
+                        <button id="custdisbtn" class="btn btn-primary" onclick="POS.customers.setOnlineAccess();">Disable Customer Access</button>
                         <div class="space-10"></div>
                         <input id="newcustpass" type="password" autocomplete="off"/>
-                        <button class="btn btn-primary" onclick="POScustomers.setOnlinePassword();">Set Customer Password</button>
+                        <button class="btn btn-primary" onclick="POS.customers.setOnlinePassword();">Set Customer Password</button>
                         <div class="space-10"></div>
-                        <button class="btn btn-primary" onclick="POScustomers.sendResetEmail();">Send Password Reset Email</button>
+                        <button class="btn btn-primary" onclick="POS.customers.sendResetEmail();">Send Password Reset Email</button>
                         <div class="space-10"></div>
                     </div>
                 </div>
@@ -556,10 +556,10 @@
             </div>
             <div style="text-align: center;">
                 <div class="transinvoptions" style="text-align: center;">
-                    <button class="btn btn-sm btn-success" onclick="POStransactions.updateInvoice();"><i class='icon-edit bigger-110'></i>&nbsp; Save</button>
+                    <button class="btn btn-sm btn-success" onclick="POS.transactions.updateInvoice();"><i class='icon-edit bigger-110'></i>&nbsp; Save</button>
                 </div>
                 <div class="transsaleoptions" style="text-align: center;">
-                    <button class="btn btn-sm btn-success" onclick="POStransactions.updateNotes();"><i class='icon-edit bigger-110'></i>&nbsp; Save</button>
+                    <button class="btn btn-sm btn-success" onclick="POS.transactions.updateNotes();"><i class='icon-edit bigger-110'></i>&nbsp; Save</button>
                 </div>
             </div>
             </div>
@@ -629,13 +629,13 @@
                             M: <span id="tcustmobile"></span><br/>
                             E: <span id="tcustemail"></span><br/>
                             <input type="hidden" id="tcustid"/>
-                            <button id="transcustdtlbtn" class="btn btn-xs btn-primary" onclick="POScustomers.openCustomerDialog($('#tcustid').val());">Details</button>
+                            <button id="transcustdtlbtn" class="btn btn-xs btn-primary" onclick="POS.customers.openCustomerDialog($('#tcustid').val());">Details</button>
                         </div>
                         </div>
                     </div>
                     <div class="tab-pane" id="transitems">
                         <h4 class="inline">Items:</h4>
-                        <button onclick="POStransactions.openInvoiceItemDialog(false);" class="btn btn-sm btn-primary transinvoptions" style="float: right;">Add</button>
+                        <button onclick="POS.transactions.openInvoiceItemDialog(false);" class="btn btn-sm btn-primary transinvoptions" style="float: right;">Add</button>
                         <table width="100%" class="table">
                             <thead class="table-header">
                             <tr align="left">
@@ -654,7 +654,7 @@
                     </div>
                     <div class="tab-pane" id="transpayments">
                         <h4 class="inline">Payments:</h4>
-                        <button onclick="POStransactions.openInvoicePaymentDialog(false);" class="btn btn-sm btn-primary transinvoptions" style="float: right;">Add</button>
+                        <button onclick="POS.transactions.openInvoicePaymentDialog(false);" class="btn btn-sm btn-primary transinvoptions" style="float: right;">Add</button>
                         <table width="100%" class="table">
                             <thead class="table-header">
                             <tr>
@@ -672,9 +672,9 @@
                     <div class="tab-pane" id="transoptions">
                         <h4>Options:</h4>
                         <div style="text-align: center;">
-                            <button onclick="POStransactions.showGenerateDialog();" class="btn btn-sm btn-primary" style="padding: 5px;"><i class="icon-file"></i> Generate Invoice</button>
-                            <button onclick="POStransactions.showEmailDialog();" class="btn btn-sm btn-success" style="padding: 5px;"><i class="icon-envelope"></i> Email Invoice</button>
-                            <button onclick="POStransactions.showHistoryDialog();" class="btn btn-sm btn-warning" style="padding: 5px;"><i class="icon-list"></i> History</button>
+                            <button onclick="POS.transactions.showGenerateDialog();" class="btn btn-sm btn-primary" style="padding: 5px;"><i class="icon-file"></i> Generate Invoice</button>
+                            <button onclick="POS.transactions.showEmailDialog();" class="btn btn-sm btn-success" style="padding: 5px;"><i class="icon-envelope"></i> Email Invoice</button>
+                            <button onclick="POS.transactions.showHistoryDialog();" class="btn btn-sm btn-warning" style="padding: 5px;"><i class="icon-list"></i> History</button>
                         </div>
                     </div>
                 </div>
@@ -688,7 +688,7 @@
                 <input type="hidden" id="transitempriceval" value="0"/>
                 <label class="fixedlabel">Search: </label><input type="text" id="stitemsearch"/><br/>
                 <div class="space-8"></div>
-                <label class="fixedlabel">Qty: </label><input type="text" id="transitemqty" onchange="POStransactions.calculateItemTotals();"/>
+                <label class="fixedlabel">Qty: </label><input type="text" id="transitemqty" onchange="POS.transactions.calculateItemTotals();"/>
                 <div class="space-4"></div>
                 <label class="fixedlabel">Name: </label><input type="text" id="transitemname"/>
                 <div class="space-4"></div>
@@ -698,9 +698,9 @@
                 <div class="space-4"></div>
                 <label class="fixedlabel">Cost: </label><input type="text" id="transitemcost"/>
                 <div class="space-4"></div>
-                <label class="fixedlabel">Unit: </label><input type="text" id="transitemunit" onchange="POStransactions.calculateItemTotals();"/>
+                <label class="fixedlabel">Unit: </label><input type="text" id="transitemunit" onchange="POS.transactions.calculateItemTotals();"/>
                 <div class="space-4"></div>
-                <label class="fixedlabel">Tax: </label><select type="text" id="transitemtaxid" class="taxselect" onchange="POStransactions.calculateItemTotals();"></select>
+                <label class="fixedlabel">Tax: </label><select type="text" id="transitemtaxid" class="taxselect" onchange="POS.transactions.calculateItemTotals();"></select>
                 <div class="space-4"></div>
                 <div id="transitemtax">
                 </div>
@@ -730,11 +730,11 @@
                 <select id="invoicetemplate">
                 </select>
                 <h3>View</h3>
-                <button onclick="POStransactions.generateInvoice('html', 0, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
-                <button onclick="POStransactions.generateInvoice('pdf', 0, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
+                <button onclick="POS.transactions.generateInvoice('html', 0, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
+                <button onclick="POS.transactions.generateInvoice('pdf', 0, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
                 <h3>Download</h3>
-                <button onclick="POStransactions.generateInvoice('html', 1, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
-                <button onclick="POStransactions.generateInvoice('pdf', 1, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
+                <button onclick="POS.transactions.generateInvoice('html', 1, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">HTML</button>
+                <button onclick="POS.transactions.generateInvoice('pdf', 1, $('#invoicetemplate').val());" class="btn btn-sm btn-primary" style="padding: 5px;">PDF</button>
             </div>
             <div id="sendinvoiceform" style="min-width: 420px;">
                 <label class="smfixedlabel inline">Invoice Template: </label><div class="inline"><select id="emlinvoicetemplate"></select></div>
@@ -750,7 +750,7 @@
                 <div class="wysiwyg-editor" id="emailmessage"></div>
                 <div class="space-8"></div>
                 <div style="text-align: center;">
-                    <button type="button" onclick="POStransactions.emailInvoice();" class="btn btn-primary">Send</button>
+                    <button type="button" onclick="POS.transactions.emailInvoice();" class="btn btn-primary">Send</button>
                 </div>
             </div>
             <div id="transhist">
@@ -778,7 +778,7 @@
                     <label class="fixedlabel">Amount: </label><span id="refamount"></span>
                     <div class="space-6"></div>
                     <label class="fixedlabel">Method: </label><span id="refmethod"></span>
-                    <button style="float: right; display: inline-block;" onclick="POStransactions.showPaymentInfo(this);" id="refpaydtlbtn" class="btn btn-xs btn-primary">Details</button>
+                    <button style="float: right; display: inline-block;" onclick="POS.transactions.showPaymentInfo(this);" id="refpaydtlbtn" class="btn btn-xs btn-primary">Details</button>
                     <div class="space-6"></div>
                     <table style="width: 100%;" class="table">
                         <thead class="table-header">

@@ -39,10 +39,10 @@ function setActiveMenuItem(secname){
 var POS;
 //On load page, init the timer which check if the there are anchor changes
 $(function(){
-    // initiate POSobject
+    // initiate POS.object
     POS= new WPOSClientDash();
     // init
-    POSisLogged();
+    POS.isLogged();
 });
 function WPOSClientDash(){
     // AJAX PAGE LOADER FUNCTIONS
@@ -76,23 +76,23 @@ function WPOSClientDash(){
                         $("#sidebar").removeClass("display");
                     }
                     // start the loader
-                    POSutil.showLoader();
+                    POS.util.showLoader();
                     //Creates the  string callback. This converts the url URL/#! &amp;amp;id=2 in URL/?section=main&amp;amp;id=2
                     delete splits[0];
                     //Create the params string
                     var params = splits.join('&');
                     var query = params;
                     //Send the ajax request
-                    POSloadPageContent(query);
+                    POS.loadPageContent(query);
                 }
             } else {
-                POSgoToHome();
+                POS.goToHome();
             }
         }
     };
     var timerId;
     this.startPageLoader = function(){
-        timerId = setInterval("POScheckAnchor();", 300);
+        timerId = setInterval("POS.checkAnchor();", 300);
     };
     this.stopPageLoader = function(){
         currentAnchor = '0';
@@ -101,7 +101,7 @@ function WPOSClientDash(){
     this.loadPageContent = function(query){
         $.get("content/"+sec+"", query, function(data){
             if (data=="AUTH"){
-                POSsessionExpired();
+                POS.sessionExpired();
             } else {
                 $("#maincontent").html(data);
             }
@@ -113,11 +113,11 @@ function WPOSClientDash(){
     var curuser = false;
     // authentication
     this.isLogged = function(){
-        POSutil.showLoader();
-        var data = POSgetJsonData("hello");
+        POS.util.showLoader();
+        var data = POS.getJsonData("hello");
         curuser = data.user;
         if (curuser!==false){
-            POSinitCustomers();
+            POS.initCustomers();
         }
         $("#loginbizlogo").attr("src", data.bizlogo);
         $("title").text("My "+data.bizname+" Account");
@@ -125,17 +125,17 @@ function WPOSClientDash(){
         $('#loadingdiv').hide();
         $('#logindiv').show();
         $("#loginbutton").removeAttr('disabled', 'disabled');
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
     this.getUser = function(){
         return curuser;
     };
     this.login = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         performLogin();
     };
     function performLogin(){
-        POSutil.showLoader();
+        POS.util.showLoader();
         var loginbtn = $('#loginbutton');
         // disable login button
         $(loginbtn).attr('disabled', 'disabled');
@@ -147,39 +147,39 @@ function WPOSClientDash(){
         var username = userfield.val();
         var password = passfield.val();
         // hash password
-        password = POSutil.SHA256(password);
+        password = POS.util.SHA256(password);
         // authenticate
-        curuser = POSsendJsonData("auth", JSON.stringify({username: username, password: password}));
+        curuser = POS.sendJsonData("auth", JSON.stringify({username: username, password: password}));
         if (curuser!==false){
-            POSinitCustomers();
+            POS.initCustomers();
         }
         passfield.val('');
-        POSutil.hideLoader();
+        POS.util.hideLoader();
         $(loginbtn).val('Login');
         $(loginbtn).removeAttr('disabled', 'disabled');
     }
     this.logout = function () {
-        POSutil.confirm("Are you sure you want to logout?", function() {
-            POSutil.showLoader();
+        POS.util.confirm("Are you sure you want to logout?", function() {
+            POS.util.showLoader();
             performLogout();
         });
     };
     function performLogout(){
-        POSutil.showLoader();
-        POSstopPageLoader();
-        POSgetJsonData("logout");
+        POS.util.showLoader();
+        POS.stopPageLoader();
+        POS.getJsonData("logout");
         $("#modaldiv").show();
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     this.sessionExpired = function(){
-        POSstopPageLoader();
+        POS.stopPageLoader();
         $("#modaldiv").show();
-        POSnotifications.error("Your session has expired, please login again.", "Session Expired", {delay: 0});
-        POSutil.hideLoader();
+        POS.notifications.error("Your session has expired, please login again.", "Session Expired", {delay: 0});
+        POS.util.hideLoader();
     };
     this.initCustomers = function(){
         fetchConfigTable();
-        POSstartPageLoader();
+        POS.startPageLoader();
         $("#modaldiv").hide();
     };
     // data handling functions
@@ -203,21 +203,21 @@ function WPOSClientDash(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                    POS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
                 if (errCode == "auth") {
-                    POSsessionExpired();
+                    POS.sessionExpired();
                     return false;
                 } else {
-                    POSnotifications.error(err, "Error", {delay: 0});
+                    POS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
 
-        POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
+        POS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     }
 
@@ -235,7 +235,7 @@ function WPOSClientDash(){
         if (response.status == "200") {
             var json = JSON.parse(response.responseText);
             if (json == null) {
-                POSnotifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
+                POS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
                 return false;
             }
             if (returnfull==true)
@@ -245,20 +245,20 @@ function WPOSClientDash(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                    POS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
                 if (errCode == "auth") {
-                    POSsessionExpired();
+                    POS.sessionExpired();
                     return false;
                 } else {
-                    POSnotifications.error(err, "Error", {delay: 0});
+                    POS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
-        POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
+        POS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     };
     // data & config

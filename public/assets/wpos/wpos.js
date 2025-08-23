@@ -39,10 +39,10 @@ function setActiveMenuItem(secname){
 var POS;
 //On load page, init the timer which check if the there are anchor changes
 $(function(){
-    // initiate POSobject
+    // initiate POS.object
     POS= new WPOSAdmin();
     // init
-    POSisLogged();
+    POS.isLogged();
 });
 function WPOSAdmin(){
     // AJAX PAGE LOADER FUNCTIONS
@@ -65,7 +65,7 @@ function WPOSAdmin(){
                 } else {
                     // if we are leaving realtime dash, close socket connection
                     if (currentsec == "realtime"){
-                        POSstopSocket();
+                        POS.stopSocket();
                     }
                     // set new current section
                     currentsec=sec;
@@ -76,22 +76,22 @@ function WPOSAdmin(){
                         $("#sidebar").removeClass("display");
                     }
                     // start the loader
-                    POSutil.showLoader();
+                    POS.util.showLoader();
                     //Creates the  string callback. This converts the url URL/#! &amp;amp;id=2 in URL/?section=main&amp;amp;id=2
                     delete splits[0];
                     //Create the params string
                     var params = splits.join('&');
                     //Send the ajax request
-                    POSloadPageContent(params);
+                    POS.loadPageContent(params);
                 }
             } else {
-                POSgoToHome();
+                POS.goToHome();
             }
         }
     };
     var timerId;
     this.startPageLoader = function(){
-        timerId = setInterval("POScheckAnchor();", 300);
+        timerId = setInterval("POS.checkAnchor();", 300);
     };
     this.stopPageLoader = function(){
         currentAnchor = '0';
@@ -106,7 +106,7 @@ function WPOSAdmin(){
         }
         $.get(contenturl, query, function(data){
             if (data=="AUTH"){
-                POSsessionExpired();
+                POS.sessionExpired();
             } else {
                 $("#maincontent").html(data);
             }
@@ -136,7 +136,7 @@ function WPOSAdmin(){
     var curuser = "";
     // authentication
     this.isLogged = function(){
-        POSutil.showLoader();
+        POS.util.showLoader();
         getLoginStatus(function(user){
             if (user!=false){
                 if (user.isadmin==1 || (user.sections!=null && user.sections.access!='no')){
@@ -149,19 +149,19 @@ function WPOSAdmin(){
                         }
                     });
 
-                    POSinitAdmin();
+                    POS.initAdmin();
                 } else {
-                    POSnotifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
+                    POS.notifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
                 }
             }
             $('#loadingdiv').hide();
             $('#logindiv').show();
             $("#loginbutton").removeAttr('disabled', 'disabled');
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
     function getLoginStatus(callback){
-        return POSgetJsonDataAsync("hello", callback);
+        return POS.getJsonDataAsync("hello", callback);
     }
     var sessionTimer = null;
     function startSessionCheck(){
@@ -171,7 +171,7 @@ function WPOSAdmin(){
         }
         getLoginStatus(function(user){
             if (user==false)
-                POSsessionExpired();
+                POS.sessionExpired();
         });
     }
     function stopSessionCheck(){
@@ -194,11 +194,11 @@ function WPOSAdmin(){
         $("#loginbutton").removeAttr('disabled', 'disabled');
     }
     this.login = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         performLogin();
     };
     function performLogin(){
-        POSutil.showLoader();
+        POS.util.showLoader();
         var loginbtn = $('#loginbutton');
         // disable login button
         $(loginbtn).attr('disabled', 'disabled');
@@ -210,9 +210,9 @@ function WPOSAdmin(){
         var username = userfield.val();
         var password = passfield.val();
         // hash password
-        password = POSutil.SHA256(password);
+        password = POS.util.SHA256(password);
         // authenticate
-        POSsendJsonDataAsync("auth", JSON.stringify({username: username, password: password}), function(user){
+        POS.sendJsonDataAsync("auth", JSON.stringify({username: username, password: password}), function(user){
             if (user!==false){
                 if (user.isadmin==1 || (user.sections!=null && user.sections.access!='no')){
 
@@ -224,44 +224,44 @@ function WPOSAdmin(){
                         }
                     });
 
-                    POSinitAdmin();
+                    POS.initAdmin();
                 } else {
-                    POSnotifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
+                    POS.notifications.error("You do not have permission to enter this area", "Access Denied", {delay: 0});
                 }
             }
             passfield.val('');
-            POSutil.hideLoader();
+            POS.util.hideLoader();
             $(loginbtn).val('Login');
             $(loginbtn).removeAttr('disabled', 'disabled');
         });
     }
     this.logout = function () {
-        POSutil.confirm("Are you sure you want to logout?", function() {
-            POSutil.showLoader();
+        POS.util.confirm("Are you sure you want to logout?", function() {
+            POS.util.showLoader();
             performLogout();
         });
     };
     function performLogout(){
-        POSutil.showLoader();
-        POSstopSocket();
-        POSstopPageLoader();
+        POS.util.showLoader();
+        POS.stopSocket();
+        POS.stopPageLoader();
         stopSessionCheck();
-        POSgetJsonData("logout");
+        POS.getJsonData("logout");
         showLoginDiv();
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     this.sessionExpired = function(){
-        POSstopPageLoader();
-        POSstopSocket();
+        POS.stopPageLoader();
+        POS.stopSocket();
         showLoginDiv("Your session has expired, please login again.");
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
     this.initAdmin = function(){
         // hide unallowed sections
         hidePermSections();
         // Load needed config
         fetchConfigTable();
-        POSstartPageLoader();
+        POS.startPageLoader();
         startSessionCheck();
         hideLoginDiv();
     };
@@ -331,21 +331,21 @@ function WPOSAdmin(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                    POS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
                 if (errCode == "auth") {
-                    POSsessionExpired();
+                    POS.sessionExpired();
                     return false;
                 } else {
-                    POSnotifications.error(err, "Error", {delay: 0});
+                    POS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
 
-        POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
+        POS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     }
 
@@ -364,28 +364,28 @@ function WPOSAdmin(){
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                            POS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         if (callback)
                             callback(json.data);
                     } else {
                         if (errCode == "auth"){
-                            POSsessionExpired();
+                            POS.sessionExpired();
                             return false;
                         }
-                        POSnotifications.error(err, "Error", {delay: 0});
+                        POS.notifications.error(err, "Error", {delay: 0});
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    POSnotifications.error(error, "Request Error", {delay: 0});
+                    POS.notifications.error(error, "Request Error", {delay: 0});
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            POSnotifications.error("Exception: "+ex, "Exception", {delay: 0});
+            POS.notifications.error("Exception: "+ex, "Exception", {delay: 0});
             if (callback)
                 callback(false);
         }
@@ -405,7 +405,7 @@ function WPOSAdmin(){
         if (response.status == "200") {
             var json = JSON.parse(response.responseText);
             if (json == null) {
-                POSnotifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
+                POS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error", {delay: 0});
                 return false;
             }
             var errCode = json.errorCode;
@@ -413,20 +413,20 @@ function WPOSAdmin(){
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                    POS.notifications.warning(json.warning, "Warning", {delay: 0});
                 }
                 return json.data;
             } else {
                 if (errCode == "auth") {
-                    POSsessionExpired();
+                    POS.sessionExpired();
                     return false;
                 } else {
-                    POSnotifications.error(err, "Error", {delay: 0});
+                    POS.notifications.error(err, "Error", {delay: 0});
                     return false;
                 }
             }
         }
-        POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
+        POS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error", {delay: 0});
         return false;
     };
 
@@ -446,16 +446,16 @@ function WPOSAdmin(){
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                            POS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         callback(json.data);
                     } else {
                         if (errCode == "auth") {
-                            POSsessionExpired();
+                            POS.sessionExpired();
                         } else {
                             if (typeof errorCallback == "function")
                                 return errorCallback(json.error);
-                            POSnotifications.error(err, "Error", {delay: 0});
+                            POS.notifications.error(err, "Error", {delay: 0});
                         }
                         callback(false);
                     }
@@ -464,7 +464,7 @@ function WPOSAdmin(){
                     if (typeof errorCallback == "function")
                         return errorCallback(error);
 
-                    POSnotifications.error(error, "Request Error", {delay: 0});
+                    POS.notifications.error(error, "Request Error", {delay: 0});
                     callback(false);
                 }
             });
@@ -473,7 +473,7 @@ function WPOSAdmin(){
             if (typeof errorCallback == "function")
                 return errorCallback(error.message);
 
-            POSnotifications.error(ex.message, "Exception", {delay: 0});
+            POS.notifications.error(ex.message, "Exception", {delay: 0});
             callback(false);
             return false;
         }
@@ -482,7 +482,7 @@ function WPOSAdmin(){
     this.uploadFile = function (event, callback){
         event.stopPropagation(); // Stop stuff happening
         event.preventDefault(); // Totally stop stuff happening
-        POSutil.showLoader();
+        POS.util.showLoader();
         var files = event.target.files;
         // Create a formdata object and add the files
         var fd = new FormData();
@@ -503,22 +503,22 @@ function WPOSAdmin(){
                     callback(data.data);
                 } else {
                     if (errCode == "auth") {
-                        POSsessionExpired();
+                        POS.sessionExpired();
                         return false;
                     } else {
-                        POSnotifications.error(err, "Upload Error", {delay: 0});
+                        POS.notifications.error(err, "Upload Error", {delay: 0});
                         return false;
                     }
                 }
                 // hide loader
-                POSutil.hideLoader();
+                POS.util.hideLoader();
                 return true;
             },
             error: function(jqXHR, textStatus, errorThrown){
                 // Handle errors here
-                POSnotifications.error("There was an error connecting to the server: \n"+textStatus, "Connection Error", {delay: 0});
+                POS.notifications.error("There was an error connecting to the server: \n"+textStatus, "Connection Error", {delay: 0});
                 // hide loader
-                POSutil.hideLoader();
+                POS.util.hideLoader();
             }
         });
     };
@@ -526,7 +526,7 @@ function WPOSAdmin(){
     // function for event source processes
     this.startEventSourceProcess = function(url, dataCallback, errorCallback){
         if (typeof(EventSource) === "undefined"){
-            POSnotifications.error("Your browser does not support EventSource, please update your browser to continue.", "Browser Compatibility", {delay: 0});
+            POS.notifications.error("Your browser does not support EventSource, please update your browser to continue.", "Browser Compatibility", {delay: 0});
             return;
         }
         showModalLoader();
@@ -584,10 +584,10 @@ function WPOSAdmin(){
                         if (data.type=="deviceconfig"){
                             if (data.data.hasOwnProperty('a')){
                                 if (data.data.a=="removed")
-                                    delete POSdevices[data.id];
+                                    delete POS.devices[data.id];
                             } else {
-                                POSdevices[data.data.id] = data.data;
-                                POSlocations[data.data.locationid] = {name: data.data.locationname};
+                                POS.devices[data.data.id] = data.data;
+                                POS.locations[data.data.locationid] = {name: data.data.locationname};
                             }
                         }
                         break;
@@ -595,15 +595,15 @@ function WPOSAdmin(){
                     case "error":
                         if (!authretry && data.data.hasOwnProperty('code') && data.data.code=="auth"){
                             authretry = true;
-                            POSstopSocket();
-                            var result = POSgetJsonData('auth/websocket');
+                            POS.stopSocket();
+                            var result = POS.getJsonData('auth/websocket');
                             if (result===true){
-                                POSstartSocket();
+                                POS.startSocket();
                                 return;
                             }
                         }
 
-                        POSnotifications.error(data.data.message, "Authentication Error", {delay: 0});
+                        POS.notifications.error(data.data.message, "Authentication Error", {delay: 0});
                         break;
                 }
                 //alert(data.a);
@@ -616,7 +616,7 @@ function WPOSAdmin(){
 
     function socketError(){
         if (socketon) // A fix for mod_proxy_wstunnel causing error on disconnect
-            POSnotifications.error("Update feed could not be connected, \nyou will not receive realtime updates!", "Connection Error", {delay: 0});
+            POS.notifications.error("Update feed could not be connected, \nyou will not receive realtime updates!", "Connection Error", {delay: 0});
         socketon = false;
         authretry = false;
         //socket = null;
@@ -643,9 +643,9 @@ function WPOSAdmin(){
     this.users = null;
     function fetchConfigTable() {
         configtable = getJsonData("adminconfig/get");
-        POSdevices = configtable.devices;
-        POSlocations = configtable.locations;
-        POSusers = configtable.users;
+        POS.devices = configtable.devices;
+        POS.locations = configtable.locations;
+        POS.users = configtable.users;
     }
 
     this.getConfigTable = function () {

@@ -62,22 +62,22 @@
     // functions for opening info dialogs and populating data
     function reloadSalesData(){
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         resetSearchBox();
-        var sales = POSsendJsonData("sales/get", JSON.stringify({"stime":stime, "etime":etime}));
-        POStransactions.setTransactions(sales);
+        var sales = POS.sendJsonData("sales/get", JSON.stringify({"stime":stime, "etime":etime}));
+        POS.transactions.setTransactions(sales);
         reloadSalesTable();
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
 
     function reloadSalesTable(){
         var itemarray = [];
         var tempitem;
-        var sales = POStransactions.getTransactions();
+        var sales = POS.transactions.getTransactions();
         for (var key in sales){
             tempitem = sales[key];
-            tempitem.devlocname = (POSdevices.hasOwnProperty(tempitem.devid)?POSdevices[tempitem.devid].name:'NA')+" / "+(POSlocations.hasOwnProperty(tempitem.locid)?POSlocations[tempitem.locid].name:'NA');
+            tempitem.devlocname = (POS.devices.hasOwnProperty(tempitem.devid)?POS.devices[tempitem.devid].name:'NA')+" / "+(POS.locations.hasOwnProperty(tempitem.locid)?POS.locations[tempitem.locid].name:'NA');
             itemarray.push(tempitem);
         }
         datatable.fnClearTable(false);
@@ -89,18 +89,18 @@
     function doSearch(){
         var ref = $("#refsearch").val();
         if (ref==""){
-            POSnotifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
+            POS.notifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
             return;
         }
         var data = {ref: ref};
-        POSsendJsonDataAsync("sales/search", JSON.stringify(data), function(sales){
+        POS.sendJsonDataAsync("sales/search", JSON.stringify(data), function(sales){
             var itemarray = [];
             if (sales !== false){
-                POStransactions.setTransactions(sales);
+                POS.transactions.setTransactions(sales);
                 var tempitem;
                 for (var key in sales){
                     tempitem = sales[key];
-                    tempitem.devlocname = (POSdevices.hasOwnProperty(tempitem.devid)?POSdevices[tempitem.devid].name:'NA')+" / "+(POSlocations.hasOwnProperty(tempitem.locid)?POSlocations[tempitem.locid].name:'NA');
+                    tempitem.devlocname = (POS.devices.hasOwnProperty(tempitem.devid)?POS.devices[tempitem.devid].name:'NA')+" / "+(POS.locations.hasOwnProperty(tempitem.locid)?POS.locations[tempitem.locid].name:'NA');
                     itemarray.push(tempitem);
                 }
                 datatable.fnClearTable(false);
@@ -153,9 +153,9 @@
     }
 
     function exportCurrentSales(){
-        var sales = POStransactions.getTransactions();
-        POScustomers.loadCustomers();
-        var customers = POScustomers.getCustomers();
+        var sales = POS.transactions.getTransactions();
+        POS.customers.loadCustomers();
+        var customers = POS.customers.getCustomers();
 
         var data = {};
         var refs = datatable.api().rows('.selected').data().map(function(row){ return row.ref }).join(',').split(',');
@@ -170,18 +170,18 @@
             data = sales;
         }
 
-        var csv = POSdata2CSV(
+        var csv = POS.data2CSV(
             ['ID', 'Reference', 'User', 'Device', 'Location', 'Customer ID', 'Customer Email', 'Items', '# Items', 'Payments', 'Subtotal', 'Discount', 'Total', 'Sale DT', 'Created DT', 'Status', 'JSON Data'],
             [
                 'id', 'ref',
                 {key:'userid', func: function(value){
-                    return POSusers.hasOwnProperty(value) ? POSusers[value].username : 'Unknown';
+                    return POS.users.hasOwnProperty(value) ? POS.users[value].username : 'Unknown';
                 }},
                 {key:'devid', func: function(value){
-                    return POSdevices.hasOwnProperty(value) ? POSdevices[value].name : 'Unknown';
+                    return POS.devices.hasOwnProperty(value) ? POS.devices[value].name : 'Unknown';
                 }},
                 {key:'locid', func: function(value){
-                    return POSlocations.hasOwnProperty(value) ? POSlocations[value].name : 'Unknown';
+                    return POS.locations.hasOwnProperty(value) ? POS.locations[value].name : 'Unknown';
                 }},
                 'custid',
                 {key:'custid', func: function(value){
@@ -190,7 +190,7 @@
                 {key:'items', func: function(value){
                     var itemstr = '';
                     for (var i in value){
-                        itemstr += value[i].qty+"x "+value[i].name+"-"+value[i].desc+" @ "+POSutil.currencyFormat(value[i].unit)+(value[i].tax.inclusive?" tax incl. ":" tax excl. ")+POSutil.currencyFormat(value[i].tax.total)+" = "+POSutil.currencyFormat(value[i].price)+" \n";
+                        itemstr += value[i].qty+"x "+value[i].name+"-"+value[i].desc+" @ "+POS.util.currencyFormat(value[i].unit)+(value[i].tax.inclusive?" tax incl. ":" tax excl. ")+POS.util.currencyFormat(value[i].tax.total)+" = "+POS.util.currencyFormat(value[i].price)+" \n";
                     }
                     return itemstr;
                 }},
@@ -198,13 +198,13 @@
                 {key:'payments', func: function(value){
                     var paystr = '';
                     for (var i in value){
-                        paystr += value[i].method+" "+POSutil.currencyFormat(value[i].amount)+" ";
+                        paystr += value[i].method+" "+POS.util.currencyFormat(value[i].amount)+" ";
                     }
                     return paystr;
                 }},
                 'subtotal', 'discount', 'total',
                 {key:'processdt', func: function(value){
-                    return POSutil.getDateFromTimestamp(value, 'Y-m-d');
+                    return POS.util.getDateFromTimestamp(value, 'Y-m-d');
                 }},
                 'dt',
                 {key:'status', func: function(value){
@@ -223,18 +223,18 @@
             data
         );
 
-        POSinitSave("sales-"+POSutil.getDateFromTimestamp(stime)+"-"+POSutil.getDateFromTimestamp(etime), csv);
+        POS.initSave("sales-"+POS.util.getDateFromTimestamp(stime)+"-"+POS.util.getDateFromTimestamp(etime), csv);
     }
 
     $(function() {
         // get default data
-        var sales = POSsendJsonData("sales/get", JSON.stringify({"stime":stime, "etime":etime}));
-        POStransactions.setTransactions(sales);
+        var sales = POS.sendJsonData("sales/get", JSON.stringify({"stime":stime, "etime":etime}));
+        POS.transactions.setTransactions(sales);
         var itemarray = [];
         var tempitem;
         for (var key in sales){
             tempitem = sales[key];
-            tempitem.devlocname = (POSdevices.hasOwnProperty(tempitem.devid)?POSdevices[tempitem.devid].name:'NA')+" / "+(POSlocations.hasOwnProperty(tempitem.locid)?POSlocations[tempitem.locid].name:'NA');
+            tempitem.devlocname = (POS.devices.hasOwnProperty(tempitem.devid)?POS.devices[tempitem.devid].name:'NA')+" / "+(POS.locations.hasOwnProperty(tempitem.locid)?POS.locations[tempitem.locid].name:'NA');
             itemarray.push(tempitem);
         }
         datatable = $('#salestable').dataTable({
@@ -245,13 +245,13 @@
                 { mData:null, sDefaultContent:'<div style="text-align: center"><label><input class="ace dt-select-cb" type="checkbox"><span class="lbl"></span></label><div>', bSortable: false },
                 { "mData":"id" },
                 { "mData":function(data, type, val){ return '<a class="reflabel" title="'+data.ref+'" href="">'+data.ref.split("-")[2]+'</a>'; } },
-                { "mData":function(data, type, val){ var users = POSgetConfigTable().users; if (users.hasOwnProperty(data.userid)){ return users[data.userid].username; } return 'N/A'; } },
+                { "mData":function(data, type, val){ var users = POS.getConfigTable().users; if (users.hasOwnProperty(data.userid)){ return users[data.userid].username; } return 'N/A'; } },
                 { "mData":"devlocname" },
                 { "mData":"numitems" },
-                { "sType": "timestamp", "mData":function(data, type, val){ return datatableTimestampRender(type, data.processdt, POSutil.getDateFromTimestamp);} },
-                { "sType": "currency", "mData":function(data,type,val){return POSutil.currencyFormat(data["total"]);} },
+                { "sType": "timestamp", "mData":function(data, type, val){ return datatableTimestampRender(type, data.processdt, POS.util.getDateFromTimestamp);} },
+                { "sType": "currency", "mData":function(data,type,val){return POS.util.currencyFormat(data["total"]);} },
                 { "mData":function(data,type,val){return getStatusHtml(getTransactionStatus(data));} },
-                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POStransactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="POStransactions.deleteTransaction($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'))"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
+                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POS.transactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="POS.transactions.deleteTransaction($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'))"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
             ],
             "columns": [
                 {},
@@ -327,7 +327,7 @@
         sselect.datepicker('setDate', new Date(stime));
 
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
 
 </script>

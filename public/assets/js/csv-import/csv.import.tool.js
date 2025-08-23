@@ -93,16 +93,16 @@ $(function() {
                 },
                 reject: function(filname, errors) {
                     if (errors.maxSize) {
-                        // Use POSnotifications if available, otherwise fall back to alert
-                        if (typeof POS!== 'undefined' && POSnotifications) {
-                            POSnotifications.error("Only CSV files less than 10mb can be imported.", "File Size Error", {delay: 0});
+                        // Use POS.notifications if available, otherwise fall back to alert
+                        if (typeof POS!== 'undefined' && POS.notifications) {
+                            POS.notifications.error("Only CSV files less than 10mb can be imported.", "File Size Error", {delay: 0});
                         } else {
                             alert("Only CSV files less than 10mb can be imported.");
                         }
                         return;
                     }
-                    if (typeof POS!== 'undefined' && POSnotifications) {
-                        POSnotifications.error("There was an error loading the file: "+JSON.stringify(errors), "File Load Error", {delay: 0});
+                    if (typeof POS!== 'undefined' && POS.notifications) {
+                        POS.notifications.error("There was an error loading the file: "+JSON.stringify(errors), "File Load Error", {delay: 0});
                     } else {
                         alert("There was an error loading the file: "+JSON.stringify(errors));
                     }
@@ -138,16 +138,16 @@ $(function() {
                 if (widget.csvData!=null){
                     widget.populateSourceFields();
                 } else {
-                    if (typeof POS!== 'undefined' && POSnotifications) {
-                        POSnotifications.error("Could not parse the CSV file", "Parse Error", {delay: 0});
+                    if (typeof POS!== 'undefined' && POS.notifications) {
+                        POS.notifications.error("Could not parse the CSV file", "Parse Error", {delay: 0});
                     } else {
                         alert("Could not parse the CSV file");
                     }
                 }
             };
             reader.onerror = function(){
-                if (typeof POS!== 'undefined' && POSnotifications) {
-                    POSnotifications.error("Could not read the CSV file", "File Read Error", {delay: 0});
+                if (typeof POS!== 'undefined' && POS.notifications) {
+                    POS.notifications.error("Could not read the CSV file", "File Read Error", {delay: 0});
                 } else {
                     alert("Could not read the CSV file");
                 }
@@ -243,8 +243,8 @@ $(function() {
 
         generateJson: function(){
             if (this.csvData==null){
-                if (typeof POS!== 'undefined' && POSnotifications) {
-                    POSnotifications.warning("Please add a valid CSV file before proceeding.", "No File", {delay: 0});
+                if (typeof POS!== 'undefined' && POS.notifications) {
+                    POS.notifications.warning("Please add a valid CSV file before proceeding.", "No File", {delay: 0});
                 } else {
                     alert("Please add a valid CSV file before proceeding.");
                 }
@@ -268,8 +268,8 @@ $(function() {
                             console.log(source_table.eq(i).attr('id'));
                             console.log(fields[x].required);
                             console.log(fields[x].value);
-                            if (typeof POS!== 'undefined' && POSnotifications) {
-                                POSnotifications.error("The " + x + " column is required and does not have a default value.", "Required Field Missing", {delay: 0});
+                            if (typeof POS!== 'undefined' && POS.notifications) {
+                                POS.notifications.error("The " + x + " column is required and does not have a default value.", "Required Field Missing", {delay: 0});
                             } else {
                                 alert("The " + x + " column is required and does not have a default value.");
                             }
@@ -294,8 +294,8 @@ $(function() {
                                 value = this.csvData[i][fields[x].idx];
                         }
                         if (value==null && fields[x].required) {
-                            if (typeof POS!== 'undefined' && POSnotifications) {
-                                POSnotifications.error("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.", "Required Field Missing", {delay: 0});
+                            if (typeof POS!== 'undefined' && POS.notifications) {
+                                POS.notifications.error("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.", "Required Field Missing", {delay: 0});
                             } else {
                                 alert("The " + x + " column is required and does not have a default value on line "+i+" of the CSV file.");
                             }

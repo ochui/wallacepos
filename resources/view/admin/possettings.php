@@ -200,7 +200,7 @@
 
         function saveSettings(){
             // show loader
-            POSutil.showLoader();
+            POS.util.showLoader();
             var data = {};
             $("#maincontent").find("form :input").each(function(){
                 if ($(this).is(':checkbox')) {
@@ -209,17 +209,17 @@
                     data[$(this).prop('id')] = $(this).val();
                 }
             });
-            var result = POSsendJsonData("settings/pos/set", JSON.stringify(data));
+            var result = POS.sendJsonData("settings/pos/set", JSON.stringify(data));
             if (result !== false){
-                POSsetConfigSet('pos', result);
+                POS.setConfigSet('pos', result);
             }
             refreshPreviewImages();
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         }
 
         function loadSettings(){
-            options = POSgetJsonData("settings/pos/get");
+            options = POS.getJsonData("settings/pos/get");
             // load option values into the form
             for (var i in options){
                 var input = $("#"+i);
@@ -245,7 +245,7 @@
         }
 
         function refreshTemplateList(selectedid){
-            var templates = POSgetConfigTable()['templates'];
+            var templates = POS.getConfigTable()['templates'];
             var list = $("#rectemplate");
             list.html('');
             for (var i in templates){
@@ -265,7 +265,7 @@
         });
 
         function uploadRecLogo(event){
-            POSuploadFile(event, function(data){
+            POS.uploadFile(event, function(data){
                 $("#reclogo").val(data.path);
                 $("#reclogoprev").prop("src", data.path);
                 saveSettings();
@@ -273,7 +273,7 @@
         }
 
         function uploadEmailLogo(event){
-            POSuploadFile(event, function(data){
+            POS.uploadFile(event, function(data){
                 $("#recemaillogo").val(data.path);
                 $("#emaillogoprev").prop("src", data.path);
                 saveSettings();
@@ -284,6 +284,6 @@
             loadSettings();
 
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         })
 </script>

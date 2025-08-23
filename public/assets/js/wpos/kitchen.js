@@ -1,24 +1,8 @@
 /**
- * core.js is part of Wallace Point of Sale system (WPOS)
  *
  * core.js is the main object that provides base functionality to the WallacePOS terminal.
  * It loads other needed modules and provides authentication, storage and data functions.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/14 12:01 PM
  */
 
 function WPOSKitchen() {
@@ -31,11 +15,11 @@ function WPOSKitchen() {
         });
         // check online status to determine start & load procedure.
         if (checkOnlineStatus()) {
-            POScheckCacheUpdate(); // check if application cache is updating or already updated
+            POS.checkCacheUpdate(); // check if application cache is updating or already updated
         } else {
             // check approppriate offline records exist
             if (switchToOffline()) {
-                POSinitLogin();
+                POS.initLogin();
             }
         }
     };
@@ -49,7 +33,7 @@ function WPOSKitchen() {
         swManager.init({
             onCacheReady: function() {
                 console.log("Service Worker cache loaded for the first time, no need for reload.");
-                POSinitLogin();
+                POS.initLogin();
             },
             onUpdateAvailable: function() {
                 console.log("Service Worker update available, applying...");
@@ -70,18 +54,18 @@ function WPOSKitchen() {
             onError: function(error) {
                 console.error("Service Worker error:", error);
                 // Fallback to normal initialization if SW fails
-                POSinitLogin();
+                POS.initLogin();
             }
         }).then(function() {
             // If service worker is already active, proceed with login
             if (navigator.serviceWorker.controller) {
                 console.log("Service Worker already active");
-                POSinitLogin();
+                POS.initLogin();
             }
         }).catch(function(error) {
             console.error("Service Worker initialization failed:", error);
             // Fallback to normal initialization
-            POSinitLogin();
+            POS.initLogin();
         });
     };
     // Check for device UUID & present Login, initial setup is triggered if the device UUID is not present
@@ -89,7 +73,7 @@ function WPOSKitchen() {
         showLogin();
         if (getDeviceUUID() == null) {
             // The device has not been setup yet; User will have to login as an admin to setup the device.
-            POSnotifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
+            POS.notifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
             initialsetup = true;
             online = true;
             return false;
@@ -101,14 +85,14 @@ function WPOSKitchen() {
         // load keypad if set
         setKeypad(true);
         // load printer plugin
-        POSprint.loadPrintSettings();
+        POS.print.loadPrintSettings();
     };
     this.initKeypad = function(){
         setKeypad(false);
     };
     function setKeypad(setcheckbox){
         if (getLocalConfig().keypad == true ){
-            POSutil.initKeypad();
+            POS.util.initKeypad();
             if (setcheckbox)
                 $("#keypadset").prop("checked", true);
         } else {
@@ -128,11 +112,11 @@ function WPOSKitchen() {
                 onComplete: function(barcode){
                     // switch to sales tab
                     $("#wrapper").tabs( "option", "active", 0 );
-                    POSitems.addItemFromStockCode(barcode);
+                    POS.items.addItemFromStockCode(barcode);
                 }
             });
         }).error(function(){
-            POSnotifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
+            POS.notifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
         });
     }
 
@@ -147,7 +131,7 @@ function WPOSKitchen() {
     }
 
     this.userLogin = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         var loginbtn = $('#loginbutton');
         // disable login button
         $(loginbtn).prop('disabled', true);
@@ -159,7 +143,7 @@ function WPOSKitchen() {
         var username = userfield.val();
         var password = passfield.val();
         // hash password
-        password = POSutil.SHA256(password);
+        password = POS.util.SHA256(password);
         // authenticate
         if (authenticate(username, password) === true) {
             userfield.val('');
@@ -171,7 +155,7 @@ function WPOSKitchen() {
                 if (isUserAdmin()) {
                     initSetup();
                 } else {
-                    POSnotifications.error("You must login as an administrator for first time setup", "Admin Access Required");
+                    POS.notifications.error("You must login as an administrator for first time setup", "Admin Access Required");
                     showLogin();
                 }
             } else {
@@ -181,16 +165,16 @@ function WPOSKitchen() {
         passfield.val('');
         $(loginbtn).val('Login');
         $(loginbtn).prop('disabled', false);
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     this.logout = function () {
-        POSutil.confirm("Are you sure you want to logout?", function() {
-            POSutil.showLoader();
+        POS.util.confirm("Are you sure you want to logout?", function() {
+            POS.util.showLoader();
             stopSocket();
-            POSgetJsonData("logout");
+            POS.getJsonData("logout");
             showLogin();
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
@@ -198,7 +182,7 @@ function WPOSKitchen() {
         // auth against server if online, offline table if not.
         if (online == true) {
             // send request to server
-            var response = POSsendJsonData("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}));
+            var response = POS.sendJsonData("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}));
             if (response !== false) {
                 // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
                 setCurrentUser(response);
@@ -214,7 +198,7 @@ function WPOSKitchen() {
 
     function sessionRenew(){
         // send request to server
-        var response = POSsendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
+        var response = POS.sendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
         if (response !== false) {
             // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
             setCurrentUser(response);
@@ -229,20 +213,20 @@ function WPOSKitchen() {
         if (localStorage.getItem("wpos_auth") !== null) {
             var jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
             if (jsonauth[username] === null || jsonauth[username] === undefined) {
-                POSnotifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
+                POS.notifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
                 return false;
             } else {
                 var authentry = jsonauth[username];
-                if (authentry.auth_hash == POSutil.SHA256(hashpass+authentry.token)) {
+                if (authentry.auth_hash == POS.util.SHA256(hashpass+authentry.token)) {
                     setCurrentUser(authentry);
                     return true;
                 } else {
-                    POSnotifications.error("Access denied!", "Authentication Failed");
+                    POS.notifications.error("Access denied!", "Authentication Failed");
                     return false;
                 }
             }
         } else {
-            POSnotifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
+            POS.notifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
             return false;
         }
     }
@@ -263,14 +247,14 @@ function WPOSKitchen() {
 
     // initiate the setup process
     this.deviceSetup = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         var devid = $("#posdevices option:selected").val();
         var devname = $("#newposdevice").val();
         var locid = $("#poslocations option:selected").val();
         var locname = $("#newposlocation").val();
         // check input
         if ((devid == null && devname == null) || (locid == null && locname == null)) {
-            POSnotifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
+            POS.notifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
         } else {
             // call the setup function
             if (deviceSetup(devid, devname, locid, locname)) {
@@ -279,17 +263,17 @@ function WPOSKitchen() {
                 $("#setupdiv").dialog("close");
                 showLogin();
             } else {
-                POSnotifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
+                POS.notifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
             }
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     function initSetup() {
-        POSutil.showLoader();
+        POS.util.showLoader();
         // get pos locations and devices and populate select lists
-        var devices = POSgetJsonData("devices/get");
-        var locations = POSgetJsonData("locations/get");
+        var devices = POS.getJsonData("devices/get");
+        var locations = POS.getJsonData("locations/get");
 
         for (var i in devices) {
             if (devices[i].disabled==0 && devices[i].type=="kitchen_terminal"){ // only show kitchen devices which aren't disabled
@@ -301,7 +285,7 @@ function WPOSKitchen() {
                 $("#poslocations").append('<option value="' + locations[i].id + '">' + locations[i].name + '</option>');
             }
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
         // show the setup dialog
         $("#setupdiv").dialog("open");
     }
@@ -360,10 +344,10 @@ function WPOSKitchen() {
                     }
                     // start websocket connection
                     startSocket();
-                    setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+                    setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
                     initDataSuccess(loginloader);
                     // check for offline sales on login
-                    //setTimeout('if (POSsales.getOfflineSalesNum()){ if (POSsales.uploadOfflineRecords()){ POSsetStatusBar(1, "POSis online"); } }', 2000);
+                    //setTimeout('if (POS.sales.getOfflineSalesNum()){ if (POS.sales.uploadOfflineRecords()){ POS.setStatusBar(1, "POS.is online"); } }', 2000);
                 });
                 break;
         }
@@ -375,7 +359,7 @@ function WPOSKitchen() {
         loadConfigTable();
         loadItemsTable();
         loadSalesTable();
-        POSnotifications.info("Your internet connection is not active and POShas started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available POSwill process your transactions on the server.", "Offline Mode");
+        POS.notifications.info("Your internet connection is not active and POS.has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available POS will process your transactions on the server.", "Offline Mode");
         initDataSuccess(loginloader);
     }
 
@@ -383,10 +367,10 @@ function WPOSKitchen() {
         if (loginloader){
             setLoadingBar(100, "Initializing the awesome...");
             $("title").text("WallacePOS - Your POS in the cloud");
-            POSinitPlugins();
+            POS.initPlugins();
             setTimeout('$("#modaldiv").hide();', 500);
         }
-        POSkitchen.populateOrders();
+        POS.kitchen.populateOrders();
     }
 
     function setLoadingBar(progress, status) {
@@ -510,13 +494,13 @@ function WPOSKitchen() {
         if (canDoOffline()==true) {
             // set js indicator: important
             online = false;
-            setStatusBar(3, "POSis Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
+            setStatusBar(3, "POS.is Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
             // start online check routine
             checktimer = setInterval(doOnlineCheck, 60000);
             return true;
         } else {
             // display error notice
-            POSnotifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
+            POS.notifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
             $("#modaldiv").show();
             ('#loginbutton').prop('disabled', true);
             setLoadingBar(100, "Error switching to offine mode");
@@ -533,13 +517,13 @@ function WPOSKitchen() {
 
     function switchToOnline() {
         // upload offline sales
-        //if (POSsales.uploadOfflineRecords()){
+        //if (POS.sales.uploadOfflineRecords()){
             // set js and ui indicators
             online = true;
             // load fresh data
             initData(false);
             // initData();
-        setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+        setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         //}
     }
 
@@ -559,7 +543,7 @@ function WPOSKitchen() {
             if (response.status == "200") {
                 var json = $.parseJSON(response.responseText);
                 if (json == null) {
-                    POSnotifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
+                    POS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
                     return false;
                 }
                 var errCode = json.errorCode;
@@ -567,31 +551,31 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                        POS.notifications.warning(json.warning, "Warning", {delay: 0});
                     }
                     return json.data;
                 } else {
                     if (errCode == "auth") {
                         if (sessionRenew()) {
                             // try again after authenticating
-                            return POSsendJsonData(action, data);
+                            return POS.sendJsonData(action, data);
                         } else {
                             //alert(err);
                             return false;
                         }
                     } else {
-                        POSnotifications.error(err, "Error", {delay: 0});
+                        POS.notifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
             } else {
                 switchToOffline();
-                POSnotifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
+                POS.notifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
                 return false;
             }
         } catch (ex) {
             switchToOffline();
-            POSnotifications.error("There was an error sending data, switching to offline mode", "Connection Error");
+            POS.notifications.error("There was an error sending data, switching to offline mode", "Connection Error");
             return false;
         }
     };
@@ -612,26 +596,26 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning");
+                            POS.notifications.warning(json.warning, "Warning");
                         }
                         callback(json.data, callbackref);
                     } else {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                callback(POSsendJsonData(action, data), callbackref);
+                                callback(POS.sendJsonData(action, data), callbackref);
                             } else {
                                 //alert(err);
                                 callback(false, callbackref);
                             }
                         } else {
-                            POSnotifications.error(err, "Server Error");
+                            POS.notifications.error(err, "Server Error");
                             callback(false, callbackref);
                         }
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    POSnotifications.error(error, "Connection Error");
+                    POS.notifications.error(error, "Connection Error");
                     callback(false, callbackref);
                 }
             });
@@ -659,25 +643,25 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        POSnotifications.warning(json.warning, "Warning");
+                        POS.notifications.warning(json.warning, "Warning");
                     }
                     return json.data;
                 } else {
                     if (errCode == "auth") {
                         if (sessionRenew()) {
                             // try again after authenticating
-                            return POSgetJsonData(action);
+                            return POS.getJsonData(action);
                         } else {
                             //alert(err);
                             return false;
                         }
                     } else {
-                        POSnotifications.error(err, "Error", {delay: 0});
+                        POS.notifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
             } else {
-                POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
+                POS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
                 return false;
             }
         } catch (ex){
@@ -700,7 +684,7 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning", {delay: 0});
+                            POS.notifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         if (callback)
                             callback(json.data);
@@ -708,7 +692,7 @@ function WPOSKitchen() {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                var result = POSsendJsonData(action, data);
+                                var result = POS.sendJsonData(action, data);
                                 if (result){
                                     if (callback)
                                         callback(result);
@@ -716,19 +700,19 @@ function WPOSKitchen() {
                                 }
                             }
                         }
-                        POSnotifications.error(err, "Error", {delay: 0});
+                        POS.notifications.error(err, "Error", {delay: 0});
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    POSnotifications.error(error, "Request Error", {delay: 0});
+                    POS.notifications.error(error, "Request Error", {delay: 0});
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            POSnotifications.error("Exception: "+ex, "Exception", {delay: 0});
+            POS.notifications.error("Exception: "+ex, "Exception", {delay: 0});
             if (callback)
                 callback(false);
         }
@@ -767,7 +751,7 @@ function WPOSKitchen() {
     function fetchConfigTable(callback) {
         var data = {};
         data.uuid = getDeviceUUID();
-        return POSsendJsonDataAsync("config/get", JSON.stringify(data), function(data){
+        return POS.sendJsonDataAsync("config/get", JSON.stringify(data), function(data){
             if (data) {
                 console.log(data);
                 if (data.hasOwnProperty("remdev")){ // return false if dev is disabled
@@ -803,7 +787,7 @@ function WPOSKitchen() {
     }
 
     function setAppCustomization(){
-        var url = POSgetConfigTable().general.bizlogo;
+        var url = POS.getConfigTable().general.bizlogo;
         console.log(url);
         $("#watermark").css("background-image", "url('"+url+"')");
     }
@@ -876,7 +860,7 @@ function WPOSKitchen() {
         } else {
             data.locationid = locid;
         }
-        var configobj = POSsendJsonData("devices/setup", JSON.stringify(data));
+        var configobj = POS.sendJsonData("devices/setup", JSON.stringify(data));
         if (configobj) {
             localStorage.setItem("wpos_config", JSON.stringify(configobj));
             configtable = configobj;
@@ -908,7 +892,7 @@ function WPOSKitchen() {
         } else {
             // generate a md5 UUID using datestamp and rand for entropy and return the result
             var date = new Date().getTime();
-            uuid = POSutil.SHA256((date * Math.random()).toString());
+            uuid = POS.util.SHA256((date * Math.random()).toString());
             localStorage.setItem("wpos_kitchen_devuuid", uuid);
         }
         return uuid;
@@ -925,7 +909,7 @@ function WPOSKitchen() {
     };
 
     function fetchSalesTable(callback) {
-        return POSsendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
+        return POS.sendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
             if (data) {
                 salestable = data;
                 localStorage.setItem("wpos_csales", JSON.stringify(data));
@@ -969,7 +953,7 @@ function WPOSKitchen() {
 
     // fetches from server
     function fetchItemsTable(callback) {
-        return POSgetJsonDataAsync("items/get", function(data){
+        return POS.getJsonDataAsync("items/get", function(data){
             if (data) {
                 itemtable = data;
                 localStorage.setItem("wpos_items", JSON.stringify(data));
@@ -1006,8 +990,8 @@ function WPOSKitchen() {
     var authretry = false;
     function startSocket(){
         if (socket==null){
-            var proxy = POSgetConfigTable().general.feedserver_proxy;
-            var port = POSgetConfigTable().general.feedserver_port;
+            var proxy = POS.getConfigTable().general.feedserver_proxy;
+            var port = POS.getConfigTable().general.feedserver_port;
             var socketPath = window.location.protocol+'//'+window.location.hostname+(proxy==false ? ':'+port : '');
             socket = io.connect(socketPath);
             socket.on('connection', onSocketConnect);
@@ -1025,7 +1009,7 @@ function WPOSKitchen() {
                     case "sale":
                         console.log("Sale data received:");
                         console.log(data.data);
-                        POSkitchen.processOrder(data.data);
+                        POS.kitchen.processOrder(data.data);
                         break;
 
                     case "config":
@@ -1037,7 +1021,7 @@ function WPOSKitchen() {
                         break;
 
                     case "msg":
-                        POSnotifications.info(data.data, "Message");
+                        POS.notifications.info(data.data, "Message");
                         break;
 
                     case "reset":
@@ -1048,14 +1032,14 @@ function WPOSKitchen() {
                         if (!authretry && data.data.hasOwnProperty('code') && data.data.code=="auth"){
                             authretry = true;
                             stopSocket();
-                            var result = POSgetJsonData('auth/websocket');
+                            var result = POS.getJsonData('auth/websocket');
                             if (result===true){
                                 startSocket();
                                 return;
                             }
                         }
 
-                        POSnotifications.error(data.data, "Error");
+                        POS.notifications.error(data.data, "Error");
                         break;
                 }
                 var statustypes = ['item', 'sale', 'customer', 'config'];
@@ -1073,13 +1057,13 @@ function WPOSKitchen() {
 
     function onSocketConnect(){
         socketon = true;
-        if (POSisOnline() && defaultStatus.type != 1){
-            setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+        if (POS.isOnline() && defaultStatus.type != 1){
+            setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
     function socketError(){
-        if (POSisOnline())
+        if (POS.isOnline())
             setStatusBar(5, "Update Feed Offline", "The POS is running in online mode.\nThe feed server is disconnected and this terminal will not receive realtime updates.", 0);
         socketon = false;
         authretry = false;
@@ -1161,7 +1145,7 @@ function WPOSKitchenMod(){
     var orderhistcontain = $("#orderhistcontainer");
     // populate orders in the UI
     this.populateOrders = function(){
-        var sales = POSgetSalesTable();
+        var sales = POS.getSalesTable();
         for (var ref in sales){
             var sale = sales[ref];
             if (sale.hasOwnProperty('orderdata'))
@@ -1182,7 +1166,7 @@ function WPOSKitchenMod(){
         var elem = $("#orderbox_template").clone().removeClass('hide').attr('id', 'order_box_'+saleobj.ref+'-'+order.id);
         elem.find('.orderbox_orderid').text(order.id);
         elem.find('.orderbox_saleref').text(saleobj.ref);
-        elem.find('.orderbox_orderdt').text(POSutil.getDateFromTimestamp(order.processdt));
+        elem.find('.orderbox_orderdt').text(POS.util.getDateFromTimestamp(order.processdt));
         var itemtbl = elem.find('.orderbox_items');
         for (var i in order.items){
             var item = saleobj.items[order.items[i]]; // the items object links the item id with it's index in the data
@@ -1190,7 +1174,7 @@ function WPOSKitchenMod(){
             if (item.hasOwnProperty('mod')){
                 for (var x=0; x<item.mod.items.length; x++){
                     var mod = item.mod.items[x];
-                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POSutil.currencyFormat(mod.price)+')';
+                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POS.util.currencyFormat(mod.price)+')';
                 }
             }
             itemtbl.append('<tr><td style="width:10%;"><strong>'+item.qty+'</strong></td><td><strong>'+item.name+'</strong>'+modStr+'<br/></td></tr>');
@@ -1215,8 +1199,8 @@ function WPOSKitchenMod(){
         if (typeof data === "object") {
             ref = data.ref;
             // check for old data, if none available process as new orders
-            if (POSgetSalesTable().hasOwnProperty(ref)) {
-                olddata = POSgetSalesTable()[ref];
+            if (POS.getSalesTable().hasOwnProperty(ref)) {
+                olddata = POS.getSalesTable()[ref];
                 if (data.hasOwnProperty('orderdata')){
                     for (var i in data.orderdata){
                         if (olddata.orderdata.hasOwnProperty(i)){
@@ -1252,8 +1236,8 @@ function WPOSKitchenMod(){
         } else {
             ref = data;
             // process removed orders if they exists in the system
-            if (POSgetSalesTable().hasOwnProperty(ref)){
-                olddata = POSgetSalesTable()[ref];
+            if (POS.getSalesTable().hasOwnProperty(ref)){
+                olddata = POS.getSalesTable()[ref];
                 if (olddata.hasOwnProperty('orderdata'))
                     for (var d in olddata.orderdata){
                         processDeletedOrder(olddata, d);
@@ -1262,18 +1246,18 @@ function WPOSKitchenMod(){
             }
         }
         // save new sales data
-        POSupdateSalesTable(data);
+        POS.updateSalesTable(data);
 
         if (modcount)
-            POSsendAcknowledgement(deviceid, ref);
+            POS.sendAcknowledgement(deviceid, ref);
     };
 
     this.onPrintButtonClick = function(element){
         var ref = $(element).parent().find('.orderbox_saleref').text();
         var ordernum = $(element).parent().find('.orderbox_orderid').text();
-        var data = POSgetSalesTable()[ref];
+        var data = POS.getSalesTable()[ref];
         if (data)
-            POSprint.printOrderTicket("orders", data, ordernum);
+            POS.print.printOrderTicket("orders", data, ordernum);
 
         console.log(data);
     };
@@ -1283,14 +1267,14 @@ function WPOSKitchenMod(){
         var order = saleobj.orderdata[orderid];
         insertOrder(saleobj, orderid);
         playChime();
-        switch (POSgetLocalConfig().printing.recask) {
+        switch (POS.getLocalConfig().printing.recask) {
             case "ask":
-                POSutil.confirm("Print order ticket?", function() {
-                    POSprint.printOrderTicket("orders", saleobj, orderid, null);
+                POS.util.confirm("Print order ticket?", function() {
+                    POS.print.printOrderTicket("orders", saleobj, orderid, null);
                 });
                 break;
             case "print":
-                POSprint.printOrderTicket("orders", saleobj, orderid, null);
+                POS.print.printOrderTicket("orders", saleobj, orderid, null);
         }
     }
 
@@ -1298,17 +1282,17 @@ function WPOSKitchenMod(){
         console.log("Processed updated order "+saleobj.ref+" "+orderid);
         var order = saleobj.orderdata[orderid];
         // remove old record that may be present
-        POSkitchen.removeOrder(saleobj.ref, orderid);
+        POS.kitchen.removeOrder(saleobj.ref, orderid);
         insertOrder(saleobj, order.id);
         playChime();
-        switch (POSgetLocalConfig().printing.recask) {
+        switch (POS.getLocalConfig().printing.recask) {
             case "ask":
-                POSutil.confirm("Print order ticket?", function() {
-                    POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
+                POS.util.confirm("Print order ticket?", function() {
+                    POS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
                 });
                 break;
             case "print":
-                POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
+                POS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
         }
     }
 
@@ -1316,16 +1300,16 @@ function WPOSKitchenMod(){
         console.log("Processed deleted order "+saleobj.ref+" "+orderid);
         var order = saleobj.orderdata[orderid];
         // remove old record that may be present
-        POSkitchen.moveOrderToHistory(saleobj.ref, orderid);
+        POS.kitchen.moveOrderToHistory(saleobj.ref, orderid);
         playChime();
-        switch (POSgetLocalConfig().printing.recask) {
+        switch (POS.getLocalConfig().printing.recask) {
             case "ask":
-                POSutil.confirm("Print order ticket?", function() {
-                    POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
+                POS.util.confirm("Print order ticket?", function() {
+                    POS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
                 });
                 break;
             case "print":
-                POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
+                POS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
         }
     }
 
@@ -1341,7 +1325,7 @@ $(function () {
     // initiate core object
     POS= new WPOSKitchen();
     // initiate startup routine
-    POSinitApp();
+    POS.initApp();
 
     $("#wrapper").tabs();
 
@@ -1400,6 +1384,6 @@ $(function () {
 
     // dev/demo quick login
     if (document.location.host=="demo.wallacepos.com" || document.location.host=="alpha.wallacepos.com"){
-        $("#logindiv").append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); POSuserLogin();">Demo Login</button>');
+        $("#logindiv").append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); POS.userLogin();">Demo Login</button>');
     }
 });

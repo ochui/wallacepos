@@ -68,7 +68,7 @@
     var categories = null;
     var datatable;
     $(function() {
-        categories = POSgetJsonData("categories/get");
+        categories = POS.getJsonData("categories/get");
         var suparray = [];
         var supitem;
         for (var key in categories){
@@ -187,7 +187,7 @@
             }
         });
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
     // updating records
     function openeditcatdialog(id){
@@ -198,13 +198,13 @@
     }
     function saveCategory(isnewitem){
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         var item = {}, result;
         if (isnewitem){
             // adding a new category
             var name_field = $("#newcategoryname");
             item.name = name_field.val();
-            result = POSsendJsonData("categories/add", JSON.stringify(item));
+            result = POS.sendJsonData("categories/add", JSON.stringify(item));
             if (result!==false){
                 categories[result.id] = result;
                 reloadTable();
@@ -215,7 +215,7 @@
             // updating an item
             item.id = $("#categoryid").val();
             item.name = $("#categoryname").val();
-            result = POSsendJsonData("categories/edit", JSON.stringify(item));
+            result = POS.sendJsonData("categories/edit", JSON.stringify(item));
             if (result!==false){
                 categories[result.id] = result;
                 reloadTable();
@@ -223,41 +223,41 @@
             }
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function removeCategory(id){
 
-        POSutil.confirm("Are you sure you want to delete this category?", function() {
+        POS.util.confirm("Are you sure you want to delete this category?", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("categories/delete", '{"id":'+id+'}')){
+            POS.util.showLoader();
+            if (POS.sendJsonData("categories/delete", '{"id":'+id+'}')){
                 delete categories[id];
                 reloadTable();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
     function removeSelectedCategories(){
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id });
 
-        POSutil.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
+        POS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("categories/delete", '{"id":"'+ids.join(",")+'"}')){
+            POS.util.showLoader();
+            if (POS.sendJsonData("categories/delete", '{"id":"'+ids.join(",")+'"}')){
                 for (var i=0; i<ids.length; i++){
                     delete categories[ids[i]];
                 }
                 reloadTable();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
     function reloadData(){
-        categories = POSgetJsonData("categories/get");
+        categories = POS.getJsonData("categories/get");
         reloadTable();
     }
     function reloadTable(){

@@ -3,7 +3,7 @@
     <h1 style="display: inline-block;">
         Customers
     </h1>
-    <button onclick="POScustomers.openAddCustomerDialog();" id="addbtn" class="btn btn-primary btn-sm pull-right"><i class="icon-pencil align-top bigger-125"></i>Add</button>
+    <button onclick="POS.customers.openAddCustomerDialog();" id="addbtn" class="btn btn-primary btn-sm pull-right"><i class="icon-pencil align-top bigger-125"></i>Add</button>
     <button class="btn btn-success btn-sm pull-right" style="margin-right: 10px;" onclick="exportCustomers();"><i class="icon-cloud-download align-top bigger-125"></i>Export CSV</button>
 </div><!-- /.page-header -->
 
@@ -52,8 +52,8 @@
 <script type="text/javascript">
     var datatable;
     $(function() {
-        POScustomers.loadCustomers();
-        var data = POScustomers.getCustomers();
+        POS.customers.loadCustomers();
+        var data = POS.customers.getCustomers();
         var itemarray = [];
         for (var key in data){
             itemarray.push(data[key]);
@@ -72,7 +72,7 @@
                 { "mData":"mobile" },
                 { "mData":"suburb" },
                 { "mData":"postcode" },
-                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POScustomers.openCustomerDialog($(this).closest(\'tr\').find(\'td\').eq(1).text());"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="POScustomers.deleteCustomer($(this).closest(\'tr\').find(\'td\').eq(1).text())"><i class="icon-trash bigger-130"></i></a></div>', bSortable: false }
+                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POS.customers.openCustomerDialog($(this).closest(\'tr\').find(\'td\').eq(1).text());"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="POS.customers.deleteCustomer($(this).closest(\'tr\').find(\'td\').eq(1).text())"><i class="icon-trash bigger-130"></i></a></div>', bSortable: false }
             ],
             "columns": [
                 {},
@@ -122,15 +122,15 @@
         });
 
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
     function reloadCustomerData(){
-        POScustomers.loadCustomers();
+        POS.customers.loadCustomers();
         reloadCustomerTable();
     }
     function reloadCustomerTable(){
         var itemarray = [];
-        var data = POScustomers.getCustomers();
+        var data = POS.customers.getCustomers();
         for (var key in data){
             itemarray.push(data[key]);
         }
@@ -140,9 +140,9 @@
     }
     function exportCustomers(){
 
-        var filename = "customers-"+POSutil.getDateFromTimestamp(new Date());
+        var filename = "customers-"+POS.util.getDateFromTimestamp(new Date());
         filename = filename.replace(" ", "");
-        var customers = POScustomers.getCustomers();
+        var customers = POS.customers.getCustomers();
 
         var data = {};
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id }).join(',').split(',');
@@ -157,13 +157,13 @@
             data = customers;
         }
 
-        var csv = POSdata2CSV(
+        var csv = POS.data2CSV(
             ['ID', 'Name', 'Email', 'Phone', 'Mobile', 'Address', 'Suburb', 'Postcode', 'State', 'Country', 'Notes', 'Contacts'],
             ['id', 'name', 'email', 'phone', 'mobile', 'address', 'suburb', 'postcode', 'state', 'country', 'notes', 'contacts'],
             data
         );
 
-        POSinitSave(filename, csv);
+        POS.initSave(filename, csv);
     }
 </script>
 <style type="text/css">

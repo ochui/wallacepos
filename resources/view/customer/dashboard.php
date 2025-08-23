@@ -4,8 +4,8 @@
 </div>
 <script>
     $(function(){
-       var name = POSgetUser().name;
-       $("#welcome").text('Hi '+name+', Welcome to your '+POSgetConfigTable().general.bizname+' Account.');
-       POSutil.hideLoader();
+       var name = POS.getUser().name;
+       $("#welcome").text('Hi '+name+', Welcome to your '+POS.getConfigTable().general.bizname+' Account.');
+       POS.util.hideLoader();
     });
 </script>

@@ -116,49 +116,49 @@
 </div>
 <script type="text/javascript">
     function restartNode(){
-        POSutil.confirm("Are you sure you want to restart the feed server?", function() {
+        POS.util.confirm("Are you sure you want to restart the feed server?", function() {
             doFeedServerRestart();
         });
     }
     function doFeedServerRestart(){
         // show loader
-        POSutil.showLoader();
-        var stat = POSgetJsonData("node/restart");
+        POS.util.showLoader();
+        var stat = POS.getJsonData("node/restart");
         if (stat==true){
             setUIStatus(true);
-            POSnotifications.success("Feed server successfully restarted!", "Server Restarted");
+            POS.notifications.success("Feed server successfully restarted!", "Server Restarted");
         } else {
             setUIStatus(false);
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function stopNode(){
-        POSutil.confirm("Are you sure you want to stop the feed server?", function() {
+        POS.util.confirm("Are you sure you want to stop the feed server?", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSgetJsonData("node/stop")!==false){
+            POS.util.showLoader();
+            if (POS.getJsonData("node/stop")!==false){
                 setUIStatus(false);
             } else {
                 setUIStatus(true);
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
     function startNode(){
         // show loader
-        POSutil.showLoader();
-        if (POSgetJsonData("node/start")!==false){
+        POS.util.showLoader();
+        if (POS.getJsonData("node/start")!==false){
             setUIStatus(true);
         } else {
             setUIStatus(false);
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function getNodeStatus(){
-        var result = POSgetJsonData("node/status");
+        var result = POS.getJsonData("node/status");
         if (result!==false){
             setUIStatus(result.status);
             return true;
@@ -194,7 +194,7 @@
     }
 
     function populateLogs(){
-        var logs = POSgetJsonData("logs/list");
+        var logs = POS.getJsonData("logs/list");
         if (logs!==false){
             $("#loglist").html('');
             for (var i in logs){
@@ -204,7 +204,7 @@
     }
 
     function viewLog(filename){
-        var log = POSsendJsonData("logs/read", JSON.stringify({filename: filename}));
+        var log = POS.sendJsonData("logs/read", JSON.stringify({filename: filename}));
         if (log!=false){
             log = log.replace(/\n/g, "<br/>");
             $("#logcontents").html(log);
@@ -217,35 +217,35 @@
     }
 
     function restoreTemplates(){
-        POSutil.confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.", function() {
-            POSgetJsonData('templates/restore');
+        POS.util.confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.", function() {
+            POS.getJsonData('templates/restore');
         });
     }
 
     function loadFeedSettings(){
-        var settings = POSgetConfigTable().general;
+        var settings = POS.getConfigTable().general;
         $("#feedserver_port").val((settings.hasOwnProperty('feedserver_port') ? settings.feedserver_port : 8080));
         $("#feedserver_proxy").prop("checked", (settings.hasOwnProperty('feedserver_proxy') && settings.feedserver_proxy));
     }
 
     function saveFeedSettings(){
-        POSutil.confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.", function() {
-            POSutil.showLoader();
+        POS.util.confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.", function() {
+            POS.util.showLoader();
 
             var port = parseInt($("#feedserver_port").val());
             var proxy = $("#feedserver_proxy").prop("checked") == true;
 
-            var result = POSsendJsonData("settings/general/set", JSON.stringify({
+            var result = POS.sendJsonData("settings/general/set", JSON.stringify({
                 feedserver_port: port,
                 feedserver_proxy: proxy
             }));
             if (result !== false) {
-                POSupdateConfig('general~feedserver_port', port);
-                POSupdateConfig('general~feedserver_proxy', proxy);
+                POS.updateConfig('general~feedserver_port', port);
+                POS.updateConfig('general~feedserver_proxy', proxy);
                 doFeedServerRestart();
             }
 
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
@@ -272,7 +272,7 @@
             populateLogs();
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
 
 </script>

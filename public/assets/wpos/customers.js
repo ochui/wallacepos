@@ -31,9 +31,9 @@ function WPOSCustomers() {
         if (!uiinit) initUI();
         if (customers.hasOwnProperty(id)==false){
             // try to load the customer record
-            POSutil.showLoader();
+            POS.util.showLoader();
             if (loadCustomer(id)==false){
-                POSutil.hideLoader();
+                POS.util.hideLoader();
                 return;
             }
         }
@@ -53,7 +53,7 @@ function WPOSCustomers() {
         curcustid = id;
         populateContactsTable();
         $("#editcustdialog").dialog("open");
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
     function populateContactsTable() {
         var curcontact = customers[curcustid].contacts;
@@ -70,9 +70,9 @@ function WPOSCustomers() {
     }
     // TODO: enable API to load single customer
     function loadCustomer(id){
-        var customer = POSsendJsonData("customers/get", JSON.stringify({id: id}));
+        var customer = POS.sendJsonData("customers/get", JSON.stringify({id: id}));
         if (!customer.hasOwnProperty(id)){
-            POSnotifications.error("Could not load the selected customer.", "Customer Load Error", {delay: 0});
+            POS.notifications.error("Could not load the selected customer.", "Customer Load Error", {delay: 0});
             return false;
         }
         customers[id] = customer[id];
@@ -82,7 +82,7 @@ function WPOSCustomers() {
         customers = custdata;
     };
     this.loadCustomers = function(){
-        customers = POSgetJsonData("customers/get");
+        customers = POS.getJsonData("customers/get");
     };
     this.getCustomers = function(){
         return customers;
@@ -96,7 +96,7 @@ function WPOSCustomers() {
     };
     this.saveCustomer = function(isnewcustomer) {
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         var customer = {};
         var result;
         if (isnewcustomer) {
@@ -110,7 +110,7 @@ function WPOSCustomers() {
             customer.postcode = $("#newcustpostcode").val();
             customer.state = $("#newcuststate").val();
             customer.country = $("#newcustcountry").val();
-            result = POSsendJsonData("customers/add", JSON.stringify(customer));
+            result = POS.sendJsonData("customers/add", JSON.stringify(customer));
             if (result !== false) {
                 customers[result.id] = result;
                 reloadCustomerTables();
@@ -129,7 +129,7 @@ function WPOSCustomers() {
             customer.state = $("#custstate").val();
             customer.country = $("#custcountry").val();
             customer.notes = $("#custnotes").val();
-            result = POSsendJsonData("customers/edit", JSON.stringify(customer));
+            result = POS.sendJsonData("customers/edit", JSON.stringify(customer));
             if (result !== false) {
                 customers[result.id] = result;
                 reloadCustomerTables();
@@ -137,14 +137,14 @@ function WPOSCustomers() {
             }
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     this.setOnlineAccess = function(){
         var customer = customers[curcustid];
         var disable = customer.disabled==1?0:1;
-        POSutil.confirm('Are you sure you want to '+(disable==1?'disable':'enable')+' this customer from accessing their online account?', function() {
-            var result = POSsendJsonData("customers/setaccess", JSON.stringify({id:curcustid, disabled: disable}));
+        POS.util.confirm('Are you sure you want to '+(disable==1?'disable':'enable')+' this customer from accessing their online account?', function() {
+            var result = POS.sendJsonData("customers/setaccess", JSON.stringify({id:curcustid, disabled: disable}));
             if (result!==false){
                 customers[curcustid].disabled = disable;
                 $("#custdisbtn").text((disable==1?"Enable":"Disable")+" Customer Access");
@@ -156,12 +156,12 @@ function WPOSCustomers() {
         var customer = customers[curcustid];
         var newpass = $("#newcustpass").val();
         if (newpass==""){
-            POSnotifications.warning('Please enter a new password.', "Password Required", {delay: 0});
+            POS.notifications.warning('Please enter a new password.', "Password Required", {delay: 0});
             return;
         }
-        POSutil.confirm('Are you sure you want to set this users password and activate their account?', function() {
-            var hash = POSutil.SHA256(newpass);
-            var result = POSsendJsonData("customers/setpassword", JSON.stringify({id:curcustid, hash: hash}));
+        POS.util.confirm('Are you sure you want to set this users password and activate their account?', function() {
+            var hash = POS.util.SHA256(newpass);
+            var result = POS.sendJsonData("customers/setpassword", JSON.stringify({id:curcustid, hash: hash}));
             if (result!==false){
                 customers['disabled'] = 0;
                 $("#custdisbtn").text("Disable Customer Access");
@@ -171,21 +171,21 @@ function WPOSCustomers() {
     };
 
     this.sendResetEmail = function(){
-        POSutil.confirm('Are you sure you want to send a password reset to this user?', function() {
-            var result = POSsendJsonData("customers/sendreset", JSON.stringify({id:curcustid}));
+        POS.util.confirm('Are you sure you want to send a password reset to this user?', function() {
+            var result = POS.sendJsonData("customers/sendreset", JSON.stringify({id:curcustid}));
         });
     };
 
     this.deleteCustomer= function(id) {
-        POSutil.confirm("Are you sure you want to delete this customer? We recommend backing up data before making deletions.", function() {
+        POS.util.confirm("Are you sure you want to delete this customer? We recommend backing up data before making deletions.", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("customers/delete", '{"id":' + id + '}') !== false) {
+            POS.util.showLoader();
+            if (POS.sendJsonData("customers/delete", '{"id":' + id + '}') !== false) {
                 delete customers[id];
                 reloadCustomerTables();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
@@ -234,7 +234,7 @@ function WPOSCustomers() {
             contact.id = id;
             a = "customers/contacts/edit";
         }
-        var result = POSsendJsonData(a, JSON.stringify(contact));
+        var result = POS.sendJsonData(a, JSON.stringify(contact));
         if (result !== false) {
             customers[curcustid] = result;
             populateContactsTable();
@@ -243,15 +243,15 @@ function WPOSCustomers() {
     };
 
     this.removeContactItem = function(id) {
-        POSutil.confirm("Are you sure you want to delete this contact? We recommend backing up data before making deletions.", function() {
+        POS.util.confirm("Are you sure you want to delete this contact? We recommend backing up data before making deletions.", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("customers/contacts/delete", '{"id":' + id + '}')) {
+            POS.util.showLoader();
+            if (POS.sendJsonData("customers/contacts/delete", '{"id":' + id + '}')) {
                 delete customers[curcustid].contacts[id];
                 populateContactsTable();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
@@ -271,7 +271,7 @@ function WPOSCustomers() {
                     html: "<i class='icon-save bigger-110'></i>&nbsp; Save",
                     "class" : "btn btn-success btn-xs",
                     click: function() {
-                        POScustomers.saveCustomer(true);
+                        POS.customers.saveCustomer(true);
                     }
                 }
                 ,
@@ -300,7 +300,7 @@ function WPOSCustomers() {
                     html: "<i class='icon-save bigger-110'></i>&nbsp; Update",
                     "class" : "btn btn-success btn-xs",
                     click: function() {
-                        POScustomers.saveCustomer(false);
+                        POS.customers.saveCustomer(false);
                     }
                 }
                 ,
@@ -329,7 +329,7 @@ function WPOSCustomers() {
                     html: "<i class='icon-save bigger-110'></i>&nbsp; Save",
                     "class" : "btn btn-success btn-xs",
                     click: function() {
-                        POScustomers.saveContactItem();
+                        POS.customers.saveContactItem();
                     }
                 }
                 ,

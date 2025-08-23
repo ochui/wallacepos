@@ -47,7 +47,7 @@
 </div>
 <script type="text/javascript">
     $(function(){
-        $("#app_version").text(POSgetConfigTable().general.version);
-        POSutil.hideLoader();
+        $("#app_version").text(POS.getConfigTable().general.version);
+        POS.util.hideLoader();
     });
 </script>

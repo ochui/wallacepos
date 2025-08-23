@@ -574,6 +574,6 @@
         reglink.attr("href", "https://"+window.location.hostname+"/");
         reglink.text("https://"+window.location.hostname+"/");
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
 </script>

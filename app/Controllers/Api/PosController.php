@@ -160,7 +160,7 @@ class PosController
     {
         $data = $this->getRequestData();
         $sale = new PosSale($data, false);
-        $this->result = $sale->updateTransationNotes($this->result);
+        $this->result = $sale->updateTransactionNotes($this->result);
         return $this->returnResult();
     }
 

@@ -393,7 +393,7 @@ class PosSale
      * @param $result
      * @return mixed
      */
-    public function updateTransationNotes($result)
+    public function updateTransactionNotes($result)
     {
         if ($this->salenotes == null) {
             $result["error"] = "notes must be provided";

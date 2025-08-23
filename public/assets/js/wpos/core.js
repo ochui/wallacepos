@@ -1,24 +1,8 @@
 /**
- * core.js is part of Wallace Point of Sale system (WPOS)
  *
  * core.js is the main object that provides base functionality to the WallacePOS terminal.
  * It loads other needed modules and provides authentication, storage and data functions.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/14 12:01 PM
  */
 
 function POS() {
@@ -34,11 +18,11 @@ function POS() {
             return false;
         // check online status to determine start & load procedure.
         if (checkOnlineStatus()) {
-            POScheckCacheUpdate(); // check if application cache is updating or already updated
+            POS.checkCacheUpdate(); // check if application cache is updating or already updated
         } else {
             // check approppriate offline records exist
             if (switchToOffline()) {
-                POSinitLogin();
+                POS.initLogin();
             }
         }
     };
@@ -46,12 +30,12 @@ function POS() {
     function checkAppCompatibility(){
         // Check local storage: required
         if (!('localStorage' in window && window.localStorage !== null)) {
-            POSnotifications.error("Your browser does not support localStorage required to run the POS terminal.", "Browser Compatibility");
+            POS.notifications.error("Your browser does not support localStorage required to run the POS terminal.", "Browser Compatibility");
             return false;
         }
         // Check service worker support for offline functionality
         if (!('serviceWorker' in navigator)){
-            POSnotifications.warning("Your browser does not support Service Workers and may not function optimally offline.", "Browser Compatibility");
+            POS.notifications.warning("Your browser does not support Service Workers and may not function optimally offline.", "Browser Compatibility");
         }
         return true;
     }
@@ -66,7 +50,7 @@ function POS() {
         swManager.init({
             onCacheReady: function() {
                 console.log("Service Worker cache loaded for the first time, no need for reload.");
-                POSinitLogin();
+                POS.initLogin();
             },
             onUpdateAvailable: function() {
                 console.log("Service Worker update available, applying...");
@@ -87,18 +71,18 @@ function POS() {
             onError: function(error) {
                 console.error("Service Worker error:", error);
                 // Fallback to normal initialization if SW fails
-                POSinitLogin();
+                POS.initLogin();
             }
         }).then(function() {
             // If service worker is already active, proceed with login
             if (navigator.serviceWorker.controller) {
                 console.log("Service Worker already active");
-                POSinitLogin();
+                POS.initLogin();
             }
         }).catch(function(error) {
             console.error("Service Worker initialization failed:", error);
             // Fallback to normal initialization
-            POSinitLogin();
+            POS.initLogin();
         });
     };
     // Check for device UUID & present Login, initial setup is triggered if the device UUID is not present
@@ -106,7 +90,7 @@ function POS() {
         showLogin();
         if (getDeviceUUID() == null) {
             // The device has not been setup yet; User will have to login as an admin to setup the device.
-            POSnotifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
+            POS.notifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
             initialsetup = true;
             online = true;
             return false;
@@ -118,19 +102,19 @@ function POS() {
         // load keypad if set
         setKeypad(true);
         // load printer plugin
-        POSprint.loadPrintSettings();
+        POS.print.loadPrintSettings();
         // deploy scan apps
         deployDefaultScanApp();
         // init eftpos module if available
-        if (POShasOwnProperty('eftpos'))
-            POSeftpos.initiate();
+        if (POS.hasOwnProperty('eftpos'))
+            POS.eftpos.initiate();
     };
     this.initKeypad = function(){
         setKeypad(false);
     };
     function setKeypad(setcheckbox){
         if (getLocalConfig().keypad == true ){
-            POSutil.initKeypad();
+            POS.util.initKeypad();
 
             if (setcheckbox)
             $("#keypadset").prop("checked", true);
@@ -150,11 +134,11 @@ function POS() {
                 onComplete: function(barcode){
                     // switch to sales tab
                     $("#wrapper").tabs( "option", "active", 0 );
-                    POSitems.addItemFromStockCode(barcode);
+                    POS.items.addItemFromStockCode(barcode);
                 }
             });
         }).error(function(){
-            POSnotifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
+            POS.notifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
         });
     }
 
@@ -197,7 +181,7 @@ function POS() {
     };
 
     this.userLogin = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         var loginbtn = $('#loginbutton');
         // disable login button
         $(loginbtn).prop('disabled', true);
@@ -208,7 +192,7 @@ function POS() {
         var username = userfield.val();
         var password = passfield.val();
         // hash password
-        password = POSutil.SHA256(password);
+        password = POS.util.SHA256(password);
         // authenticate
         authenticate(username, password, function(result){
             if (result === true) {
@@ -221,7 +205,7 @@ function POS() {
                     if (isUserAdmin()) {
                         initSetup();
                     } else {
-                        POSnotifications.error("You must login as an administrator for first time setup", "Admin Access Required");
+                        POS.notifications.error("You must login as an administrator for first time setup", "Admin Access Required");
                         showLogin();
                     }
                 } else {
@@ -238,35 +222,35 @@ function POS() {
             passfield.val('');
             $(loginbtn).val('Login');
             $(loginbtn).prop('disabled', false);
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     this.logout = function () {
         var self = this;
-        POSutil.confirm("Are you sure you want to logout?", function() {
-            var sales = POSsales.getOfflineSalesNum();
+        POS.util.confirm("Are you sure you want to logout?", function() {
+            var sales = POS.sales.getOfflineSalesNum();
             if (sales > 0) {
-                POSutil.confirm("You have offline sales that have not been uploaded to the server.\nWould you like to back them up?", function() {
+                POS.util.confirm("You have offline sales that have not been uploaded to the server.\nWould you like to back them up?", function() {
                     self.backupOfflineSales();
-                    POSutil.showLoader();
+                    POS.util.showLoader();
                     logout();
-                    POSutil.hideLoader();
+                    POS.util.hideLoader();
                 }, function() {
-                    POSutil.showLoader();
+                    POS.util.showLoader();
                     logout();
-                    POSutil.hideLoader();
+                    POS.util.hideLoader();
                 });
             } else {
-                POSutil.showLoader();
+                POS.util.showLoader();
                 logout();
-                POSutil.hideLoader();
+                POS.util.hideLoader();
             }
         });
     };
 
     function logout(){
-        POSgetJsonDataAsync("logout", function(result){
+        POS.getJsonDataAsync("logout", function(result){
             if (result !== false){
                 stopSocket();
                 showLogin();
@@ -278,7 +262,7 @@ function POS() {
         // auth against server if online, offline table if not.
         if (online == true) {
             // send request to server
-            POSsendJsonDataAsync("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}), function(response){
+            POS.sendJsonDataAsync("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}), function(response){
                 if (response !== false) {
                     // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
                     setCurrentUser(response);
@@ -301,7 +285,7 @@ function POS() {
 
     function sessionRenew(){
         // send request to server
-        var response = POSsendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
+        var response = POS.sendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
         if (response !== false) {
             // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
             setCurrentUser(response);
@@ -322,20 +306,20 @@ function POS() {
         if (localStorage.getItem("wpos_auth") !== null) {
             var jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
             if (jsonauth[username] === null || jsonauth[username] === undefined) {
-                POSnotifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
+                POS.notifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
                 return false;
             } else {
                 var authentry = jsonauth[username];
-                if (authentry.auth_hash == POSutil.SHA256(hashpass+authentry.token)) {
+                if (authentry.auth_hash == POS.util.SHA256(hashpass+authentry.token)) {
                     setCurrentUser(authentry);
                     return true;
                 } else {
-                    POSnotifications.error("Access denied!", "Authentication Failed");
+                    POS.notifications.error("Access denied!", "Authentication Failed");
                     return false;
                 }
             }
         } else {
-            POSnotifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
+            POS.notifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
             return false;
         }
     }
@@ -356,14 +340,14 @@ function POS() {
 
     // initiate the setup process
     this.deviceSetup = function () {
-        POSutil.showLoader();
+        POS.util.showLoader();
         var devid = $("#posdevices option:selected").val();
         var devname = $("#newposdevice").val();
         var locid = $("#poslocations option:selected").val();
         var locname = $("#newposlocation").val();
         // check input
         if ((devid == null && devname == null) || (locid == null && locname == null)) {
-            POSnotifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
+            POS.notifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
         } else {
             // call the setup function
             deviceSetup(devid, devname, locid, locname, function(result){
@@ -373,19 +357,19 @@ function POS() {
                     $("#setupdiv").dialog("close");
                     showLogin();
                 } else {
-                    POSnotifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
+                    POS.notifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
                 }
             });
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     function initSetup() {
         $("#loadingbartxt").text("Initializing setup");
-        POSutil.showLoader();
+        POS.util.showLoader();
         // get pos locations and devices and populate select lists using parallel requests
         var devicesPromise = new Promise(function(resolve, reject) {
-            POSgetJsonDataAsync("devices/get", function(data) {
+            POS.getJsonDataAsync("devices/get", function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch devices"));
                 } else {
@@ -395,7 +379,7 @@ function POS() {
         });
         
         var locationsPromise = new Promise(function(resolve, reject) {
-            POSgetJsonDataAsync("locations/get", function(data) {
+            POS.getJsonDataAsync("locations/get", function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch locations"));
                 } else {
@@ -418,14 +402,14 @@ function POS() {
                     $("#poslocations").append('<option value="' + locations[i].id + '">' + locations[i].name + '</option>');
                 }
             }
-            POSutil.hideLoader();
+            POS.util.hideLoader();
             // show the setup dialog
             $("#setupdiv").parent().css('z-index', "3200 !important");
             $("#setupdiv").dialog("open");
         }).catch(function(error) {
             console.error("Error loading setup data:", error);
-            POSnotifications.error("Failed to load setup data: " + error.message, "Setup Data Error");
-            POSutil.hideLoader();
+            POS.notifications.error("Failed to load setup data: " + error.message, "Setup Data Error");
+            POS.util.hideLoader();
         });
     }
 
@@ -496,13 +480,13 @@ function POS() {
                     }
                     // start websocket connection
                     startSocket();
-                    setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+                    setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
                     initDataSuccess(loginloader);
-                    var offline_num = POSsales.getOfflineSalesNum();
+                    var offline_num = POS.sales.getOfflineSalesNum();
                     if (offline_num>0){
                         $("#backup_btn").show();
                         // check for offline sales on login
-                        setTimeout('if (POSsales.uploadOfflineRecords()){ POSsetStatusBar(1, "POSis online"); }', 2000);
+                        setTimeout('if (POS.sales.uploadOfflineRecords()){ POS.setStatusBar(1, "POS.is online"); }', 2000);
                     } else {
                         $("#backup_btn").hide();
                     }
@@ -518,7 +502,7 @@ function POS() {
         loadItemsTable();
         loadCustTable();
         loadSalesTable();
-        POSnotifications.info("Your internet connection is not active and POShas started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available POSwill process your transactions on the server.", "Offline Mode");
+        POS.notifications.info("Your internet connection is not active and POS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available POS will process your transactions on the server.", "Offline Mode");
         initDataSuccess(loginloader);
     }
 
@@ -526,7 +510,7 @@ function POS() {
         if (loginloader){
             setLoadingBar(100, "Massaging the data...");
             $("title").text("WallacePOS - Your POS in the cloud");
-            POSinitPlugins();
+            POS.initPlugins();
             populateDeviceInfo();
             setTimeout(hideLogin, 500);
         }
@@ -534,40 +518,40 @@ function POS() {
 
     this.removeDeviceRegistration = function(){
         if (isUserAdmin()){
-            POSutil.confirm("Are you sure you want to delete this devices registration?\nYou will be logged out and this device will need to be re registered.", function() {
+            POS.util.confirm("Are you sure you want to delete this devices registration?\nYou will be logged out and this device will need to be re registered.", function() {
                 // show loader
-                POSutil.showLoader();
-                var regid = POSgetConfigTable().registration.id;
-                POSsendJsonDataAsync("devices/registrations/delete", '{"id":'+regid+'}', function(result){
+                POS.util.showLoader();
+                var regid = POS.getConfigTable().registration.id;
+                POS.sendJsonDataAsync("devices/registrations/delete", '{"id":'+regid+'}', function(result){
                     if (result){
                         removeDeviceUUID();
                         logout();
                     }
                     // hide loader
-                    POSutil.hideLoader();
+                    POS.util.hideLoader();
                 });
             });
             return;
         }
-        POSnotifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
+        POS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
     };
 
     this.resetLocalConfig = function(){
         if (isUserAdmin()){
-            POSutil.confirm("Are you sure you want to restore local settings to their defaults?\n", function() {
+            POS.util.confirm("Are you sure you want to restore local settings to their defaults?\n", function() {
                 localStorage.removeItem("wpos_lconfig");
-                POSprint.loadPrintSettings();
+                POS.print.loadPrintSettings();
                 setKeypad(true);
             });
             return;
         }
-        POSnotifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
+        POS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
     };
 
     this.clearLocalData = function(){
         var self = this;
         if (isUserAdmin()){
-            POSutil.confirm("Are you sure you want to clear all local data?\nThis removes all locally stored data except device registration key.\nOffline Sales will be deleted.", function() {
+            POS.util.confirm("Are you sure you want to clear all local data?\nThis removes all locally stored data except device registration key.\nOffline Sales will be deleted.", function() {
                 localStorage.removeItem("wpos_auth");
                 localStorage.removeItem("wpos_config");
                 localStorage.removeItem("wpos_csales");
@@ -580,7 +564,7 @@ function POS() {
             });
             return;
         }
-        POSnotifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
+        POS.notifications.warning("Please login as an administrator to use this feature", "Admin Access Required");
     };
     
     this.clearServiceWorkerCache = function(){
@@ -598,7 +582,7 @@ function POS() {
     };
 
     this.refreshRemoteData = function(){
-        POSutil.confirm("Are you sure you want to reload data from the server?", function() {
+        POS.util.confirm("Are you sure you want to reload data from the server?", function() {
             loadOnlineData(1, false);
         });
     };
@@ -620,7 +604,7 @@ function POS() {
     };
 
     function populateDeviceInfo(){
-        var config = POSgetConfigTable();
+        var config = POS.getConfigTable();
         $(".device_id").text(config.deviceid);
         $(".device_name").text(config.devicename);
         $(".location_id").text(config.locationid);
@@ -752,15 +736,15 @@ function POS() {
         if (canDoOffline()==true) {
             // set js indicator: important
             online = false;
-            setStatusBar(3, "POSis Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
+            setStatusBar(3, "POS.is Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
             // start online check routine
             checktimer = setInterval(doOnlineCheck, 60000);
-            if (POSsales.getOfflineSalesNum()>0)
+            if (POS.sales.getOfflineSalesNum()>0)
                 $(".backup_btn").show();
             return true;
         } else {
             // display error notice
-            POSnotifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
+            POS.notifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
             showLogin();
             setLoadingBar(100, "Error switching to offine mode");
             return false;
@@ -776,13 +760,13 @@ function POS() {
 
     function switchToOnline() {
         // upload offline sales
-        if (POSsales.uploadOfflineRecords()){
+        if (POS.sales.uploadOfflineRecords()){
             // set js and ui indicators
             online = true;
             // load fresh data
             initData(false);
             // initData();
-            setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+            setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
@@ -802,7 +786,7 @@ function POS() {
         if (response.status == "200") {
             var json = $.parseJSON(response.responseText);
             if (json == null) {
-                POSnotifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
+                POS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
                 return false;
             }
             var errCode = json.errorCode;
@@ -810,30 +794,30 @@ function POS() {
             if (err == "OK") {
                 // echo warning if set
                 if (json.hasOwnProperty('warning')){
-                    POSnotifications.warning(json.warning, "Warning");
+                    POS.notifications.warning(json.warning, "Warning");
                 }
                 return json.data;
             } else {
                 if (errCode == "auth") {
                     if (sessionRenew()) {
                         // try again after authenticating
-                        return POSsendJsonData(action, data);
+                        return POS.sendJsonData(action, data);
                     } else {
                         return false;
                     }
                 } else {
-                    POSnotifications.error(err, "Server Error");
+                    POS.notifications.error(err, "Server Error");
                     return false;
                 }
             }
         } else {
             switchToOffline();
-            POSnotifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
+            POS.notifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
             return false;
         }
         } catch (ex) {
             switchToOffline();
-            POSnotifications.error("There was an error sending data, switching to offline mode.\nException: "+ex.message, "Connection Error");
+            POS.notifications.error("There was an error sending data, switching to offline mode.\nException: "+ex.message, "Connection Error");
             return false;
         }
     };
@@ -854,31 +838,31 @@ function POS() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning");
+                            POS.notifications.warning(json.warning, "Warning");
                         }
                         callback(json.data);
                     } else {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                var result = POSsendJsonData(action, data);
+                                var result = POS.sendJsonData(action, data);
                                 callback(result);
                             } else {
                                 callback(false);
                             }
                         } else {
-                            POSnotifications.error(err, "Server Error");
+                            POS.notifications.error(err, "Server Error");
                             callback(false);
                         }
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    POSnotifications.error(error, "Connection Error");
+                    POS.notifications.error(error, "Connection Error");
                     callback(false);
                 }
             });
         } catch (ex) {
-            POSnotifications.error("Exception: "+ex.message, "Exception Error");
+            POS.notifications.error("Exception: "+ex.message, "Exception Error");
             callback(false);
         }
     };
@@ -898,7 +882,7 @@ function POS() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            POSnotifications.warning(json.warning, "Warning");
+                            POS.notifications.warning(json.warning, "Warning");
                         }
                         if (callback)
                             callback(json.data);
@@ -906,7 +890,7 @@ function POS() {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                var result = POSsendJsonData(action, data);
+                                var result = POS.sendJsonData(action, data);
                                 if (result){
                                     if (callback)
                                         callback(result);
@@ -914,19 +898,19 @@ function POS() {
                                 }
                             }
                         }
-                        POSnotifications.error(err, "Server Error");
+                        POS.notifications.error(err, "Server Error");
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    POSnotifications.error(error, "Connection Error");
+                    POS.notifications.error(error, "Connection Error");
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            POSnotifications.error("Exception: "+ex.message, "Exception Error");
+            POS.notifications.error("Exception: "+ex.message, "Exception Error");
             if (callback)
                 callback(false);
         }
@@ -976,7 +960,7 @@ function POS() {
     function fetchConfigTable(callback) {
         var data = {};
         data.uuid = getDeviceUUID();
-        return POSsendJsonDataAsync("config/get", JSON.stringify(data), function(data){
+        return POS.sendJsonDataAsync("config/get", JSON.stringify(data), function(data){
             if (data) {
                 //console.log(data);
                 if (data=="removed" || data=="disabled"){ // return false if dev is disabled
@@ -1021,7 +1005,7 @@ function POS() {
                     if (data.a == "removed")
                         removeDeviceUUID();
                     logout();
-                    POSnotifications.error("This device has been " + data.a + " by the administrator,\ncontact your device administrator for help.", "Device Status");
+                    POS.notifications.error("This device has been " + data.a + " by the administrator,\ncontact your device administrator for help.", "Device Status");
                     return;
                 }
                 // update root level config values
@@ -1058,7 +1042,7 @@ function POS() {
                 delete configtable.item_categories[value];
             }
         }
-        POSitems.generateItemGridCategories();
+        POS.items.generateItemGridCategories();
         localStorage.setItem("wpos_config", JSON.stringify(configtable));
     }
 
@@ -1066,13 +1050,13 @@ function POS() {
         // initialize terminal mode (kitchen order views)
         if (configtable.hasOwnProperty('deviceconfig') && configtable.deviceconfig.type == "order_register") {
             $(".order_terminal_options").show();
-            POSsales.resetSalesForm();
+            POS.sales.resetSalesForm();
         } else {
             $(".order_terminal_options").hide();
             $("#itemtable .order_row").remove(); // clears order row already in html
         }
         // setup checkout watermark
-        var url = POSgetConfigTable().general.bizlogo;
+        var url = POS.getConfigTable().general.bizlogo;
         $("#watermark").css("background-image", "url('"+url+"')");
     }
 
@@ -1151,7 +1135,7 @@ function POS() {
         } else {
             data.locationid = locid;
         }
-        POSsendJsonDataAsync("devices/setup", JSON.stringify(data), function(configobj){
+        POS.sendJsonDataAsync("devices/setup", JSON.stringify(data), function(configobj){
             if (configobj !== false) {
                 localStorage.setItem("wpos_config", JSON.stringify(configobj));
                 configtable = configobj;
@@ -1184,7 +1168,7 @@ function POS() {
     function setDeviceUUID() {
         // generate a SHA UUID using datestamp and rand for entropy and return the result
         var date = new Date().getTime();
-        var uuid = POSutil.SHA256((date * Math.random()).toString());
+        var uuid = POS.util.SHA256((date * Math.random()).toString());
         localStorage.setItem("wpos_devuuid", uuid);
         return uuid;
     }
@@ -1208,7 +1192,7 @@ function POS() {
     };
 
     function fetchSalesTable(callback) {
-        return POSsendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
+        return POS.sendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
             if (data) {
                 salestable = data;
                 localStorage.setItem("wpos_csales", JSON.stringify(data));
@@ -1275,12 +1259,12 @@ function POS() {
 
     // fetches from server
     function fetchItemsTable(callback) {
-        return POSgetJsonDataAsync("items/get", function(data){
+        return POS.getJsonDataAsync("items/get", function(data){
             if (data) {
                 itemtable = data;
                 localStorage.setItem("wpos_items", JSON.stringify(data));
                 generateItemIndex();
-                POSitems.generateItemGridCategories();
+                POS.items.generateItemGridCategories();
             }
             if (callback)
                 callback(data);
@@ -1309,7 +1293,7 @@ function POS() {
             itemtable = JSON.parse(data);
             // generate the stock index as well.
             generateItemIndex();
-            POSitems.generateItemGridCategories();
+            POS.items.generateItemGridCategories();
             return true;
         }
         return false;
@@ -1332,7 +1316,7 @@ function POS() {
         }
         localStorage.setItem("wpos_items", JSON.stringify(itemtable));
         generateItemIndex();
-        POSitems.generateItemGridCategories();
+        POS.items.generateItemGridCategories();
     }
 
     // CUSTOMERS
@@ -1352,7 +1336,7 @@ function POS() {
     };
     // fetches from server
     function fetchCustTable(callback) {
-        return POSgetJsonDataAsync("customers/get", function(data){
+        return POS.getJsonDataAsync("customers/get", function(data){
             if (data) {
                 custtable = data;
                 localStorage.setItem("wpos_customers", JSON.stringify(data));
@@ -1406,8 +1390,8 @@ function POS() {
     var authretry = false;
     function startSocket(){
         if (socket==null){
-            var proxy = POSgetConfigTable().general.feedserver_proxy;
-            var port = POSgetConfigTable().general.feedserver_port;
+            var proxy = POS.getConfigTable().general.feedserver_proxy;
+            var port = POS.getConfigTable().general.feedserver_port;
             var socketPath = window.location.protocol+'//'+window.location.hostname+(proxy==false ? ':'+port : '');
             socket = io.connect('http://127.0.0.1:3000');
             socket.on('connection', onSocketConnect);
@@ -1439,7 +1423,7 @@ function POS() {
                         break;
 
                     case "msg":
-                        POSnotifications.info(data.data, "Message");
+                        POS.notifications.info(data.data, "Message");
                         break;
 
                     case "reset":
@@ -1447,21 +1431,21 @@ function POS() {
                         break;
 
                     case "kitchenack":
-                        POSorders.kitchenTerminalAcknowledge(data.data);
+                        POS.orders.kitchenTerminalAcknowledge(data.data);
                         break;
 
                     case "error":
                         if (!authretry && data.data.hasOwnProperty('code') && data.data.code=="auth"){
                             authretry = true;
                             stopSocket();
-                            POSgetJsonDataAsync('auth/websocket', function(result){
+                            POS.getJsonDataAsync('auth/websocket', function(result){
                                 if (result===true)
                                     startSocket();
                             });
                             return;
                         }
 
-                        POSnotifications.error(data.data, "Socket Error");
+                        POS.notifications.error(data.data, "Socket Error");
                         break;
                 }
                 var statustypes = ['item', 'sale', 'customer', 'config', 'kitchenack'];
@@ -1479,13 +1463,13 @@ function POS() {
 
     function onSocketConnect(){
         socketon = true;
-        if (POSisOnline() && defaultStatus.type != 1){
-            setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+        if (POS.isOnline() && defaultStatus.type != 1){
+            setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
     function socketError(){
-        if (POSisOnline())
+        if (POS.isOnline())
             setStatusBar(5, "Update Feed Offline", "The POS is running in online mode.\nThe feed server is disconnected and this terminal will not receive realtime updates.", 0);
         socketon = false;
         authretry = false;
@@ -1561,7 +1545,7 @@ $(function () {
     // initiate core object
     POS= new POS();
     // initiate startup routine
-    POSinitApp();
+    POS.initApp();
 
     $("#wrapper").tabs();
 
@@ -1756,38 +1740,38 @@ $(function () {
                 break;*/
             case 45: // insert
                 if ($(":focus").attr('id')=="codeinput"){
-                    POSitems.addManualItemRow();
+                    POS.items.addManualItemRow();
                 } else {
                     $("#codeinput").trigger('click').focus();
                 }
                 break;
             case 46: // delete
-                POSsales.userAbortSale();
+                POS.sales.userAbortSale();
                 break;
             case 36: // home
 
                 break;
             case 35: // end
                 if (paymentsopen) {
-                    POSsales.processSale();
+                    POS.sales.processSale();
                 } else {
-                    POSsales.showPaymentDialog();
+                    POS.sales.showPaymentDialog();
                 }
                 break;
         }
         if (paymentsopen) {
             switch (event.which){
                 case 90:
-                    POSsales.addPayment('cash');
+                    POS.sales.addPayment('cash');
                     break;
                 case 88:
-                    POSsales.addPayment('credit');
+                    POS.sales.addPayment('credit');
                     break;
                 case 67:
-                    POSsales.addPayment('eftpos');
+                    POS.sales.addPayment('eftpos');
                     break;
                 case 86:
-                    POSsales.addPayment('cheque');
+                    POS.sales.addPayment('cheque');
                     break;
             }
         }
@@ -1796,14 +1780,14 @@ $(function () {
     // dev/demo quick login
     if (document.location.host=="demo.wallacepos.com" || document.location.host=="alpha.wallacepos.com"){
         var login = $("#logindiv");
-        login.append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); POSuserLogin();">Demo Login</button>');
+        login.append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); POS.userLogin();">Demo Login</button>');
         if (document.location.host=="alpha.wallacepos.com")
             login.append('<button class="btn btn-primary btn-sm" onclick="$(\'#loginmodal\').hide();">Hide Login</button>');
     }
 
     // window size
-    if (POSgetLocalConfig().hasOwnProperty("window_size"))
-        $("#wrapper").css("max-width", POSgetLocalConfig()["window_size"]);
+    if (POS.getLocalConfig().hasOwnProperty("window_size"))
+        $("#wrapper").css("max-width", POS.getLocalConfig()["window_size"]);
 
     // set padding for item list
     setItemListPadding();
@@ -1830,23 +1814,23 @@ function expandWindow(){
     switch (maxWidth){
         case "960px":
             wrapper.css("max-width", "1152px");
-            POSsetLocalConfigValue("window_size", "1152px");
+            POS.setLocalConfigValue("window_size", "1152px");
             break;
         case "1152px":
             wrapper.css("max-width", "1280px");
-            POSsetLocalConfigValue("window_size", "1280px");
+            POS.setLocalConfigValue("window_size", "1280px");
             break;
         case "1280px":
             wrapper.css("max-width", "1366px");
-            POSsetLocalConfigValue("window_size", "1366px");
+            POS.setLocalConfigValue("window_size", "1366px");
             break;
         case "1366px":
             wrapper.css("max-width", "none");
-            POSsetLocalConfigValue("window_size", "none");
+            POS.setLocalConfigValue("window_size", "none");
             break;
         default:
             wrapper.css("max-width", "960px");
-            POSsetLocalConfigValue("window_size", "960px");
+            POS.setLocalConfigValue("window_size", "960px");
             break;
     }
 }

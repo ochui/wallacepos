@@ -253,52 +253,52 @@ var onlinedev = {};
 
 function sendMessage() {
     if (Object.keys(onlinedev).length <= 1) {
-        POSnotifications.warning("There are no devices online to message", "No Devices", {delay: 0});
+        POS.notifications.warning("There are no devices online to message", "No Devices", {delay: 0});
         return;
     }
     // show loader
-    POSutil.showLoader();
+    POS.util.showLoader();
 
     var devid = $("#msgdevice option:selected").val();
     var msg = $("#msgtext").val();
     if (msg.length == 0) {
-        POSnotifications.warning("Please enter a message to send.", "Message Required");
+        POS.notifications.warning("Please enter a message to send.", "Message Required");
         return;
     }
     var result;
     if (devid == "all") {
-        result = POSsendJsonData("message/send", JSON.stringify({message: msg, device: null}));
+        result = POS.sendJsonData("message/send", JSON.stringify({message: msg, device: null}));
     } else {
-        result = POSsendJsonData("message/send", JSON.stringify({message: msg, device: devid}));
+        result = POS.sendJsonData("message/send", JSON.stringify({message: msg, device: devid}));
     }
     if (result!==false){
         $("#msgtext").val('');
     }
     // hide loader
-    POSutil.hideLoader();
+    POS.util.hideLoader();
 }
 
 function sendReset() {
     if (Object.keys(onlinedev).length <= 1) {
-        POSnotifications.warning("There are no devices online to reset", "No Devices", {delay: 0});
+        POS.notifications.warning("There are no devices online to reset", "No Devices", {delay: 0});
         return;
     }
-    POSutil.confirm("Are you sure you want to reset the selected devices?", function() {
+    POS.util.confirm("Are you sure you want to reset the selected devices?", function() {
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
 
         var devid = $("#msgdevice option:selected").val();
         var result;
         if (devid == "all") {
-            result = POSsendJsonData("device/reset", JSON.stringify({device: null}));
+            result = POS.sendJsonData("device/reset", JSON.stringify({device: null}));
         } else {
-            result = POSsendJsonData("device/reset", JSON.stringify({device: devid}));
+            result = POS.sendJsonData("device/reset", JSON.stringify({device: devid}));
         }
         if (result!==false){
-            POSnotifications.success("The reset request has been sent to the selected devices.", "Reset Sent");
+            POS.notifications.success("The reset request has been sent to the selected devices.", "Reset Sent");
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
 }
 
@@ -315,9 +315,9 @@ function populateOnlineDevices(devices) {
         for (var i in devices) {
             if (i != 0) { // do not include admin dash
                 var devname, locname;
-                if (POSdevices.hasOwnProperty(i)){
-                    devname = POSdevices[i].name;
-                    locname = POSdevices[i].locationname;
+                if (POS.devices.hasOwnProperty(i)){
+                    devname = POS.devices[i].name;
+                    locname = POS.devices[i].locationname;
                 } else {
                     devname = "Unknown";
                     locname = "Unknown";
@@ -439,7 +439,7 @@ function updateSalesTable(saleobj) {
     // preprend insert the new row with zero height
     $("#nosalesrow").remove();
     // TODO: If refund get the amount refunded
-    $("#recentsalestable").prepend('<tr id="sr-' + saleobj.ref + '"><td>' + POSutil.getDateFromTimestamp(saleobj.processdt) + '</td><td>' + getStatusLabel(getSaleStatus(saleobj)) + '</td><td>' + POSdevices[saleobj.devid].name + '/' + POSlocations[saleobj.locid].name + '</td><td>' + getTotalItems(saleobj) + '</td><td>' + POSutil.currencyFormat(saleobj.total) + '</td></tr>');
+    $("#recentsalestable").prepend('<tr id="sr-' + saleobj.ref + '"><td>' + POS.util.getDateFromTimestamp(saleobj.processdt) + '</td><td>' + getStatusLabel(getSaleStatus(saleobj)) + '</td><td>' + POS.devices[saleobj.devid].name + '/' + POS.locations[saleobj.locid].name + '</td><td>' + getTotalItems(saleobj) + '</td><td>' + POS.util.currencyFormat(saleobj.total) + '</td></tr>');
     // animate does not work for table rows so as a workaround we temporarily wrap in a div
     $("#sr" + saleobj.ref).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div')
         .slideUp(1000, function(){
@@ -454,7 +454,7 @@ function updateSalesTable(saleobj) {
 }
 
 function insertIntoSaleTable(saleobj) {
-    $("#recentsalestable").append('<tr><td>' + POSutil.getDateFromTimestamp(saleobj.processdt) + '</td><td>' + getStatusLabel(getSaleStatus(saleobj)) + '</td><td>' + POSdevices[saleobj.devid].name + ' / ' + POSlocations[saleobj.locid].name + '</td><td class="hidden-480 hidden-320">' + getTotalItems(saleobj) + '</td><td class="hidden-320">' + POSutil.currencyFormat(saleobj.total) + '</td></tr>');
+    $("#recentsalestable").append('<tr><td>' + POS.util.getDateFromTimestamp(saleobj.processdt) + '</td><td>' + getStatusLabel(getSaleStatus(saleobj)) + '</td><td>' + POS.devices[saleobj.devid].name + ' / ' + POS.locations[saleobj.locid].name + '</td><td class="hidden-480 hidden-320">' + getTotalItems(saleobj) + '</td><td class="hidden-320">' + POS.util.currencyFormat(saleobj.total) + '</td></tr>');
 }
 
 var stime;
@@ -491,19 +491,19 @@ function populateTodayStats() {
         return false;
     // populate the fields
     $("#rtsalenum").text(totals.salenum);
-    $("#rtsaletotal").text(POSutil.currencyFormat(totals.saletotal));
+    $("#rtsaletotal").text(POS.util.currencyFormat(totals.saletotal));
     $("#rtrefundnum").text(totals.refundnum);
-    $("#rtrefundtotal").text(POSutil.currencyFormat(totals.refundtotal));
+    $("#rtrefundtotal").text(POS.util.currencyFormat(totals.refundtotal));
     $("#rtvoidnum").text(totals.voidnum);
-    $("#rtvoidtotal").text(POSutil.currencyFormat(totals.voidtotal));
-    $("#rttakings").text(POSutil.currencyFormat(totals.totaltakings, true));
-    $("#rtcost").text(POSutil.currencyFormat(totals.cost, true));
-    $("#rtprofit").text(POSutil.currencyFormat(totals.profit, true));
+    $("#rtvoidtotal").text(POS.util.currencyFormat(totals.voidtotal));
+    $("#rttakings").text(POS.util.currencyFormat(totals.totaltakings, true));
+    $("#rtcost").text(POS.util.currencyFormat(totals.cost, true));
+    $("#rtprofit").text(POS.util.currencyFormat(totals.profit, true));
     // Set onclicks
-    $(".infobox-sales").on('click', function(){ POStransactions.openTransactionList(totals.salerefs); });
-    $(".infobox-refunds").on('click', function(){ POStransactions.openTransactionList(totals.refundrefs); });
-    $(".infobox-voids").on('click', function(){ POStransactions.openTransactionList(totals.voidrefs); });
-    $(".infobox-takings").on('click', function(){ POStransactions.openTransactionList(totals.refs); });
+    $(".infobox-sales").on('click', function(){ POS.transactions.openTransactionList(totals.salerefs); });
+    $(".infobox-refunds").on('click', function(){ POS.transactions.openTransactionList(totals.refundrefs); });
+    $(".infobox-voids").on('click', function(){ POS.transactions.openTransactionList(totals.voidrefs); });
+    $(".infobox-takings").on('click', function(){ POS.transactions.openTransactionList(totals.refs); });
 }
 
 // Graph functions
@@ -512,7 +512,7 @@ function reloadGraph(){
     etime = etime.getTime(); // Update the time
     stime = etime - 36000000;
     // fetch the data
-    var data = POSsendJsonData("graph/general", JSON.stringify({"stime": stime, "etime": etime, "interval": 1800000})); // interval half an hour
+    var data = POS.sendJsonData("graph/general", JSON.stringify({"stime": stime, "etime": etime, "interval": 1800000})); // interval half an hour
     loadGraph(data); // reload the graph
 }
 
@@ -587,7 +587,7 @@ $(function () {
                 if (item.series['percent'] != null) {
                     var tip = item.series['label'] + " : " + item.series['percent'].toFixed(2) + '% ($' + item.series['data'][0][1] + ')';
                 } else {
-                    var tip = item.series['label'] + " : "+ POSutil.currencyFormat(item.datapoint[1]);
+                    var tip = item.series['label'] + " : "+ POS.util.currencyFormat(item.datapoint[1]);
                 }
                 $tooltip.show().children(0).text(tip);
             }
@@ -605,18 +605,18 @@ $(function () {
     };
     var clickgraph = function(event, pos, item){
         if (item==null) return;
-        POStransactions.openTransactionList(item.series['refs'][item.dataIndex]);
+        POS.transactions.openTransactionList(item.series['refs'][item.dataIndex]);
     };
     var chart = $('#realtime-chart');
     chart.on('plothover', tooltip);
     chart.on('plotclick', clickgraph);
     chart.css({'width': '100%', 'height': '220px'});
     // load data
-    POSstartSocket();
+    POS.startSocket();
     
     // Create parallel requests
     var salesPromise = new Promise(function(resolve, reject) {
-        POSsendJsonDataAsync("sales/get", JSON.stringify({stime: stoday, etime: etime}), function(data) {
+        POS.sendJsonDataAsync("sales/get", JSON.stringify({stime: stoday, etime: etime}), function(data) {
             if (data === false) {
                 reject(new Error("Failed to fetch sales"));
             } else {
@@ -626,7 +626,7 @@ $(function () {
     });
     
     var statsPromise = new Promise(function(resolve, reject) {
-        POSsendJsonDataAsync("stats/general", JSON.stringify({"stime":stoday, "etime":etime}), function(data) {
+        POS.sendJsonDataAsync("stats/general", JSON.stringify({"stime":stoday, "etime":etime}), function(data) {
             if (data === false) {
                 reject(new Error("Failed to fetch stats"));
             } else {
@@ -636,7 +636,7 @@ $(function () {
     });
     
     var graphPromise = new Promise(function(resolve, reject) {
-        POSsendJsonDataAsync("graph/general", JSON.stringify({"stime": stime, "etime": etime, "interval": 1800000}), function(data) {
+        POS.sendJsonDataAsync("graph/general", JSON.stringify({"stime": stime, "etime": etime, "interval": 1800000}), function(data) {
             if (data === false) {
                 reject(new Error("Failed to fetch graph data"));
             } else {
@@ -654,11 +654,11 @@ $(function () {
         populateTodayStats();
         loadGraph(graphData);
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }).catch(function(error) {
         console.error("Error loading data:", error);
-        POSnotifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
-        POSutil.hideLoader();
+        POS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
+        POS.util.hideLoader();
     });
 })
 

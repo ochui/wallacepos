@@ -2,7 +2,7 @@
  * utilities.js is part of Wallace Point of Sale system (WPOS)
  *
  * utilities.js Provides a global set of general functions.
- * These functions are used accross the POSsystem including the admin and client login areas.
+ * These functions are used accross the POS.system including the admin and client login areas.
  *
  * WallacePOS is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ function WPOSUtil() {
     this.getDateFromTimestamp = function (timestamp, format) {
         // get the config if available
         if (!format)
-            format = POSgetConfigTable().general.dateformat;
+            format = POS.getConfigTable().general.dateformat;
         var date = new Date(timestamp);
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
@@ -55,7 +55,7 @@ function WPOSUtil() {
     this.getShortDate = function (timestamp) {
         var date;
         // get the config if available
-        var format = POSgetConfigTable().general.dateformat;
+        var format = POS.getConfigTable().general.dateformat;
         if (timestamp == null) {
             date = new Date();
         } else {
@@ -139,7 +139,7 @@ function WPOSUtil() {
         }
         localStorage.setItem("wpos_ordercount", ordercount);
         // pad order number, include deviceid
-        var orderStr = POSgetConfigTable().deviceid.toString();
+        var orderStr = POS.getConfigTable().deviceid.toString();
         if (ordercount<10)
             orderStr+="0";
         return (orderStr+ordercount);
@@ -184,19 +184,19 @@ function WPOSUtil() {
     };
     // TAX CALCULATIONS
     /*this.isTaxInclusive = function(taxruleid){
-        var taxrules = POSgetTaxTable().rules;
+        var taxrules = POS.getTaxTable().rules;
         if (!taxrules.hasOwnProperty(taxruleid)) return true;
         return taxrules[taxruleid].inclusive;
     };*/
     this.calcTax = function(taxruleid, itemtotal, itemcost){
         var tax = {total:0, values:{}, inclusive:true};
-        if (!POSgetTaxTable().rules.hasOwnProperty(taxruleid))
+        if (!POS.getTaxTable().rules.hasOwnProperty(taxruleid))
             return tax;
         // get the tax rule; taxable total is needed to calculate inclusive tax
-        var rule = POSgetTaxTable().rules[taxruleid];
+        var rule = POS.getTaxTable().rules[taxruleid];
         tax.inclusive = rule.inclusive;
-        var taxitems = POSgetTaxTable().items;
-        var locationid = POSgetConfigTable().hasOwnProperty("locationid")?POSgetConfigTable().locationid:0;
+        var taxitems = POS.getTaxTable().items;
+        var locationid = POS.getConfigTable().hasOwnProperty("locationid")?POS.getConfigTable().locationid:0;
         var taxablemulti = rule.inclusive?getTaxableTotal(rule, locationid):0;
         var tempitem;
         var tempval;
@@ -234,7 +234,7 @@ function WPOSUtil() {
     };
     // this is used for inclusive tax to workout the total, when multiple tax items are applied, we need this to work out each tax rate total;
     function getTaxableTotal(rule, locationid){
-        var taxitems = POSgetTaxTable().items;
+        var taxitems = POS.getTaxTable().items;
         var taxable = 0;
         if (rule.locations.hasOwnProperty(locationid)){
             for (i=0; i<rule.locations[locationid].length; i++){
@@ -270,13 +270,13 @@ function WPOSUtil() {
     var printcursymbol = "";
     function loadCurrencyValues(){
         if (curformat==null){
-            if (!POSgetConfigTable().hasOwnProperty('general'))
+            if (!POS.getConfigTable().hasOwnProperty('general'))
                 return;
 
-            curformat = POSgetConfigTable().general.currencyformat.split('~');
-            //if (POSgetConfigTable().pos.hasOwnProperty('reccurrency') && POSgetConfigTable().pos.reccurrency!="")
-                //printcursymbol = String.fromCharCode(parseInt(POSgetConfigTable().pos.reccurrency));
-            if (POShasOwnProperty('print')) {
+            curformat = POS.getConfigTable().general.currencyformat.split('~');
+            //if (POS.getConfigTable().pos.hasOwnProperty('reccurrency') && POS.getConfigTable().pos.reccurrency!="")
+                //printcursymbol = String.fromCharCode(parseInt(POS.getConfigTable().pos.reccurrency));
+            if (POS.hasOwnProperty('print')) {
                 printcursymbol = getPrintCurrencySymbol();
                 if (printcursymbol == "" && (curformat[0] == "£" || containsNonLatinCodepoints(curformat[0]))) {
                     // check for unicode characters and set default alt character if so
@@ -291,12 +291,12 @@ function WPOSUtil() {
     function getPrintCurrencySymbol(){
         // check local setting first
         var codepage, codes;
-        if (POSprint.getGlobalPrintSetting('currency_override') && POSprint.getGlobalPrintSetting('currency_codes')!=""){
-            codepage = POSprint.getGlobalPrintSetting('currency_codepage');
-            codes = POSprint.getGlobalPrintSetting('currency_codes').split(',');
-        } else if (POSgetConfigTable().pos.hasOwnProperty('reccurrency') && POSgetConfigTable().pos.reccurrency!="") {
-            codepage = POSgetConfigTable().pos.reccurrency_codepage;
-            codes = POSgetConfigTable().pos.reccurrency.split(',');
+        if (POS.print.getGlobalPrintSetting('currency_override') && POS.print.getGlobalPrintSetting('currency_codes')!=""){
+            codepage = POS.print.getGlobalPrintSetting('currency_codepage');
+            codes = POS.print.getGlobalPrintSetting('currency_codes').split(',');
+        } else if (POS.getConfigTable().pos.hasOwnProperty('reccurrency') && POS.getConfigTable().pos.reccurrency!="") {
+            codepage = POS.getConfigTable().pos.reccurrency_codepage;
+            codes = POS.getConfigTable().pos.reccurrency.split(',');
         } else {
             return "";
         }
@@ -305,7 +305,7 @@ function WPOSUtil() {
             result += String.fromCharCode(parseInt(codes[i]));
         }
         if (codepage>0)
-            return POSprint.wrapWithCharacterSet(result, codepage);
+            return POS.print.wrapWithCharacterSet(result, codepage);
 
         return result;
     }

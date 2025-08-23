@@ -39,7 +39,7 @@ function WPOSTransactions() {
         translist.data('refs', refs);
         refs = refs.split(',');
         for (var i in refs){
-            translist.append('<tr><td>'+refs[i]+'</td><td><button class="btn btn-sm btn-primary" onclick="POStransactions.openTransactionDialog(\''+refs[i]+'\');">Details</button></td></tr>');
+            translist.append('<tr><td>'+refs[i]+'</td><td><button class="btn btn-sm btn-primary" onclick="POS.transactions.openTransactionDialog(\''+refs[i]+'\');">Details</button></td></tr>');
         }
         transdialog.dialog('open');
         transdialog.dialog("option", "position", {my: "center", at: "center", of: window});
@@ -56,10 +56,10 @@ function WPOSTransactions() {
             if (!trans.hasOwnProperty(ref)) continue;
             var tran = trans[ref];
             translist.append('<tr><td>'+ref+'</td>' +
-                '<td>'+POSutil.getDateFromTimestamp(tran.processdt)+'</td>' +
-                '<td>'+(POSusers.hasOwnProperty(tran.userid) ? POSusers[tran.userid].username : tran.userid)+'</td>' +
-                '<td>'+POSutil.currencyFormat(tran.total)+'</td>' +
-                '<td><button class="btn btn-sm btn-primary" onclick="POStransactions.openTransactionDialog(\''+ref+'\');">Details</button></td></tr>');
+                '<td>'+POS.util.getDateFromTimestamp(tran.processdt)+'</td>' +
+                '<td>'+(POS.users.hasOwnProperty(tran.userid) ? POS.users[tran.userid].username : tran.userid)+'</td>' +
+                '<td>'+POS.util.currencyFormat(tran.total)+'</td>' +
+                '<td><button class="btn btn-sm btn-primary" onclick="POS.transactions.openTransactionDialog(\''+ref+'\');">Details</button></td></tr>');
         }
         $("#translistdetailsbtn").hide();
         $("#translistdialog").dialog("option", "position", {my: "center", at: "center", of: window});
@@ -70,9 +70,9 @@ function WPOSTransactions() {
         // Check for transaction record
         if (transactions.hasOwnProperty(ref)==false){
             // try to load the customer record
-            POSutil.showLoader();
+            POS.util.showLoader();
             if (loadTransaction(ref)==false){
-                POSutil.hideLoader();
+                POS.util.hideLoader();
                 return;
             }
         }
@@ -82,24 +82,24 @@ function WPOSTransactions() {
         // Populate general transaction info
         $("#transref").text(record.ref);
         $("#transid").text(record.id);
-        $("#transtime").text(POSutil.getDateFromTimestamp(record.processdt));
+        $("#transtime").text(POS.util.getDateFromTimestamp(record.processdt));
         $("#transptime").text(record.dt);
-        $("#transuser").text((POSusers.hasOwnProperty(record.userid) ? POSusers[record.userid].username : 'NA'));
-        var device = (POSdevices.hasOwnProperty(record.devid) ? POSdevices[record.devid].name : 'NA');
-        var location = (POSlocations.hasOwnProperty(record.locid) ? POSlocations[record.locid].name : 'NA');
+        $("#transuser").text((POS.users.hasOwnProperty(record.userid) ? POS.users[record.userid].username : 'NA'));
+        var device = (POS.devices.hasOwnProperty(record.devid) ? POS.devices[record.devid].name : 'NA');
+        var location = (POS.locations.hasOwnProperty(record.locid) ? POS.locations[record.locid].name : 'NA');
         $("#transdev").text(device);
         $("#transloc").text(location);
         $("#transnotes").val(record.notes);
-        $("#transsubtotal").text(POSutil.currencyFormat(record.subtotal));
+        $("#transsubtotal").text(POS.util.currencyFormat(record.subtotal));
 
         if (record.discount > 0) {
-            $("#transdiscount").text(record.discount + "% (" + POSutil.currencyFormat(record.discountval) + ')');
+            $("#transdiscount").text(record.discount + "% (" + POS.util.currencyFormat(record.discountval) + ')');
             $("#transdisdiv").show();
         } else {
             $("#transdisdiv").hide();
         }
 
-        $("#transtotal").text(POSutil.currencyFormat(record.total));
+        $("#transtotal").text(POS.util.currencyFormat(record.total));
 
         populateItemsTable(record.items);
         populatePaymentsTable(record.payments);
@@ -107,7 +107,7 @@ function WPOSTransactions() {
         populateTaxinfo(record);
         populateVoidInfo(record);
         // Populate customer information
-        var customer = (record.custid==0?false:POScustomers.getCustomer(record.custid));
+        var customer = (record.custid==0?false:POS.customers.getCustomer(record.custid));
         if (customer!==false) {
             $("#tcustid").val(customer.id);
             $("#tcustname").text(customer.name);
@@ -123,7 +123,7 @@ function WPOSTransactions() {
             $("#tcustdetails").hide();
         }
 
-        POSutil.hideLoader();
+        POS.util.hideLoader();
         $("#edittransdialog").dialog("open");
     };
 
@@ -137,7 +137,7 @@ function WPOSTransactions() {
     };
 
     function loadTransactions(refs){
-        var trans = POSsendJsonData("transactions/get", JSON.stringify({refs: refs}));
+        var trans = POS.sendJsonData("transactions/get", JSON.stringify({refs: refs}));
         for (var ref in trans){
             transactions[ref] = trans[ref];
         }
@@ -145,9 +145,9 @@ function WPOSTransactions() {
     }
 
     function loadTransaction(ref){
-        var trans = POSsendJsonData("transactions/get", JSON.stringify({ref: ref}));
+        var trans = POS.sendJsonData("transactions/get", JSON.stringify({ref: ref}));
         if (!trans.hasOwnProperty(ref)){
-            POSnotifications.error("Could not load the selected transaction.", "Transaction Load Error", {delay: 0});
+            POS.notifications.error("Could not load the selected transaction.", "Transaction Load Error", {delay: 0});
             return false;
         }
         transactions[ref] = trans[ref];
@@ -188,7 +188,7 @@ function WPOSTransactions() {
         transtax.html('');
         if (record.hasOwnProperty('taxdata')) {
             for (var i in record.taxdata) {
-                transtax.append('<label class="fixedlabel">' + POSgetTaxTable().items[i].name + ' (' + POSgetTaxTable().items[i].value + '%):</label><span>' + POSutil.currencyFormat(record.taxdata[i]) + '</span><br/>');
+                transtax.append('<label class="fixedlabel">' + POS.getTaxTable().items[i].name + ' (' + POS.getTaxTable().items[i].value + '%):</label><span>' + POS.util.currencyFormat(record.taxdata[i]) + '</span><br/>');
             }
         }
     }
@@ -215,25 +215,25 @@ function WPOSTransactions() {
     function populateItemsTable(items) {
         var itemtable = $("#transitemtable");
         $(itemtable).html('');
-        var taxitems = POSgetTaxTable().items;
+        var taxitems = POS.getTaxTable().items;
         for (var i = 0; i < items.length; i++) {
             // tax data
             var taxStr = "";
             for (var x in items[i].tax.values){
-                taxStr += POSutil.currencyFormat(items[i].tax.values[x]) + " (" + taxitems[x].name + " " + taxitems[x].value + "%) <br/>";
+                taxStr += POS.util.currencyFormat(items[i].tax.values[x]) + " (" + taxitems[x].name + " " + taxitems[x].value + "%) <br/>";
             }
             if (taxStr == "")
-                taxStr = POSutil.currencyFormat(0.00);
+                taxStr = POS.util.currencyFormat(0.00);
             // item mod details
             var modStr = "";
             if (items[i].hasOwnProperty('mod')){
                 for (x=0; x<items[i].mod.items.length; x++){
                     var mod = items[i].mod.items[x];
-                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?(mod.qty>0?'+ ':'')+mod.qty:'')+' '+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POSutil.currencyFormat(mod.price)+')';
+                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?(mod.qty>0?'+ ':'')+mod.qty:'')+' '+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POS.util.currencyFormat(mod.price)+')';
                 }
             }
-            $(itemtable).append('<tr><td>' + items[i].qty + '</td><td>' + items[i].name + modStr + '</td><td>' + POSutil.currencyFormat(items[i].unit) + '</td><td>' + taxStr + '</td><td>' + POSutil.currencyFormat(items[i].price) + '</td>' +
-                '<td><div class="action-buttons itembuttons" style="text-align: right;"><a onclick="POStransactions.openInvoiceItemDialog(' + i + ');" class="green"><i class="icon-pencil bigger-130"></i></a><a onclick="POStransactions.deleteInvoiceItem(' + items[i].id + ')" class="red"><i class="icon-trash bigger-130"></i></a></div></td></tr>');
+            $(itemtable).append('<tr><td>' + items[i].qty + '</td><td>' + items[i].name + modStr + '</td><td>' + POS.util.currencyFormat(items[i].unit) + '</td><td>' + taxStr + '</td><td>' + POS.util.currencyFormat(items[i].price) + '</td>' +
+                '<td><div class="action-buttons itembuttons" style="text-align: right;"><a onclick="POS.transactions.openInvoiceItemDialog(' + i + ');" class="green"><i class="icon-pencil bigger-130"></i></a><a onclick="POS.transactions.deleteInvoiceItem(' + items[i].id + ')" class="red"><i class="icon-trash bigger-130"></i></a></div></td></tr>');
         }
     }
 
@@ -249,15 +249,15 @@ function WPOSTransactions() {
             if (payments[i].hasOwnProperty('paydata')){
                 // check for integrated payment details
                 if (payments[i].paydata.hasOwnProperty('transRef')){
-                    paydetailsbtn = "<button onclick='POStransactions.showPaymentInfo(this);' class='btn btn-xs btn-primary' data-paydata='"+JSON.stringify(payments[i].paydata)+"'>Details</button>";
+                    paydetailsbtn = "<button onclick='POS.transactions.showPaymentInfo(this);' class='btn btn-xs btn-primary' data-paydata='"+JSON.stringify(payments[i].paydata)+"'>Details</button>";
                 }
                 // catch cash-outs
                 if (payments[i].paydata.hasOwnProperty('cashOut')){
-                    method = "cashout ("+POSutil.currencyFormat((-amount).toFixed(2))+")";
+                    method = "cashout ("+POS.util.currencyFormat((-amount).toFixed(2))+")";
                 }
             }
-            $(paytable).append('<tr><td>' + POSutil.capFirstLetter(method) + '</td><td>' + POSutil.currencyFormat(amount) + '</td><td>' + POSutil.getShortDate(payments[i].processdt) + '</td><td>' + paydetailsbtn +
-                '<div class="action-buttons paybuttons" style="text-align: right;"><a onclick="openInvoicePaymentDialog(' + i + ')" class="green"><i class="icon-pencil bigger-130"></i></a><a onclick="POStransactions.deleteInvoicePayment(' + payments[i].id + ')" class="red"><i class="icon-trash bigger-130"></i></a></div></td></tr>');
+            $(paytable).append('<tr><td>' + POS.util.capFirstLetter(method) + '</td><td>' + POS.util.currencyFormat(amount) + '</td><td>' + POS.util.getShortDate(payments[i].processdt) + '</td><td>' + paydetailsbtn +
+                '<div class="action-buttons paybuttons" style="text-align: right;"><a onclick="openInvoicePaymentDialog(' + i + ')" class="green"><i class="icon-pencil bigger-130"></i></a><a onclick="POS.transactions.deleteInvoicePayment(' + payments[i].id + ')" class="red"><i class="icon-trash bigger-130"></i></a></div></td></tr>');
         }
     }
 
@@ -268,19 +268,19 @@ function WPOSTransactions() {
             var tempdata;
             for (var i = 0; i < record.refunddata.length; i++) {
                 tempdata = record.refunddata[i];
-                $(refundtable).append('<tr><td><span class="label label-warning arrowed">Refund</span></td><td>' + POSutil.getDateFromTimestamp(tempdata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="POStransactions.showRefundDialog(' + i + ');">View</button></td><td><button onclick="POStransactions.removeVoid(' + curid + ', ' + tempdata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
+                $(refundtable).append('<tr><td><span class="label label-warning arrowed">Refund</span></td><td>' + POS.util.getDateFromTimestamp(tempdata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="POS.transactions.showRefundDialog(' + i + ');">View</button></td><td><button onclick="POS.transactions.removeVoid(' + curid + ', ' + tempdata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
             }
         }
         if (record.voiddata !== undefined && record.voiddata !== null) {
-            $(refundtable).append('<tr>><td><span class="label label-danger arrowed">Void</span></td><td>' + POSutil.getDateFromTimestamp(record.voiddata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="POStransactions.showVoidDialog();">View</button></td><td><button onclick="POStransactions.removeVoid(' + curid + ', ' + record.voiddata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
+            $(refundtable).append('<tr>><td><span class="label label-danger arrowed">Void</span></td><td>' + POS.util.getDateFromTimestamp(record.voiddata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="POS.transactions.showVoidDialog();">View</button></td><td><button onclick="POS.transactions.removeVoid(' + curid + ', ' + record.voiddata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
         }
     }
 
     function populateSharedVoidData(record) {
-        $("#reftime").text(POSutil.getDateFromTimestamp(record.processdt));
-        $("#refuser").text((POSusers.hasOwnProperty(record.userid) ? POSusers[record.userid].username : 'NA'));
-        $("#refdev").text((POSdevices.hasOwnProperty(record.devid) ? POSdevices[record.devid].name : 'NA'));
-        $("#refloc").text((POSlocations.hasOwnProperty(record.locid) ? POSlocations[record.locid].name : 'NA'));
+        $("#reftime").text(POS.util.getDateFromTimestamp(record.processdt));
+        $("#refuser").text((POS.users.hasOwnProperty(record.userid) ? POS.users[record.userid].username : 'NA'));
+        $("#refdev").text((POS.devices.hasOwnProperty(record.devid) ? POS.devices[record.devid].name : 'NA'));
+        $("#refloc").text((POS.locations.hasOwnProperty(record.locid) ? POS.locations[record.locid].name : 'NA'));
         $("#refreason").text(record.reason);
     }
 
@@ -300,7 +300,7 @@ function WPOSTransactions() {
         record = record[refundindex]; // get the right refund record from the array
         populateSharedVoidData(record);
         $("#refmethod").text(record.method);
-        $("#refamount").text(POSutil.currencyFormat(record.amount));
+        $("#refamount").text(POS.util.currencyFormat(record.amount));
         // show payment details button if available
         var dtlbtn = $("#refpaydtlbtn");
         if (record.hasOwnProperty('paydata')){
@@ -379,7 +379,7 @@ function WPOSTransactions() {
             $('#transitemcost').val(item.cost);
             $('#transitemunit').val(item.unit);
             $('#transitemtaxid').val(item.taxid);
-            $('#transitemprice').text(POSutil.currencyFormat(item.price));
+            $('#transitemprice').text(POS.util.currencyFormat(item.price));
             itemdialog.dialog('option', 'title', 'Edit Item');
         } else {
             $('#transitemform')[0].reset();
@@ -387,7 +387,7 @@ function WPOSTransactions() {
             $('#transitemsitemid').val(0);
             $('#transitemcost').val("0.00");
             $('#transitemunit').data("unit_original", 0.00);
-            $('#transitemprice').text(POSutil.currencyFormat(0.00));
+            $('#transitemprice').text(POS.util.currencyFormat(0.00));
             itemdialog.dialog('option', 'title', 'Add Item');
         }
         calculateItemTotals();
@@ -398,12 +398,12 @@ function WPOSTransactions() {
     function setDisabledItemFields() {
         if ($('#transitemsitemid').val() != 0) {
             $('#transitemname').prop("disabled", true);
-            $('#transitemtaxid').prop("disabled", (!POSgetConfigTable().pos.hasOwnProperty('taxedit') || POSgetConfigTable().pos.taxedit=='no'));
+            $('#transitemtaxid').prop("disabled", (!POS.getConfigTable().pos.hasOwnProperty('taxedit') || POS.getConfigTable().pos.taxedit=='no'));
             var unitfield = $('#transitemunit');
-            var disableedit = (unitfield.val() !== "" && (!POSgetConfigTable().pos.hasOwnProperty('priceedit') || POSgetConfigTable().pos.priceedit=='blank'));
+            var disableedit = (unitfield.val() !== "" && (!POS.getConfigTable().pos.hasOwnProperty('priceedit') || POS.getConfigTable().pos.priceedit=='blank'));
             unitfield.prop("disabled", disableedit);
             unitfield = $('#transitemcost');
-            disableedit = (unitfield.val() !== "" && (!POSgetConfigTable().pos.hasOwnProperty('priceedit') || POSgetConfigTable().pos.priceedit=='blank'));
+            disableedit = (unitfield.val() !== "" && (!POS.getConfigTable().pos.hasOwnProperty('priceedit') || POS.getConfigTable().pos.priceedit=='blank'));
             unitfield.prop("disabled", disableedit);
         } else {
             $('#transitemname').prop("disabled", false);
@@ -421,17 +421,17 @@ function WPOSTransactions() {
         var itemcost = Number( (parseFloat($('#transitemcost').val()) * parseFloat($('#transitemqty').val())));
         itemprice = isNaN(itemprice) ? 0 : itemprice;
         // calculate item tax
-        var taxdata = POSutil.calcTax($('#transitemtaxid').val(), itemprice, itemcost);
+        var taxdata = POS.util.calcTax($('#transitemtaxid').val(), itemprice, itemcost);
         console.log(taxdata);
         if (!taxdata.inclusive){
             itemprice = (itemprice + taxdata.total).toFixed(2);
         }
-        $('#transitemprice').text(POSutil.currencyFormat(itemprice));
+        $('#transitemprice').text(POS.util.currencyFormat(itemprice));
         $('#transitempriceval').val(itemprice);
         var taxElem = $('#transitemtax');
         taxElem.html('');
         for (var i in taxdata.values){
-            taxElem.append('<label class="fixedlabel">' + POSgetTaxTable().items[i].name + " (" + POSgetTaxTable().items[i].value + '%):</label><span>'+ POSutil.currencyFormat(taxdata.values[i]) +'</span><br/>');
+            taxElem.append('<label class="fixedlabel">' + POS.getTaxTable().items[i].name + " (" + POS.getTaxTable().items[i].value + '%):</label><span>'+ POS.util.currencyFormat(taxdata.values[i]) +'</span><br/>');
         }
         $('#transitemtaxval').val(JSON.stringify(taxdata));
     }
@@ -455,8 +455,8 @@ function WPOSTransactions() {
 
     this.showHistoryDialog = function(){
         // Get the data
-        POSutil.showLoader();
-        var data = POSsendJsonData("invoices/history/get", JSON.stringify({id: curid}));
+        POS.util.showLoader();
+        var data = POS.sendJsonData("invoices/history/get", JSON.stringify({id: curid}));
         if (data === false) {
             return;
         }
@@ -464,7 +464,7 @@ function WPOSTransactions() {
         var histtable = $("#transhisttable");
         histtable.html('');
         for (var i in data) {
-            histtable.append('<tr><td>' + data[i].dt + '</td><td>' + POSusers[data[i].userid].username + '</td><td>' + data[i].type + '</td><td>' + data[i].description + '</td></tr>');
+            histtable.append('<tr><td>' + data[i].dt + '</td><td>' + POS.users[data[i].userid].username + '</td><td>' + data[i].type + '</td><td>' + data[i].description + '</td></tr>');
         }
         // Open the dialog
         var mdialog = $('#miscdialog');
@@ -472,7 +472,7 @@ function WPOSTransactions() {
         mdialog.children("#transhist").show();
         mdialog.dialog('option', 'title', "Invoice History");
         mdialog.dialog('open');
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     this.showGenerateDialog = function(){
@@ -487,7 +487,7 @@ function WPOSTransactions() {
     };
 
     function populateTemplateSelect(element){
-        var templates = POSgetConfigTable()['templates'];
+        var templates = POS.getConfigTable()['templates'];
         element.html('');
         element.append('<option value="" selected="selected">Use Default</option>');
         for (var i in templates){
@@ -515,7 +515,7 @@ function WPOSTransactions() {
         emlbcc.val('');
         $("#emailmessage").html('');
         // get customer
-        var customer = POScustomers.getCustomers()[transactions[curref].custid];
+        var customer = POS.customers.getCustomers()[transactions[curref].custid];
 
         var recipient = false;
         for (var i in customer.contacts) {
@@ -530,7 +530,7 @@ function WPOSTransactions() {
             var $tag_obj = $('#emailto').data('tag');
             //programmatically add default to address
             $tag_obj.add(recipient.email);
-            var message = POSgetConfigTable().invoice.emailmsg;
+            var message = POS.getConfigTable().invoice.emailmsg;
             $("#emailmessage").html(message.replace("%name%", recipient.name));
         }
     };
@@ -538,22 +538,22 @@ function WPOSTransactions() {
     // DATA FUNCTIONS
     this.updateInvoice = function() {
         var self = this;
-        POSutil.confirm("Save invoice details?", function() {
+        POS.util.confirm("Save invoice details?", function() {
             // show loader
-            POSutil.showLoader();
-            var result = POSsendJsonData("invoices/edit", JSON.stringify({id: curid, processdt: $("#invprocessdt").datepicker("getDate").getTime(), duedt: $("#invduedt").datepicker("getDate").getTime(), closedt: ($("#invclosedt").val() == "" ? "" : $("#invclosedt").datepicker("getDate").getTime()), discount: $("#invdiscountval").val(), notes: $('#transnotes').val()}));
+            POS.util.showLoader();
+            var result = POS.sendJsonData("invoices/edit", JSON.stringify({id: curid, processdt: $("#invprocessdt").datepicker("getDate").getTime(), duedt: $("#invduedt").datepicker("getDate").getTime(), closedt: ($("#invclosedt").val() == "" ? "" : $("#invclosedt").datepicker("getDate").getTime()), discount: $("#invdiscountval").val(), notes: $('#transnotes').val()}));
             if (result !== false) {
                 transactions[curref] = result;
                 self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     this.saveInvoiceItem = function() {
-        POSutil.showLoader();
+        POS.util.showLoader();
         var action, itemid = $("#transitemid").val();
         var data = {id: curid, sitemid: $("#transitemsitemid").val(), qty: $("#transitemqty").val(), name: $('#transitemname').val(), alt_name: $('#transitemaltname').val(), desc: $('#transitemdesc').val(), cost: $('#transitemcost').val(), unit: $('#transitemunit').val(), taxid: $('#transitemtaxid').val(), tax: JSON.parse($('#transitemtaxval').val()), price: $('#transitempriceval').val()};
         if (itemid == 0) {
@@ -563,7 +563,7 @@ function WPOSTransactions() {
             action = "invoices/items/edit";
             data.itemid = itemid;
         }
-        var result = POSsendJsonData(action, JSON.stringify(data));
+        var result = POS.sendJsonData(action, JSON.stringify(data));
         if (result !== false) {
             transactions[curref] = result;
             $("#transitemdialog").dialog('close');
@@ -571,26 +571,26 @@ function WPOSTransactions() {
             reloadTransactionTables();
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     this.deleteInvoiceItem = function(id) {
         var self = this;
-        POSutil.confirm("Are you sure you want to delete this invoice item?", function() {
-            POSutil.showLoader();
-            var result = POSsendJsonData("invoices/items/delete", JSON.stringify({id: curid, itemid: id}));
+        POS.util.confirm("Are you sure you want to delete this invoice item?", function() {
+            POS.util.showLoader();
+            var result = POS.sendJsonData("invoices/items/delete", JSON.stringify({id: curid, itemid: id}));
             if (result !== false) {
                 transactions[curref] = result;
                 self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     this.saveInvoicePayment = function(){
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         var action, paymentid = $("#transpayid").val();
         var data = {id: curid, processdt: $("#transpaydt").datepicker("getDate").getTime(), method: $("#transpaymethod").val(), amount: $("#transpayamount").val()};
         if (paymentid == 0) {
@@ -599,7 +599,7 @@ function WPOSTransactions() {
             action = "invoices/payments/edit";
             data.paymentid = paymentid;
         }
-        var result = POSsendJsonData(action, JSON.stringify(data));
+        var result = POS.sendJsonData(action, JSON.stringify(data));
         if (result !== false) {
             transactions[curref] = result;
             $("#transpaydialog").dialog('close');
@@ -607,29 +607,29 @@ function WPOSTransactions() {
             reloadTransactionTables();
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     };
 
     this.deleteInvoicePayment = function(id){
         var self = this;
-        POSutil.confirm("Are you sure you want to delete this invoice payment?", function() {
-            POSutil.showLoader();
-            var result = POSsendJsonData("invoices/payments/delete", JSON.stringify({id: curid, paymentid: id}));
+        POS.util.confirm("Are you sure you want to delete this invoice payment?", function() {
+            POS.util.showLoader();
+            var result = POS.sendJsonData("invoices/payments/delete", JSON.stringify({id: curid, paymentid: id}));
             if (result !== false) {
                 transactions[curref] = result;
                 self.openTransactionDialog(curref);
                 reloadTransactionTables();
             }
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     this.addVoid = function() {
-        POSutil.confirm("Are you sure you want to void this transaction?", function() {
+        POS.util.confirm("Are you sure you want to void this transaction?", function() {
             // show loader
-            POSutil.showLoader();
+            POS.util.showLoader();
             var reason = $("#voidreason").val();
-            var result = POSsendJsonData("sales/adminvoid", JSON.stringify({"id": curid, "reason": reason}));
+            var result = POS.sendJsonData("sales/adminvoid", JSON.stringify({"id": curid, "reason": reason}));
             if (result !== false) {
                 transactions[curref] = result;
                 reloadTransactionTables();
@@ -637,58 +637,58 @@ function WPOSTransactions() {
                 $("#voidform").dialog('close');
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     this.updateNotes = function(){
-        POSutil.confirm("Save sale notes?", function() {
+        POS.util.confirm("Save sale notes?", function() {
             // show loader
-            POSutil.showLoader();
+            POS.util.showLoader();
             var notes = $('#transnotes').val();
-            var result = POSsendJsonData("sales/updatenotes", JSON.stringify({ref: curref, notes: notes}));
+            var result = POS.sendJsonData("sales/updatenotes", JSON.stringify({ref: curref, notes: notes}));
             if (result !== false) {
                 transactions[curref].notes = notes;
                 //this.openTransactionDialog(curref); not nessesary
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     // Delete all data associated with a invoice (except customer acount)
     this.deleteTransaction = function(ref){
-        POSutil.confirm("Are you sure you want to delete this transaction? It is recommended to backup your database first as this action is irreversible!", function() {
+        POS.util.confirm("Are you sure you want to delete this transaction? It is recommended to backup your database first as this action is irreversible!", function() {
             if (!transactions.hasOwnProperty(ref)) {
                 return;
             }
             // show loader
-            POSutil.showLoader();
+            POS.util.showLoader();
             var record = transactions[ref];
             var a = (record.hasOwnProperty('duedt')?"invoices/delete":"sales/delete");
-            if (POSsendJsonData(a, JSON.stringify({"id": transactions[ref].id})) !== false) {
+            if (POS.sendJsonData(a, JSON.stringify({"id": transactions[ref].id})) !== false) {
                 // remove invoice from the data
                 delete transactions[ref];
                 reloadTransactionTables();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
     // remove a void or refund record associated with a invoice
     this.removeVoid = function(id, processdt) {
-        POSutil.confirm("Are you sure you want to delete this void/refund? It is recommended to backup your database first as this action is irreversible!", function() {
+        POS.util.confirm("Are you sure you want to delete this void/refund? It is recommended to backup your database first as this action is irreversible!", function() {
             // show loader
-            POSutil.showLoader();
-            var result = POSsendJsonData("sales/deletevoid", JSON.stringify({"id": id, "processdt": processdt}));
+            POS.util.showLoader();
+            var result = POS.sendJsonData("sales/deletevoid", JSON.stringify({"id": id, "processdt": processdt}));
             if (result !== false) {
                 transactions[curref] = result;
                 reloadTransactionTables();
                 populateVoidInfo(transactions[curref]);
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     };
 
@@ -716,7 +716,7 @@ function WPOSTransactions() {
         var subject = $("#emailsubject").val();
         var message = $("#emailmessage").html();
         var template = $("#emlinvoicetemplate").val();
-        var result = POSsendJsonData("invoices/email", JSON.stringify({id: curid, to: to, cc: cc, bcc: bcc, subject: subject, message: message, template:template}));
+        var result = POS.sendJsonData("invoices/email", JSON.stringify({id: curid, to: to, cc: cc, bcc: bcc, subject: subject, message: message, template:template}));
         if (result !== false) {
             $("#miscdialog").dialog('close');
         }
@@ -801,7 +801,7 @@ function WPOSTransactions() {
             var upquery = query.toUpperCase();
             // search items for the text.
             if (items === null) {
-                items = POSgetJsonData("items/get");
+                items = POS.getJsonData("items/get");
             }
             for (var key in items) {
                 if (!items.hasOwnProperty(key)) {
@@ -836,7 +836,7 @@ function WPOSTransactions() {
                         html: "<i class='icon-ban-circle bigger-110'></i>&nbsp; Void",
                         "class": "btn btn-danger btn-xs voidbuttons",
                         click: function () {
-                            POStransactions.showVoidForm();
+                            POS.transactions.showVoidForm();
                         }
                     },
                     {
@@ -865,7 +865,7 @@ function WPOSTransactions() {
                         html: "<i class='icon-edit bigger-110'></i>&nbsp; Save",
                         "class": "btn btn-success btn-xs",
                         click: function () {
-                            POStransactions.saveInvoiceItem();
+                            POS.transactions.saveInvoiceItem();
                         }
                     },
                     {
@@ -894,7 +894,7 @@ function WPOSTransactions() {
                         html: "<i class='icon-edit bigger-110'></i>&nbsp; Save",
                         "class": "btn btn-success btn-xs",
                         click: function () {
-                            POStransactions.saveInvoicePayment();
+                            POS.transactions.saveInvoicePayment();
                         }
                     },
                     {
@@ -938,7 +938,7 @@ function WPOSTransactions() {
                         html: "<i class='icon-ban-circle bigger-110'></i>&nbsp; Process",
                         "class": "btn btn-danger btn-xs",
                         click: function () {
-                            POStransactions.addVoid();
+                            POS.transactions.addVoid();
                         }
                     },
                     {
@@ -967,7 +967,7 @@ function WPOSTransactions() {
                         "class": "btn btn-success btn-xs",
                         "id": "translistdetailsbtn",
                         click: function () {
-                            POStransactions.loadTransactionListDetails();
+                            POS.transactions.loadTransactionListDetails();
                         }
                     },
                     {
@@ -996,7 +996,7 @@ function WPOSTransactions() {
 
 
             // customer email search
-            var customers = POScustomers.getCustomers();
+            var customers = POS.customers.getCustomers();
             var emlarr = [];
             for (var i in customers) {
                 for (var a in customers[i].contacts) {
@@ -1032,7 +1032,7 @@ function WPOSTransactions() {
             };
             $("#stitemsearch").autocomplete({
                 source: function (request, response) {
-                    response(POStransactions.searchItems(request.term));
+                    response(POS.transactions.searchItems(request.term));
                 },
                 search: function () {
                     // custom minLength
@@ -1071,8 +1071,8 @@ function WPOSTransactions() {
     function refreshTaxSelects(){
         var taxsel = $(".taxselect");
         taxsel.html('');
-        for (var key in POSgetTaxTable().rules) {
-            taxsel.append('<option class="taxid-' + POSgetTaxTable().rules[key].id + '" value="' + POSgetTaxTable().rules[key].id + '">' + POSgetTaxTable().rules[key].name + '</option>');
+        for (var key in POS.getTaxTable().rules) {
+            taxsel.append('<option class="taxid-' + POS.getTaxTable().rules[key].id + '" value="' + POS.getTaxTable().rules[key].id + '">' + POS.getTaxTable().rules[key].name + '</option>');
         }
     }
 

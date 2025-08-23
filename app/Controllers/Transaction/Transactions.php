@@ -60,10 +60,13 @@ class Transactions
     private function loadTransaction()
     {
         $transMdl = new TransactionsModel();
+        if (!isset($this->data) || !is_object($this->data) || !isset($this->data->id)) {
+            return false;
+        }
         if ($this->data->id != null) {
             $result = $transMdl->getById($this->data->id);
         } else {
-            if ($this->data->ref == null) return false;
+            if (!isset($this->data->ref) || $this->data->ref === null) return false;
             $result = $transMdl->getByRef($this->data->ref);
         }
         if ($result !== false) {
@@ -129,6 +132,7 @@ class Transactions
         } else {
             $qres = $transMdl->getByRef((isset($this->data->refs) ? $this->data->refs : $this->data->ref));
         }
+        $sales = [];
         if ($qres === false) {
             $result['error'] = $transMdl->errorInfo;
         } else {
@@ -229,7 +233,12 @@ class Transactions
         // insert entry
         $voidMdl = new SaleVoidsModel();
         $saleMdl = new SalesModel();
-        // contruct voiddata object
+
+        if (!isset($_SESSION['userId']) || empty($_SESSION['userId'])) {
+            $result['error'] = 'Unauthorized: user session not found.';
+            return $result;
+        }
+        // construct voiddata object
         $voiddata = new \stdClass();
         $voiddata->processdt = time() * 1000; // convert to milliseconds
         $voiddata->userid = $_SESSION['userId'];
@@ -294,24 +303,27 @@ class Transactions
             $foundrecord = null;
             $foundtype = null;
             // check if the void record is a match
-            if ($jsondata->voiddata->processdt == $this->data->processdt) {
+            if (isset($jsondata->voiddata) && isset($jsondata->voiddata->processdt) && $jsondata->voiddata->processdt == $this->data->processdt) {
                 $foundrecord = $jsondata->voiddata;
                 unset($jsondata->voiddata);
                 $recfound = true;
                 $foundtype = 'void';
             } else {
                 // no void record found with that timestamp, try refunds
-                if ($jsondata->refunddata != null) {
+                if (is_iterable($jsondata->refunddata)) {
                     foreach ($jsondata->refunddata as $key => $refund) {
                         if ($refund->processdt == $this->data->processdt) {
                             // add the items to the array so we can remove them from qty refunded
                             $refitems = $jsondata->refunddata[$key]->items;
                             // unset the array value, this outputs objects so we need to reformat as array
                             $foundrecord = $jsondata->refunddata[$key];
-                            unset($jsondata->refunddata[$key]);
-                            $jsondata->refunddata = array_values($jsondata->refunddata);
-                            if (sizeof($jsondata->refunddata) == 0) {
+                            $refundArray = (array)$jsondata->refunddata;
+                            unset($refundArray[$key]);
+                            $refundArray = array_values($refundArray);
+                            if (sizeof($refundArray) == 0) {
                                 unset($jsondata->refunddata);
+                            } else {
+                                $jsondata->refunddata = $refundArray;
                             }
                             $recfound = true;
                             $foundtype = 'refund';
@@ -355,7 +367,7 @@ class Transactions
                     $result["error"] = "Could not remove void record. Error:" . $voidMdl->errorInfo;
                 }
             } else {
-                $result["error"] = "Could not find the record in the JSON data: " . print_r($jsondata);
+                $result["error"] = "Could not find the requested record.";
             }
         } else {
             $result["error"] = "Could not fetch the sales record. Error:" . $salesMdl->errorInfo;
@@ -371,16 +383,25 @@ class Transactions
         // make sure sale is loaded
         if (!$this->trans) {
             if ($this->loadTransaction() === false) {
-                die("Failed to load the transaction!");
+                Logger::write("Failed to load the transaction for invoice generation", "ERROR");
+                throw new \RuntimeException("Failed to load the transaction!");
             }
         }
-        $html = $this->generateInvoiceHtml($_REQUEST['template']);
+        // Sanitize template input (allow only known templates)
+        $allowedTemplates = ['default', 'alt', 'mixed'];
+        $template = isset($_REQUEST['template']) && in_array($_REQUEST['template'], $allowedTemplates) ? $_REQUEST['template'] : 'default';
+        $html = $this->generateInvoiceHtml($template);
+
         if (isset($_REQUEST['type']) && $_REQUEST['type'] == "html") {
+            header('Content-Type: text/html; charset=utf-8');
+            header('X-Content-Type-Options: nosniff');
+            header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline';");
             if (isset($_REQUEST['download']) && $_REQUEST['download'] == 1) {
-                header("Content-Type: application/stream");
-                header('Content-Disposition: attachment; filename="Invoice #' . $this->trans->ref . '.html"');
+                // Sanitize filename/ref for download
+                $ref = isset($this->trans->ref) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $this->trans->ref) : 'invoice';
+                header('Content-Disposition: attachment; filename="Invoice_' . $ref . '.html"');
             }
-            echo ($html);
+            echo $html;
         } else {
             $output = (isset($_REQUEST['download']) && $_REQUEST['download'] == 1) ? 2 : 1;
             $this->convertToPdf($html, $output);
@@ -477,10 +498,27 @@ class Transactions
      */
     public function savetemplate($type, $template)
     {
-        // open file
-        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/" . $type . ".php", "w");
-        // write data
-        fwrite($file, $template);
+        // Only allow safe template names (no path traversal, only alphanum, dash, underscore)
+        if (!preg_match('/^[A-Za-z0-9_-]+$/', $type)) {
+            throw new \InvalidArgumentException('Invalid template type');
+        }
+        $baseDir = realpath($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/");
+        $targetFile = $baseDir . "/" . $type . ".php";
+        // Ensure the resolved path is within the intended directory
+        $realTarget = realpath(dirname($targetFile));
+        if ($realTarget === false || strpos($realTarget, $baseDir) !== 0) {
+            throw new \RuntimeException('Resolved path is outside the templates directory');
+        }
+        // Write atomically
+        $tmpFile = $targetFile . '.tmp';
+        if (file_put_contents($tmpFile, $template, LOCK_EX) === false) {
+            throw new \RuntimeException('Failed to write template to temp file');
+        }
+        if (!rename($tmpFile, $targetFile)) {
+            @unlink($tmpFile);
+            throw new \RuntimeException('Failed to move temp file to target');
+        }
+        chmod($targetFile, 0644);
     }
     /**
      * Reset template to default (not currently used)
@@ -488,11 +526,32 @@ class Transactions
      */
     public function resettemplate($type)
     {
-        // get original file in string
-        $template = file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/storage-template/templates/" . $type . ".php");
-        // open file
-        $file = fopen($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/" . $type . ".php", "w");
-        // write data
-        fwrite($file, $template);
+        // Only allow safe template names (no path traversal, only alphanum, dash, underscore)
+        if (!preg_match('/^[A-Za-z0-9_-]+$/', $type)) {
+            throw new \InvalidArgumentException('Invalid template type');
+        }
+        $baseDir = realpath($_SERVER['DOCUMENT_ROOT'] . "/storage/templates/");
+        $srcDir = realpath($_SERVER['DOCUMENT_ROOT'] . "/storage-template/templates/");
+        $targetFile = $baseDir . "/" . $type . ".php";
+        $srcFile = $srcDir . "/" . $type . ".php";
+        // Ensure the resolved path is within the intended directory
+        $realTarget = realpath(dirname($targetFile));
+        if ($realTarget === false || strpos($realTarget, $baseDir) !== 0) {
+            throw new \RuntimeException('Resolved path is outside the templates directory');
+        }
+        if (!file_exists($srcFile)) {
+            throw new \RuntimeException('Source template does not exist');
+        }
+        $template = file_get_contents($srcFile);
+        // Write atomically
+        $tmpFile = $targetFile . '.tmp';
+        if (file_put_contents($tmpFile, $template, LOCK_EX) === false) {
+            throw new \RuntimeException('Failed to write template to temp file');
+        }
+        if (!rename($tmpFile, $targetFile)) {
+            @unlink($tmpFile);
+            throw new \RuntimeException('Failed to move temp file to target');
+        }
+        chmod($targetFile, 0644);
     }
 }

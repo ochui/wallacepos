@@ -113,7 +113,7 @@
     var items = null;
     var datatable;
     $(function() {
-        stock = POSgetJsonData("stock/get");
+        stock = POS.getJsonData("stock/get");
         var stockarray = [];
         var tempstock;
         for (var key in stock){
@@ -128,7 +128,7 @@
                 { mData:null, sDefaultContent:'<div style="text-align: center"><label><input class="ace dt-select-cb" type="checkbox"><span class="lbl"></span></label><div>', bSortable: false },
                 { mData:function(data,type,val){return (data.name==null?"Unknown":data.name) } },
                 { mData:"supplier" },
-                { mData:function(data,type,val){return (data.locationid!=='0'?(POSlocations.hasOwnProperty(data.locationid)?POSlocations[data.locationid].name:'Unknown'):'Warehouse');} },
+                { mData:function(data,type,val){return (data.locationid!=='0'?(POS.locations.hasOwnProperty(data.locationid)?POS.locations[data.locationid].name:'Unknown'):'Warehouse');} },
                 { mData:"stocklevel" },
                 { mData:function(data,type,val){return '<div class="action-buttons"><a class="green" onclick="openEditStockDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a><a class="blue" onclick="openTransferStockDialog('+data.id+')"><i class="icon-arrow-right bigger-130"></i></a><a class="red" onclick="getStockHistory('+data.storeditemid+', '+data.locationid+');"><i class="icon-time bigger-130"></i></a></div>'; }, "bSortable": false }
             ],
@@ -288,29 +288,29 @@
         // fill location selects
         var locselect = $(".locselect");
         locselect.html('');
-        for (key in POSlocations){
+        for (key in POS.locations){
             if (key == 0){
                 locselect.append('<option class="locid-0" value="0">Warehouse</option>');
             } else {
-                locselect.append('<option class="locid-'+POSlocations[key].id+'" value="'+POSlocations[key].id+'">'+POSlocations[key].name+'</option>');
+                locselect.append('<option class="locid-'+POS.locations[key].id+'" value="'+POS.locations[key].id+'">'+POS.locations[key].name+'</option>');
             }
         }
 
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     });
     // updating records
     function getStockHistory(id, locationid){
-        POSutil.showLoader();
-        var stockhist = POSsendJsonData("stock/history", JSON.stringify({storeditemid: id, locationid: locationid}));
+        POS.util.showLoader();
+        var stockhist = POS.sendJsonData("stock/history", JSON.stringify({storeditemid: id, locationid: locationid}));
         // populate stock dialog with list
         $("#stockhisttable").html("");
         var hist;
         for (var i in stockhist){
             hist = stockhist[i];
-            $("#stockhisttable").append('<tr><td>'+hist.name+'</td><td>'+hist.location+'</td><td>'+hist.type+(hist.auxid!=-1?(hist.auxdir==1?" from ":" to ")+(hist.auxid==0?"Warehouse":POSlocations[hist.auxid].name):"")+'</td><td>'+hist.amount+'</td><td>'+hist.dt+'</td></tr>');
+            $("#stockhisttable").append('<tr><td>'+hist.name+'</td><td>'+hist.location+'</td><td>'+hist.type+(hist.auxid!=-1?(hist.auxdir==1?" from ":" to ")+(hist.auxid==0?"Warehouse":POS.locations[hist.auxid].name):"")+'</td><td>'+hist.amount+'</td><td>'+hist.dt+'</td></tr>');
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
         $("#stockhistdialog").dialog('open');
     }
     function openEditStockDialog(id){
@@ -332,19 +332,19 @@
     }
     function populateItems(){
         if (items == null){
-            POSutil.showLoader();
-            items = POSsendJsonData("items/get");
+            POS.util.showLoader();
+            items = POS.sendJsonData("items/get");
             var itemselect = $(".itemselect");
             itemselect.html('');
             for (var i in items){
                 itemselect.append('<option class="itemid-'+items[i].id+'" value="'+items[i].id+'">'+items[i].name+'</option>');
             }
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         }
     }
     function saveItem(type){
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         var item = {};
         switch (type){
         case 1:
@@ -352,7 +352,7 @@
             item.storeditemid = $("#addstockitemid option:selected").val();
             item.locationid = $("#addstocklocid option:selected").val();
             item.amount = $("#addstockqty").val();
-            if (POSsendJsonData("stock/add", JSON.stringify(item))!==false){
+            if (POS.sendJsonData("stock/add", JSON.stringify(item))!==false){
                 reloadTable();
                 $("#addstockdialog").dialog("close");
             }
@@ -362,7 +362,7 @@
             item.storeditemid = $("#setstockitemid").val();
             item.locationid = $("#setstocklocid").val();
             item.amount = $("#setstockqty").val();
-            if (POSsendJsonData("stock/set", JSON.stringify(item))!==false){
+            if (POS.sendJsonData("stock/set", JSON.stringify(item))!==false){
                 reloadTable();
                 $("#editstockdialog").dialog("close");
             }
@@ -373,17 +373,17 @@
             item.locationid = $("#tstocklocid").val();
             item.newlocationid = $("#tstocknewlocid").val();
             item.amount = $("#tstockqty").val();
-            if (POSsendJsonData("stock/transfer", JSON.stringify(item))!==false){
+            if (POS.sendJsonData("stock/transfer", JSON.stringify(item))!==false){
                reloadTable();
                $("#transferstockdialog").dialog("close");
             }
             break;
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function reloadTable(){
-        stock = POSgetJsonData("stock/get");
+        stock = POS.getJsonData("stock/get");
         var stockarray = [];
         var tempstock;
         for (var key in stock){
@@ -395,8 +395,8 @@
         datatable.api().draw(false);
     }
     function exportStock(){
-        //var data  = POStable2CSV($("#stocktable"));
-        var filename = "stock-"+POSutil.getDateFromTimestamp(new Date());
+        //var data  = POS.table2CSV($("#stocktable"));
+        var filename = "stock-"+POS.util.getDateFromTimestamp(new Date());
         filename = filename.replace(" ", "");
 
         var data = {};
@@ -412,13 +412,13 @@
             data = stock;
         }
 
-        var csv = POSdata2CSV(
+        var csv = POS.data2CSV(
             ['ID', 'Name', 'Supplier', 'Location', 'Qty'],
-            ['id', 'name', 'supplier', {key:'locationid', func: function(value){ return POSlocations.hasOwnProperty(value) ? POSlocations[value].name : 'Unknown'; }}, 'stocklevel'],
+            ['id', 'name', 'supplier', {key:'locationid', func: function(value){ return POS.locations.hasOwnProperty(value) ? POS.locations[value].name : 'Unknown'; }}, 'stocklevel'],
             data
         );
 
-        POSinitSave(filename, csv);
+        POS.initSave(filename, csv);
     }
 </script>
 <style type="text/css">

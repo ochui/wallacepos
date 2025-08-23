@@ -4,7 +4,7 @@ namespace App\Models;
 
 /**
  *
- * AdminItems is used to modify administrative items including stored items, suppliers, customers and users.
+ * StoredItem: lightweight DTO representing an administrative inventory item.
  *
  */
 

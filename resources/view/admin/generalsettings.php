@@ -359,7 +359,7 @@
 
     function saveSettings(){
         // show loader
-        POSutil.showLoader();
+        POS.util.showLoader();
         var data = {};
         var altlabels = {};
         var currencyformat = [];
@@ -393,16 +393,16 @@
         data['altlabels'] = altlabels;
         data['gcontact'] = $("#gcontact").is(":checked")?1:0;
         data['email_tls'] = $("#email_tls").is(":checked");
-        var result = POSsendJsonData("settings/general/set", JSON.stringify(data));
+        var result = POS.sendJsonData("settings/general/set", JSON.stringify(data));
         if (result !== false){
-            POSsetConfigSet('general', result);
+            POS.setConfigSet('general', result);
         }
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
 
     function loadSettings(){
-        options = POSgetJsonData("settings/general/get");
+        options = POS.getJsonData("settings/general/get");
         // load option values into the form
         for (var i in options){
             if (i == "currencyformat"){
@@ -441,20 +441,20 @@
         window.open('/api/settings/google/authinit','Connect with Google','width=500,height=500');
     }
     function removeGoogleAuth(){
-        POSutil.confirm("Are you sure you want to remove the current google acount & turn off intergration?", function() {
+        POS.util.confirm("Are you sure you want to remove the current google acount & turn off intergration?", function() {
             // show loader
-            POSutil.showLoader();
-            var result = POSgetJsonData("settings/google/authremove");
+            POS.util.showLoader();
+            var result = POS.getJsonData("settings/google/authremove");
             if (result!==false){
-                POSnotifications.success("Google account successfully disconnected.", "Google Disconnected");
+                POS.notifications.success("Google account successfully disconnected.", "Google Disconnected");
                 options.gcontact=0;
                 options.gcontactaval=0;
                 setGoogleUI();
             } else {
-                POSnotifications.error("Google account removal failed.", "Disconnection Failed", {delay: 0});
+                POS.notifications.error("Google account removal failed.", "Disconnection Failed", {delay: 0});
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
@@ -464,7 +464,7 @@
     });
 
     function uploadLogo(event){
-        POSuploadFile(event, function(data){
+        POS.uploadFile(event, function(data){
             $("#bizlogo").val(data.path);
             $("#bizlogoprev").prop("src", data.path);
             saveSettings();
@@ -474,6 +474,6 @@
     $(function(){
         loadSettings();
         // hide loader
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     })
 </script>

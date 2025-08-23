@@ -170,7 +170,7 @@
     $(function() {
         // get default data using parallel requests
         var devicesPromise = new Promise(function(resolve, reject) {
-            POSsendJsonDataAsync("devices/get", JSON.stringify(""), function(data) {
+            POS.sendJsonDataAsync("devices/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch devices"));
                 } else {
@@ -180,7 +180,7 @@
         });
         
         var locationsPromise = new Promise(function(resolve, reject) {
-            POSsendJsonDataAsync("locations/get", JSON.stringify(""), function(data) {
+            POS.sendJsonDataAsync("locations/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch locations"));
                 } else {
@@ -325,11 +325,11 @@
         populateKitchenTerminalSelect();
 
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         }).catch(function(error) {
             console.error("Error loading data:", error);
-            POSnotifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
-            POSutil.hideLoader();
+            POS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
+            POS.util.hideLoader();
         });
     });
     // updating records
@@ -347,35 +347,35 @@
         $("#editlocdialog").dialog("open");
     }
     function saveLocItem(){
-        POSutil.showLoader();
+        POS.util.showLoader();
         var result;
         var location = {};
         location.name = $("#locname").val();
         var id = $("#locid").val();
         if (id==0){
-            result = POSsendJsonData("locations/add", JSON.stringify(location));
+            result = POS.sendJsonData("locations/add", JSON.stringify(location));
         } else {
             // updating an item
             location.id = id;
-            result = POSsendJsonData("locations/edit", JSON.stringify(location));
+            result = POS.sendJsonData("locations/edit", JSON.stringify(location));
         }
         if (result){
             locations[result.id] = result;
             refreshLocTable();
             $("#editlocdialog").dialog("close");
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function removeLocItem(id){
-        POSutil.confirm("Are you sure you want to delete this location?", function() {
+        POS.util.confirm("Are you sure you want to delete this location?", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("locations/delete", '{"id":'+id+'}')){
+            POS.util.showLoader();
+            if (POS.sendJsonData("locations/delete", '{"id":'+id+'}')){
                 delete locations[id];
                 refreshLocTable();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
     function loadDeviceRegistrations(){
@@ -386,7 +386,7 @@
             return;
         }
         regtable.html('<tr><td colspan="2" style="text-align: center;">Loading...</td></tr>');
-        POSsendJsonDataAsync('devices/registrations', '{"id":'+id+'}', function(data){
+        POS.sendJsonDataAsync('devices/registrations', '{"id":'+id+'}', function(data){
             if (data.length<1){
                 regtable.html('<tr><td colspan="2" style="text-align: center;">No Device registrations</td></tr>');
                 return;
@@ -399,14 +399,14 @@
         }, null);
     }
     function deleteDeviceRegistration(id){
-        POSutil.confirm("Are you sure you want to delete this registration?\nThe device affected will need to be re-registered.", function() {
+        POS.util.confirm("Are you sure you want to delete this registration?\nThe device affected will need to be re-registered.", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("devices/registrations/delete", '{"id":'+id+'}')){
+            POS.util.showLoader();
+            if (POS.sendJsonData("devices/registrations/delete", '{"id":'+id+'}')){
                 $('#devreg-'+id).remove();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
     function openDevDialog(id){
@@ -445,7 +445,7 @@
         $("#editdevdialog").dialog("open");
     }
     function saveDevItem(){
-        POSutil.showLoader();
+        POS.util.showLoader();
         var result;
         var device = {};
         device.name = $("#devname").val();
@@ -457,11 +457,11 @@
         var id = $("#devid").val();
         if (id==0){
             // adding a new item
-            result = POSsendJsonData("devices/add", JSON.stringify(device));
+            result = POS.sendJsonData("devices/add", JSON.stringify(device));
         } else {
             // updating an item
             device.id = id;
-            result = POSsendJsonData("devices/edit", JSON.stringify(device));
+            result = POS.sendJsonData("devices/edit", JSON.stringify(device));
         }
         if (result){
             devices[result.id] = result;
@@ -469,31 +469,31 @@
             populateKitchenTerminalSelect();
             $("#editdevdialog").dialog("close");
         }
-        POSutil.hideLoader();
+        POS.util.hideLoader();
     }
     function removeDevItem(id){
-        POSutil.confirm("Are you sure you want to delete this device?", function() {
+        POS.util.confirm("Are you sure you want to delete this device?", function() {
             // show loader
-            POSutil.showLoader();
-            if (POSsendJsonData("devices/delete", '{"id":'+id+'}')){
+            POS.util.showLoader();
+            if (POS.sendJsonData("devices/delete", '{"id":'+id+'}')){
                 delete devices[id];
                 refreshDevTable();
                 populateKitchenTerminalSelect();
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
     function setItemDisabled(type, id, disable){
-        POSutil.confirm("Are you sure you want to "+(disable?"disable":"enable")+" this item.", function() {
+        POS.util.confirm("Are you sure you want to "+(disable?"disable":"enable")+" this item.", function() {
             // show loader
-            POSutil.showLoader();
+            POS.util.showLoader();
             var result;
             if (type===0){ // device
-                result = POSsendJsonData("devices/disable", JSON.stringify({id: id, disable: disable}));
+                result = POS.sendJsonData("devices/disable", JSON.stringify({id: id, disable: disable}));
             } else { // location
-                result = POSsendJsonData("locations/disable", JSON.stringify({id: id, disable: disable}));
+                result = POS.sendJsonData("locations/disable", JSON.stringify({id: id, disable: disable}));
             }
             if (result!==false){
                 if (type==0){
@@ -505,7 +505,7 @@
                 }
             }
             // hide loader
-            POSutil.hideLoader();
+            POS.util.hideLoader();
         });
     }
 
