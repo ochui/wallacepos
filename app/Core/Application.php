@@ -15,7 +15,6 @@ use App\Controllers\Api\AuthController;
 use App\Controllers\Api\PosController;
 use App\Controllers\Api\AdminController;
 use App\Controllers\Api\CustomerController;
-use App\Controllers\Api\InstallController;
 
 
 class Application
@@ -46,11 +45,6 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/logout', [AuthController::class, 'logout']);
             $r->addRoute(['GET', 'POST'], '/api/hello', [AuthController::class, 'hello']);
             $r->addRoute(['GET', 'POST'], '/api/auth/websocket', [AuthController::class, 'authorizeWebsocket']);
-
-            // Installation routes (no auth required)
-            $r->addRoute(['GET', 'POST'], '/api/install', [InstallController::class, 'install']);
-            $r->addRoute(['GET', 'POST'], '/api/install/status', [InstallController::class, 'status']);
-            $r->addRoute(['GET', 'POST'], '/api/install/upgrade', [InstallController::class, 'upgrade']);
 
             // POS routes
             $r->addRoute(['GET', 'POST'], '/api/config/get', [PosController::class, 'getConfig']);
