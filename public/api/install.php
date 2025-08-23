@@ -1,9 +1,7 @@
 <?php
-
 /**
- * Main API Entry Point for FreePOS
- * 
- * Simplified entry point that manually loads required classes
+ * Simple Installation API Endpoint
+ * Handles installation-related requests without complex routing
  */
 
 // Define base paths
@@ -55,15 +53,55 @@ if (file_exists(base_path('.env'))) {
 }
 
 try {
-    // Create and handle the request with Application
-    $app = new App\Core\Application();
-    $app->handleRequest();
+    // Handle installation API routes manually
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
+    
+    // Create the installer controller
+    $controller = new App\Controllers\Api\InstallController();
+    
+    // Route to appropriate methods based on action parameter
+    switch ($action) {
+        case 'requirements':
+            $controller->requirements();
+            break;
+        case 'test-database':
+            $controller->testDatabase();
+            break;
+        case 'save-database':
+            $controller->saveDatabaseConfig();
+            break;
+        case 'configure-admin':
+            $controller->configureAdmin();
+            break;
+        case 'install-with-config':
+            $controller->installWithConfig();
+            break;
+        case 'status':
+            $controller->status();
+            break;
+        case 'upgrade':
+            $controller->upgrade();
+            break;
+        case 'install':
+            $controller->install();
+            break;
+        default:
+            // Default action or unknown action
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode([
+                'errorCode' => 'invalid_action',
+                'error' => 'Invalid or missing action parameter'
+            ]);
+            break;
+    }
+    
 } catch (Exception $e) {
     // Handle errors gracefully
     header('Content-Type: application/json');
     http_response_code(500);
     echo json_encode([
         'errorCode' => 'exception',
-        'error' => 'Application error: ' . $e->getMessage()
+        'error' => 'Installation API error: ' . $e->getMessage()
     ]);
 }
