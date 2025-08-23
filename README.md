@@ -48,6 +48,36 @@ FreePOS requires:
    
 2. Run `composer install` in your install directory to update PHP dependencies (you may need to install composer first).
 
-3. Visit /installer in your browser & follow the installation wizard.
+3. Copy `.env.example` to `.env` and configure your database settings:
+   ```
+   DATABASE_HOST=localhost
+   DATABASE_PORT=3306
+   DATABASE_NAME=your_database_name
+   DATABASE_USER=your_database_user
+   DATABASE_PASSWORD=your_database_password
+   ```
 
-4. Login to the admin dashboard at /admin, from the menu go to Settings -> Utilities and make sure the feed server has been started successfully.
+4. Visit `/installer` in your browser & follow the installation wizard.
+
+5. Use the default credentials to login:
+   - **Username:** admin
+   - **Password:** admin
+   - **⚠️ Important:** Change the default password immediately after first login!
+
+6. Login to the admin dashboard at `/admin`, from the menu go to Settings -> Utilities and make sure the feed server has been started successfully.
+
+## Installer Features
+
+The installer provides:
+
+- **Automatic database setup:** Creates all necessary tables with proper structure
+- **Default data:** Sets up initial admin user, locations, tax rules, and templates  
+- **Status checking:** Detects existing installations and prevents data loss
+- **Web-based interface:** User-friendly installation wizard accessible at `/installer`
+- **Upgrade support:** Handles database schema updates between versions
+
+### Installation API Endpoints
+
+- `POST /api/install/status` - Check installation status
+- `POST /api/install` - Perform fresh installation  
+- `POST /api/install/upgrade` - Upgrade existing installation
