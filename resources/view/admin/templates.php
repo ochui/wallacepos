@@ -61,7 +61,7 @@
     var curId = null;
 
     function loadTemplates(){
-        templates = WPOS.getJsonData("templates/get");
+        templates = POSgetJsonData("templates/get");
         var id;
         if (curId!=null && templates.hasOwnProperty(curId)){
             id = curId;
@@ -97,22 +97,22 @@
 
     function saveTemplate(){
         var data = {id: $("#template_list").val(), name: $("#template_name").val(), template: templateEditor.getValue()};
-        var result = WPOS.sendJsonData("templates/edit", JSON.stringify(data));
+        var result = POSsendJsonData("templates/edit", JSON.stringify(data));
         if (result!==false){
             templates[data.id].name = data.name;
             templates[data.id].template = data.template;
             refreshTemplateList(data.id);
             // update global config
             var template = templates[data.id];
-            WPOS.updateConfig('templates~'+data.id, template);
+            POSupdateConfig('templates~'+data.id, template);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function restoreTemplate(){
-        WPOS.util.confirm("Are you sure you want to restore the current template?\nThis will destroy all changes you have made.", function() {
-            WPOS.sendJsonData('templates/restore', '{"filename":"'+templates[curId].filename+'"}');
+        POSutil.confirm("Are you sure you want to restore the current template?\nThis will destroy all changes you have made.", function() {
+            POSsendJsonData('templates/restore', '{"filename":"'+templates[curId].filename+'"}');
             loadTemplates();
         });
     }
@@ -120,6 +120,6 @@
     $(function(){
         loadTemplates();
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     })
 </script>

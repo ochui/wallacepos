@@ -1,33 +1,18 @@
 <?php
 
-namespace App;
-
 /**
- * Auth is part of Wallace Point of Sale system (WPOS) API
  *
  * Auth is used to authenticate users with the server,
  * store/provide associated session values & update/check permissions
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>, Adam Jacquier-Parr <aljparr0@gmail.com>
- * @since      Class created 11/24/13 12:01 PM
  */
 
-use App\Controllers\Admin\WposAdminUtilities;
-use App\Communication\WposSocketIO;
+namespace App;
+
+
+
+use App\Controllers\Admin\AdminUtilities;
+use App\Communication\SocketIO;
 use App\Database\AuthModel;
 use App\Database\CustomerModel;
 use App\Utility\Logger;
@@ -268,7 +253,7 @@ class Auth
             return true;
         } else {
             // log data
-            Logger::write("Authentication failed for user:" . $username . " from IP address: " . WposAdminUtilities::getRemoteAddress(), "AUTH", null, false);
+            Logger::write("Authentication failed for user:" . $username . " from IP address: " . AdminUtilities::getRemoteAddress(), "AUTH", null, false);
 
             return false;
         }
@@ -279,7 +264,7 @@ class Auth
      */
     public function authoriseWebsocket()
     {
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         return $socket->sendSessionData(session_id());
     }
 
@@ -318,7 +303,7 @@ class Auth
                 Logger::write("Authentication successful for user:" . $username, "AUTH");
 
                 // Send to node JS
-                $socket = new WposSocketIO();
+                $socket = new SocketIO();
                 $socket->sendSessionData(session_id());
                 /*if (!$socket->sendSessionData(session_id())){
                     return -2;
@@ -343,7 +328,7 @@ class Auth
     private function setNewSessionToken($id, $password_hash)
     {
         // create unique token
-        $tokens = ['token' => WposAdminUtilities::getToken()];
+        $tokens = ['token' => AdminUtilities::getToken()];
         // create auth_hash
         $tokens['auth_hash'] = hash('sha256', $password_hash . $tokens['token']);
         // save tokens
@@ -440,7 +425,7 @@ class Auth
             return true;
         } else {
             // log data
-            Logger::write("Authentication failed for customer:" . $username . " from IP address: " . WposAdminUtilities::getRemoteAddress(), "AUTH", null, false);
+            Logger::write("Authentication failed for customer:" . $username . " from IP address: " . AdminUtilities::getRemoteAddress(), "AUTH", null, false);
 
             return false;
         }
@@ -453,7 +438,7 @@ class Auth
     public function logout()
     {
         // Send to node JS
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         $socket->sendSessionData(session_id(), true);
         return session_destroy();
     }

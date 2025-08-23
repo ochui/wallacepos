@@ -359,7 +359,7 @@
 
     function saveSettings(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var data = {};
         var altlabels = {};
         var currencyformat = [];
@@ -393,16 +393,16 @@
         data['altlabels'] = altlabels;
         data['gcontact'] = $("#gcontact").is(":checked")?1:0;
         data['email_tls'] = $("#email_tls").is(":checked");
-        var result = WPOS.sendJsonData("settings/general/set", JSON.stringify(data));
+        var result = POSsendJsonData("settings/general/set", JSON.stringify(data));
         if (result !== false){
-            WPOS.setConfigSet('general', result);
+            POSsetConfigSet('general', result);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function loadSettings(){
-        options = WPOS.getJsonData("settings/general/get");
+        options = POSgetJsonData("settings/general/get");
         // load option values into the form
         for (var i in options){
             if (i == "currencyformat"){
@@ -441,20 +441,20 @@
         window.open('/api/settings/google/authinit','Connect with Google','width=500,height=500');
     }
     function removeGoogleAuth(){
-        WPOS.util.confirm("Are you sure you want to remove the current google acount & turn off intergration?", function() {
+        POSutil.confirm("Are you sure you want to remove the current google acount & turn off intergration?", function() {
             // show loader
-            WPOS.util.showLoader();
-            var result = WPOS.getJsonData("settings/google/authremove");
+            POSutil.showLoader();
+            var result = POSgetJsonData("settings/google/authremove");
             if (result!==false){
-                WPOS.notifications.success("Google account successfully disconnected.", "Google Disconnected");
+                POSnotifications.success("Google account successfully disconnected.", "Google Disconnected");
                 options.gcontact=0;
                 options.gcontactaval=0;
                 setGoogleUI();
             } else {
-                WPOS.notifications.error("Google account removal failed.", "Disconnection Failed", {delay: 0});
+                POSnotifications.error("Google account removal failed.", "Disconnection Failed", {delay: 0});
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
@@ -464,7 +464,7 @@
     });
 
     function uploadLogo(event){
-        WPOS.uploadFile(event, function(data){
+        POSuploadFile(event, function(data){
             $("#bizlogo").val(data.path);
             $("#bizlogoprev").prop("src", data.path);
             saveSettings();
@@ -474,6 +474,6 @@
     $(function(){
         loadSettings();
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     })
 </script>

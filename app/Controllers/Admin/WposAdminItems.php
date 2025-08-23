@@ -1,43 +1,28 @@
 <?php
 
+/**
+ *
+ * AdminItems is used to modify administrative items including stored items, suppliers, customers and users.
+ *
+ */
+
+
 namespace App\Controllers\Admin;
 
-use App\Communication\WposSocketIO;
+use App\Communication\SocketIO;
 use App\Database\AuthModel;
 use App\Database\CategoriesModel;
 use App\Database\StoredItemsModel;
 use App\Database\SuppliersModel;
 use App\Database\TaxItemsModel;
 use App\Database\TaxRulesModel;
-use App\Models\WposStoredItem;
-use App\Controllers\Pos\WposPosData;
+use App\Models\StoredItem;
+use App\Controllers\Pos\PosData;
 use App\Utility\EventStream;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 
-/**
- * WposAdminItems is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminItems is used to modify administrative items including stored items, suppliers, customers and users.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 24/12/13 2:05 PM
- */
-class WposAdminItems
+class AdminItems
 {
     private $data;
 
@@ -83,7 +68,7 @@ class WposAdminItems
             $this->data->id = $qresult;
             $result['data'] = $this->data;
             // broadcast the item
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendItemUpdate($this->data);
 
             // log data
@@ -123,7 +108,7 @@ class WposAdminItems
         } else {
             $result['data'] = $this->data;
             // broadcast the item
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendItemUpdate($this->data);
 
             // log data
@@ -162,7 +147,7 @@ class WposAdminItems
         } else {
             $result['data'] = true;
             // broadcast the item; supplying the id only indicates deletion
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendItemUpdate($this->data->id);
 
             // log data
@@ -326,7 +311,7 @@ class WposAdminItems
         foreach ($items as $item) {
             EventStream::sendStreamData(['progress' => $count]);
 
-            $itemObj = new WposStoredItem($item);
+            $itemObj = new StoredItem($item);
             $id = $itemMdl->create($itemObj);
 
             if ($id === false) {
@@ -367,7 +352,7 @@ class WposAdminItems
         } else {
             $result['data'] = $this->getCategoryRecord($qresult);
             // broadcast update
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendConfigUpdate('item_categories', $result['data']);
             // log data
             Logger::write("Category added with id:" . $this->data->id, "CATEGORY", json_encode($this->data));
@@ -394,7 +379,7 @@ class WposAdminItems
         } else {
             $result['data'] = $this->getCategoryRecord($this->data->id);
             // broadcast update
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendConfigUpdate('item_categories', $result['data']);
             // log data
             Logger::write("Category updated with id:" . $this->data->id, "CATEGORY", json_encode($this->data));
@@ -443,7 +428,7 @@ class WposAdminItems
         } else {
             $result['data'] = true;
             // broadcast update
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendConfigUpdate('item_categories', $this->data->id);
             // log data
             Logger::write("Category(s) deleted with id:" . $this->data->id, "CATEGORY");
@@ -873,7 +858,7 @@ class WposAdminItems
             $result['error'] = $errors;
             return $result;
         }
-        $this->data->multiplier = WposAdminItems::calculateTaxMultiplier($this->data->value);
+        $this->data->multiplier = AdminItems::calculateTaxMultiplier($this->data->value);
         $taxItemMdl = new TaxItemsModel();
         $qresult = $taxItemMdl->create($this->data->name, $this->data->altname, $this->data->type, $this->data->value, $this->data->multiplier);
         if ($qresult === false) {
@@ -900,7 +885,7 @@ class WposAdminItems
             $result['error'] = $errors;
             return $result;
         }
-        $this->data->multiplier = WposAdminItems::calculateTaxMultiplier($this->data->value);
+        $this->data->multiplier = AdminItems::calculateTaxMultiplier($this->data->value);
         $taxItemMdl = new TaxItemsModel();
         $qresult = $taxItemMdl->edit($this->data->id, $this->data->name, $this->data->altname, $this->data->type, $this->data->value, $this->data->multiplier);
         if ($qresult === false) {
@@ -941,9 +926,9 @@ class WposAdminItems
 
     private function broadcastTaxUpdate()
     {
-        $taxconfig = WposPosData::getTaxes();
+        $taxconfig = PosData::getTaxes();
         if (!isset($taxconfig['error'])) {
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendConfigUpdate($taxconfig['data'], "tax");
         }
     }

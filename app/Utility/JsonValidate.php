@@ -1,29 +1,14 @@
 <?php
 
+/**
+ *
+ * JsonValidate is used to validate JSON data using a provided JSON schema. 
+ * Each property in the schema specifies a rule that the corresponding data property must pass.
+ *
+ */
+
 namespace App\Utility;
 
-/**
- * JsonValidate is part of Wallace Point of Sale system (WPOS) API
- *
- * JsonValidate is used to validate JSON data using a provided JSON schema. Each property in the schema specifies a rule that the corresponding data property must pass.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 17/05/14 4:07 PM
- */
 class JsonValidate
 {
     /**

@@ -1,36 +1,20 @@
 <?php
 
+/**
+ *
+ * SocketControl is used to control the node.js websocket server
+ *
+ */
+
 namespace App\Communication;
 
-/**
- * WposSocketControl is part of Wallace Point of Sale system (WPOS) API
- *
- * WposSocketControl is used to control the node.js websocket server
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 30/04/14 9:28 PM
- */
-class WposSocketControl
+class SocketControl
 {
 
     private $isWindows = false;
 
     /**
-     * WposSocketControl constructor.
+     * SocketControl constructor.
      */
     function __construct()
     {
@@ -46,7 +30,7 @@ class WposSocketControl
     {
         $basePath = base_path();
         $serverScript = $basePath . 'api/server.js';
-        
+
         if ($this->isWindows) {
             pclose(popen('START "WPOS" node ' . $serverScript, 'r'));
         } else {
@@ -71,7 +55,7 @@ class WposSocketControl
     public function stopSocketServer($result = ['error' => 'OK'])
     {
         if ($this->isWindows) {
-            exec('TASKKILL /F /FI "WindowTitle eq WPOS"', $output);
+            exec('TASKKILL /F /FI "WindowTitle eq POS"', $output);
         } else {
             exec('kill `ps aux | grep "[n]odejs ' . $_SERVER['DOCUMENT_ROOT'] . '" | awk \'{print $2}\'`', $output);
         }
@@ -117,7 +101,7 @@ class WposSocketControl
     private function getServerStat()
     {
         if ($this->isWindows) {
-            exec('TASKLIST /NH /V /FI "WindowTitle eq WPOS"', $output);
+            exec('TASKLIST /NH /V /FI "WindowTitle eq POS"', $output);
             if (strpos($output[0], 'INFO') !== false) {
                 $output[0] = 'Offline';
                 return false;

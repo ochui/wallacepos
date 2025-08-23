@@ -1,5 +1,12 @@
 <?php
 
+/**
+ *
+ * AdminStock is used to manage stock
+ *
+ */
+
+
 namespace App\Controllers\Admin;
 
 use App\Database\StockHistoryModel;
@@ -7,29 +14,7 @@ use App\Database\StockModel;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 
-/**
- * WposAdminStock is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminStock is used to manage stock
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
-class WposAdminStock
+class AdminStock
 {
     /**
      * @var stdClass provided params
@@ -62,7 +47,7 @@ class WposAdminStock
     }
 
     /**
-     * This function is used by WposPosSale and WposInvoices to decrement/increment sold/voided transaction stock; it does not create a history record
+     * This function is used by PosSale and Invoices to decrement/increment sold/voided transaction stock; it does not create a history record
      * @param $storeditemid
      * @param $locationid
      * @param $amount

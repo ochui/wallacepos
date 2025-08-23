@@ -1,30 +1,32 @@
 <?php
 
-namespace App\Controllers\Api;
-
-use App\Auth;
-use App\Controllers\Admin\WposAdminItems;
-use App\Controllers\Admin\WposAdminCustomers;
-use App\Controllers\Admin\WposAdminStock;
-use App\Controllers\Admin\WposAdminStats;
-use App\Controllers\Admin\WposAdminGraph;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminUtilities;
-use App\Controllers\Invoice\WposInvoices;
-use App\Controllers\Pos\WposPosSetup;
-use App\Controllers\Pos\WposPosData;
-use App\Controllers\Transaction\WposTransactions;
-use App\Controllers\Invoice\WposTemplates;
-use App\Communication\WposSocketControl;
-use App\Communication\WposSocketIO;
-use App\Integration\GoogleIntegration;
-use App\Integration\XeroIntegration;
-use App\Utility\Logger;
-
 /**
  * Admin API Controller
  * Handles admin-specific API endpoints with permission checks
  */
+
+namespace App\Controllers\Api;
+
+use App\Auth;
+use App\Controllers\Admin\AdminItems;
+use App\Controllers\Admin\AdminCustomers;
+use App\Controllers\Admin\AdminStock;
+use App\Controllers\Admin\AdminStats;
+use App\Controllers\Admin\AdminGraph;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminUtilities;
+use App\Controllers\Invoice\Invoices;
+use App\Controllers\Pos\PosSetup;
+use App\Controllers\Pos\PosData;
+use App\Controllers\Transaction\Transactions;
+use App\Controllers\Invoice\Templates;
+use App\Communication\SocketControl;
+use App\Communication\SocketIO;
+use App\Integration\GoogleIntegration;
+use App\Integration\XeroIntegration;
+use App\Utility\Logger;
+
+
 class AdminController
 {
     private $auth;
@@ -88,7 +90,7 @@ class AdminController
         $this->checkPermission('devices/setup');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->setupDevice($this->result);
         return $this->returnResult();
     }
@@ -101,7 +103,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('adminconfig/get');
 
-        $setupMdl = new WposPosSetup();
+        $setupMdl = new PosSetup();
         $this->result = $setupMdl->getAdminConfig($this->result);
         return $this->returnResult();
     }
@@ -113,7 +115,7 @@ class AdminController
         $this->checkPermission('items/add');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->addStoredItem($this->result);
         return $this->returnResult();
     }
@@ -124,7 +126,7 @@ class AdminController
         $this->checkPermission('items/edit');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->updateStoredItem($this->result);
         return $this->returnResult();
     }
@@ -135,7 +137,7 @@ class AdminController
         $this->checkPermission('items/delete');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->deleteStoredItem($this->result);
         return $this->returnResult();
     }
@@ -146,7 +148,7 @@ class AdminController
         $this->checkPermission('items/import/set');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->importItemsSet($this->result);
         return $this->returnResult();
     }
@@ -157,7 +159,7 @@ class AdminController
         $this->checkPermission('items/import/start');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->importItemsStart($this->result);
         return $this->returnResult();
     }
@@ -168,7 +170,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('suppliers/get');
 
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getSuppliers($this->result);
         return $this->returnResult();
     }
@@ -179,7 +181,7 @@ class AdminController
         $this->checkPermission('suppliers/add');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->addSupplier($this->result);
         return $this->returnResult();
     }
@@ -190,7 +192,7 @@ class AdminController
         $this->checkPermission('suppliers/edit');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->updateSupplier($this->result);
         return $this->returnResult();
     }
@@ -201,7 +203,7 @@ class AdminController
         $this->checkPermission('suppliers/delete');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->deleteSupplier($this->result);
         return $this->returnResult();
     }
@@ -212,7 +214,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('categories/get');
 
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getCategories($this->result);
         return $this->returnResult();
     }
@@ -223,7 +225,7 @@ class AdminController
         $this->checkPermission('categories/add');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->addCategory($this->result);
         return $this->returnResult();
     }
@@ -234,7 +236,7 @@ class AdminController
         $this->checkPermission('categories/edit');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->updateCategory($this->result);
         return $this->returnResult();
     }
@@ -245,7 +247,7 @@ class AdminController
         $this->checkPermission('categories/delete');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->deleteCategory($this->result);
         return $this->returnResult();
     }
@@ -257,7 +259,7 @@ class AdminController
         $this->checkPermission('settings/get');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings();
+        $configMdl = new AdminSettings();
         $configMdl->setName($name ?? $data->name);
         $this->result = $configMdl->getSettings($this->result);
         return $this->returnResult();
@@ -269,7 +271,7 @@ class AdminController
         $this->checkPermission('settings/set');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings($data);
+        $configMdl = new AdminSettings($data);
         if ($name) {
             $configMdl->setName($name);
         }
@@ -283,7 +285,7 @@ class AdminController
         $this->checkPermission('settings/pos/get');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings();
+        $configMdl = new AdminSettings();
         $configMdl->setName('pos');
         $this->result = $configMdl->getSettings($this->result);
         return $this->returnResult();
@@ -295,7 +297,7 @@ class AdminController
         $this->checkPermission('settings/pos/set');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings($data);
+        $configMdl = new AdminSettings($data);
         $configMdl->setName('pos');
         $this->result = $configMdl->saveSettings($this->result);
         return $this->returnResult();
@@ -307,7 +309,7 @@ class AdminController
         $this->checkPermission('settings/general/get');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings();
+        $configMdl = new AdminSettings();
         $configMdl->setName('general');
         $this->result = $configMdl->getSettings($this->result);
         return $this->returnResult();
@@ -319,7 +321,7 @@ class AdminController
         $this->checkPermission('settings/general/set');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings($data);
+        $configMdl = new AdminSettings($data);
         $configMdl->setName('general');
         $this->result = $configMdl->saveSettings($this->result);
         return $this->returnResult();
@@ -331,7 +333,7 @@ class AdminController
         $this->checkPermission('settings/invoice/get');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings();
+        $configMdl = new AdminSettings();
         $configMdl->setName('invoice');
         $this->result = $configMdl->getSettings($this->result);
         return $this->returnResult();
@@ -343,7 +345,7 @@ class AdminController
         $this->checkPermission('settings/invoice/set');
 
         $data = $this->getRequestData();
-        $configMdl = new WposAdminSettings($data);
+        $configMdl = new AdminSettings($data);
         $configMdl->setName('invoice');
         $this->result = $configMdl->saveSettings($this->result);
         return $this->returnResult();
@@ -355,7 +357,7 @@ class AdminController
         $this->checkPermission('stats/general');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getOverviewStats($this->result);
         return $this->returnResult();
     }
@@ -366,7 +368,7 @@ class AdminController
         $this->checkPermission('stats/itemselling');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getWhatsSellingStats($this->result);
         return $this->returnResult();
     }
@@ -377,7 +379,7 @@ class AdminController
         $this->checkPermission('stats/takings');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getCountTakingsStats($this->result);
         return $this->returnResult();
     }
@@ -388,7 +390,7 @@ class AdminController
         $this->checkPermission('stats/locations');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'location');
         return $this->returnResult();
     }
@@ -399,7 +401,7 @@ class AdminController
         $this->checkPermission('stats/devices');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'device');
         return $this->returnResult();
     }
@@ -410,7 +412,7 @@ class AdminController
         $this->checkPermission('stats/categoryselling');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getWhatsSellingStats($this->result, 1);
         return $this->returnResult();
     }
@@ -421,7 +423,7 @@ class AdminController
         $this->checkPermission('stats/supplyselling');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getWhatsSellingStats($this->result, 2);
         return $this->returnResult();
     }
@@ -432,7 +434,7 @@ class AdminController
         $this->checkPermission('stats/stock');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getStockLevels($this->result);
         return $this->returnResult();
     }
@@ -443,7 +445,7 @@ class AdminController
         $this->checkPermission('stats/users');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getDeviceBreakdownStats($this->result, 'user');
         return $this->returnResult();
     }
@@ -454,7 +456,7 @@ class AdminController
         $this->checkPermission('stats/tax');
 
         $data = $this->getRequestData();
-        $statsMdl = new WposAdminStats($data);
+        $statsMdl = new AdminStats($data);
         $this->result = $statsMdl->getTaxStats($this->result);
         return $this->returnResult();
     }
@@ -465,7 +467,7 @@ class AdminController
         $this->checkPermission('graph/general');
 
         $data = $this->getRequestData();
-        $graphMdl = new WposAdminGraph($data);
+        $graphMdl = new AdminGraph($data);
         $this->result = $graphMdl->getOverviewGraph($this->result);
         return $this->returnResult();
     }
@@ -476,7 +478,7 @@ class AdminController
         $this->checkPermission('graph/takings');
 
         $data = $this->getRequestData();
-        $graphMdl = new WposAdminGraph($data);
+        $graphMdl = new AdminGraph($data);
         $this->result = $graphMdl->getMethodGraph($this->result);
         return $this->returnResult();
     }
@@ -487,7 +489,7 @@ class AdminController
         $this->checkPermission('graph/devices');
 
         $data = $this->getRequestData();
-        $graphMdl = new WposAdminGraph($data);
+        $graphMdl = new AdminGraph($data);
         $this->result = $graphMdl->getDeviceGraph($this->result);
         return $this->returnResult();
     }
@@ -498,7 +500,7 @@ class AdminController
         $this->checkPermission('graph/locations');
 
         $data = $this->getRequestData();
-        $graphMdl = new WposAdminGraph($data);
+        $graphMdl = new AdminGraph($data);
         $this->result = $graphMdl->getLocationGraph($this->result);
         return $this->returnResult();
     }
@@ -510,7 +512,7 @@ class AdminController
         $this->checkPermission('sales/delete');
 
         $data = $this->getRequestData();
-        $aSaleMdl = new WposTransactions($data);
+        $aSaleMdl = new Transactions($data);
         $this->result = $aSaleMdl->deleteSale($this->result);
         return $this->returnResult();
     }
@@ -521,7 +523,7 @@ class AdminController
         $this->checkPermission('sales/deletevoid');
 
         $data = $this->getRequestData();
-        $aSaleMdl = new WposTransactions($data);
+        $aSaleMdl = new Transactions($data);
         $this->result = $aSaleMdl->removeVoidRecord($this->result);
         return $this->returnResult();
     }
@@ -532,7 +534,7 @@ class AdminController
         $this->checkPermission('sales/adminvoid');
 
         $data = $this->getRequestData();
-        $aSaleMdl = new WposTransactions($data);
+        $aSaleMdl = new Transactions($data);
         $this->result = $aSaleMdl->voidSale($this->result);
         return $this->returnResult();
     }
@@ -543,7 +545,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('stock/get');
 
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getStock($this->result);
         return $this->returnResult();
     }
@@ -554,7 +556,7 @@ class AdminController
         $this->checkPermission('stock/add');
 
         $data = $this->getRequestData();
-        $stockMdl = new WposAdminStock($data);
+        $stockMdl = new AdminStock($data);
         $this->result = $stockMdl->addStock($this->result);
         return $this->returnResult();
     }
@@ -565,7 +567,7 @@ class AdminController
         $this->checkPermission('stock/set');
 
         $data = $this->getRequestData();
-        $stockMdl = new WposAdminStock($data);
+        $stockMdl = new AdminStock($data);
         $this->result = $stockMdl->setStockLevel($this->result);
         return $this->returnResult();
     }
@@ -576,7 +578,7 @@ class AdminController
         $this->checkPermission('stock/transfer');
 
         $data = $this->getRequestData();
-        $stockMdl = new WposAdminStock($data);
+        $stockMdl = new AdminStock($data);
         $this->result = $stockMdl->transferStock($this->result);
         return $this->returnResult();
     }
@@ -587,7 +589,7 @@ class AdminController
         $this->checkPermission('stock/history');
 
         $data = $this->getRequestData();
-        $stockMdl = new WposAdminStock($data);
+        $stockMdl = new AdminStock($data);
         $this->result = $stockMdl->getStockHistory($this->result);
         return $this->returnResult();
     }
@@ -599,7 +601,7 @@ class AdminController
         $this->checkPermission('customers/add');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->addCustomer($this->result);
         return $this->returnResult();
     }
@@ -610,7 +612,7 @@ class AdminController
         $this->checkPermission('customers/edit');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->updateCustomer($this->result);
         return $this->returnResult();
     }
@@ -621,7 +623,7 @@ class AdminController
         $this->checkPermission('customers/delete');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->deleteCustomer($this->result);
         return $this->returnResult();
     }
@@ -632,7 +634,7 @@ class AdminController
         $this->checkPermission('customers/contacts/add');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->addContact($this->result);
         return $this->returnResult();
     }
@@ -643,7 +645,7 @@ class AdminController
         $this->checkPermission('customers/contacts/edit');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->updateContact($this->result);
         return $this->returnResult();
     }
@@ -654,7 +656,7 @@ class AdminController
         $this->checkPermission('customers/contacts/delete');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->deleteContact($this->result);
         return $this->returnResult();
     }
@@ -665,7 +667,7 @@ class AdminController
         $this->checkPermission('customers/setaccess');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->setAccess($this->result);
         return $this->returnResult();
     }
@@ -676,7 +678,7 @@ class AdminController
         $this->checkPermission('customers/setpassword');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->setPassword($this->result);
         return $this->returnResult();
     }
@@ -687,7 +689,7 @@ class AdminController
         $this->checkPermission('customers/sendreset');
 
         $data = $this->getRequestData();
-        $custMdl = new WposAdminCustomers($data);
+        $custMdl = new AdminCustomers($data);
         $this->result = $custMdl->sendResetEmail($this->result);
         return $this->returnResult();
     }
@@ -698,7 +700,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('users/get');
 
-        $data = new WposPosData();
+        $data = new PosData();
         $this->result = $data->getUsers($this->result);
         return $this->returnResult();
     }
@@ -709,7 +711,7 @@ class AdminController
         $this->checkPermission('users/add');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->addUser($this->result);
         return $this->returnResult();
     }
@@ -720,7 +722,7 @@ class AdminController
         $this->checkPermission('users/edit');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->updateUser($this->result);
         return $this->returnResult();
     }
@@ -731,7 +733,7 @@ class AdminController
         $this->checkPermission('users/delete');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->deleteUser($this->result);
         return $this->returnResult();
     }
@@ -742,7 +744,7 @@ class AdminController
         $this->checkPermission('user/disable');
 
         $data = $this->getRequestData();
-        $adminMdl = new WposAdminItems($data);
+        $adminMdl = new AdminItems($data);
         $this->result = $adminMdl->setUserDisabled($this->result);
         return $this->returnResult();
     }
@@ -754,7 +756,7 @@ class AdminController
         $this->checkPermission('devices/add');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->addDevice($this->result);
         return $this->returnResult();
     }
@@ -765,7 +767,7 @@ class AdminController
         $this->checkPermission('devices/edit');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->updateDevice($this->result);
         return $this->returnResult();
     }
@@ -776,7 +778,7 @@ class AdminController
         $this->checkPermission('devices/delete');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->deleteDevice($this->result);
         return $this->returnResult();
     }
@@ -787,7 +789,7 @@ class AdminController
         $this->checkPermission('devices/disable');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->setDeviceDisabled($this->result);
         return $this->returnResult();
     }
@@ -798,7 +800,7 @@ class AdminController
         $this->checkPermission('devices/registrations');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->getDeviceRegistrations($this->result);
         return $this->returnResult();
     }
@@ -809,7 +811,7 @@ class AdminController
         $this->checkPermission('devices/registrations/delete');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->deleteDeviceRegistration($this->result);
         return $this->returnResult();
     }
@@ -821,7 +823,7 @@ class AdminController
         $this->checkPermission('locations/add');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->addLocation($this->result);
         return $this->returnResult();
     }
@@ -832,7 +834,7 @@ class AdminController
         $this->checkPermission('locations/edit');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->updateLocationName($this->result);
         return $this->returnResult();
     }
@@ -843,7 +845,7 @@ class AdminController
         $this->checkPermission('locations/delete');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->deleteLocation($this->result);
         return $this->returnResult();
     }
@@ -854,7 +856,7 @@ class AdminController
         $this->checkPermission('locations/disable');
 
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->setLocationDisabled($this->result);
         return $this->returnResult();
     }
@@ -866,7 +868,7 @@ class AdminController
         $this->checkPermission('invoices/get');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->getInvoices($this->result);
         return $this->returnResult();
     }
@@ -877,7 +879,7 @@ class AdminController
         $this->checkPermission('invoices/search');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices();
+        $invMdl = new Invoices();
         if (isset($data)) {
             $this->result = $invMdl->searchInvoices($data, $this->result);
         }
@@ -890,7 +892,7 @@ class AdminController
         $this->checkPermission('invoices/add');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->createInvoice($this->result);
         return $this->returnResult();
     }
@@ -901,7 +903,7 @@ class AdminController
         $this->checkPermission('invoices/edit');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->updateInvoice($this->result);
         return $this->returnResult();
     }
@@ -912,7 +914,7 @@ class AdminController
         $this->checkPermission('invoices/delete');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->removeInvoice($this->result);
         return $this->returnResult();
     }
@@ -923,7 +925,7 @@ class AdminController
         $this->checkPermission('invoices/history/get');
 
         $data = $this->getRequestData();
-        $invMdl = new WposTransactions($data);
+        $invMdl = new Transactions($data);
         $this->result = $invMdl->getTransactionHistory($this->result);
         return $this->returnResult();
     }
@@ -933,7 +935,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('invoices/generate');
 
-        $invMdl = new WposTransactions(null, $_REQUEST['id'], false);
+        $invMdl = new Transactions(null, $_REQUEST['id'], false);
         $invMdl->generateInvoice();
     }
 
@@ -943,7 +945,7 @@ class AdminController
         $this->checkPermission('invoices/email');
 
         $data = $this->getRequestData();
-        $invMdl = new WposTransactions($data);
+        $invMdl = new Transactions($data);
         $this->result = $invMdl->emailInvoice($this->result);
         return $this->returnResult();
     }
@@ -955,7 +957,7 @@ class AdminController
         $this->checkPermission('invoices/items/add');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->addItem($this->result);
         return $this->returnResult();
     }
@@ -966,7 +968,7 @@ class AdminController
         $this->checkPermission('invoices/items/edit');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->updateItem($this->result);
         return $this->returnResult();
     }
@@ -977,7 +979,7 @@ class AdminController
         $this->checkPermission('invoices/items/delete');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->removeItem($this->result);
         return $this->returnResult();
     }
@@ -989,7 +991,7 @@ class AdminController
         $this->checkPermission('invoices/payments/add');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->addPayment($this->result);
         return $this->returnResult();
     }
@@ -1000,7 +1002,7 @@ class AdminController
         $this->checkPermission('invoices/payments/edit');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->updatePayment($this->result);
         return $this->returnResult();
     }
@@ -1011,7 +1013,7 @@ class AdminController
         $this->checkPermission('invoices/payments/delete');
 
         $data = $this->getRequestData();
-        $invMdl = new WposInvoices($data);
+        $invMdl = new Invoices($data);
         $this->result = $invMdl->removePayment($this->result);
         return $this->returnResult();
     }
@@ -1023,7 +1025,7 @@ class AdminController
         $this->checkPermission('tax/rules/add');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->addTaxRule($this->result);
         return $this->returnResult();
     }
@@ -1034,7 +1036,7 @@ class AdminController
         $this->checkPermission('tax/rules/edit');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->updateTaxRule($this->result);
         return $this->returnResult();
     }
@@ -1045,7 +1047,7 @@ class AdminController
         $this->checkPermission('tax/rules/delete');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->deleteTaxRule($this->result);
         return $this->returnResult();
     }
@@ -1056,7 +1058,7 @@ class AdminController
         $this->checkPermission('tax/items/add');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->addTaxItem($this->result);
         return $this->returnResult();
     }
@@ -1067,7 +1069,7 @@ class AdminController
         $this->checkPermission('tax/items/edit');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->updateTaxItem($this->result);
         return $this->returnResult();
     }
@@ -1078,7 +1080,7 @@ class AdminController
         $this->checkPermission('tax/items/delete');
 
         $data = $this->getRequestData();
-        $tax = new WposAdminItems($data);
+        $tax = new AdminItems($data);
         $this->result = $tax->deleteTaxItem($this->result);
         return $this->returnResult();
     }
@@ -1089,7 +1091,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('node/status');
 
-        $Sserver = new WposSocketControl();
+        $Sserver = new SocketControl();
         $this->result = $Sserver->isServerRunning($this->result);
         return $this->returnResult();
     }
@@ -1099,7 +1101,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('node/start');
 
-        $Sserver = new WposSocketControl();
+        $Sserver = new SocketControl();
         $this->result = $Sserver->startSocketServer($this->result);
         return $this->returnResult();
     }
@@ -1109,7 +1111,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('node/stop');
 
-        $Sserver = new WposSocketControl();
+        $Sserver = new SocketControl();
         $this->result = $Sserver->stopSocketServer($this->result);
         return $this->returnResult();
     }
@@ -1119,7 +1121,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('node/restart');
 
-        $Sserver = new WposSocketControl();
+        $Sserver = new SocketControl();
         $this->result = $Sserver->restartSocketServer($this->result);
         return $this->returnResult();
     }
@@ -1150,7 +1152,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('db/backup');
 
-        $util = new WposAdminUtilities();
+        $util = new AdminUtilities();
         $util->backUpDatabase();
     }
 
@@ -1161,7 +1163,7 @@ class AdminController
         $this->checkPermission('message/send');
 
         $data = $this->getRequestData();
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         if ($data->device === null) {
             if (($error = $socket->sendMessageToDevices(null, $data->message)) !== true) {
                 $this->result['error'] = $error;
@@ -1184,7 +1186,7 @@ class AdminController
         $this->checkPermission('device/reset');
 
         $data = $this->getRequestData();
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         if ($data->device === null) {
             if (($error = $socket->sendResetCommand()) !== true) {
                 $this->result['error'] = $error;
@@ -1241,7 +1243,7 @@ class AdminController
         $this->checkAuthentication();
         $this->checkPermission('templates/get');
 
-        $this->result = WposTemplates::getTemplates($this->result);
+        $this->result = Templates::getTemplates($this->result);
         return $this->returnResult();
     }
 
@@ -1251,7 +1253,7 @@ class AdminController
         $this->checkPermission('templates/edit');
 
         $data = $this->getRequestData();
-        $templatesObj = new WposTemplates($data);
+        $templatesObj = new Templates($data);
         $this->result = $templatesObj->editTemplate($this->result);
         return $this->returnResult();
     }
@@ -1263,9 +1265,9 @@ class AdminController
 
         $data = $this->getRequestData();
         if (isset($data->filename)) {
-            WposTemplates::restoreDefaults($data->filename);
+            Templates::restoreDefaults($data->filename);
         } else {
-            WposTemplates::restoreDefaults();
+            Templates::restoreDefaults();
         }
         return $this->returnResult();
     }

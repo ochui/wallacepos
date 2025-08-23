@@ -1,39 +1,23 @@
 <?php
 
-namespace App\Utility;
-
-use App\Database\DbConfig;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminUtilities;
-use App\Controllers\Invoice\WposTemplates;
-use App\Communication\WposSocketIO;
-use App\Database\AuthModel;
-use App\Database\SaleItemsModel;
-use App\Auth;
-use App\Communication\WposSocketControl;
-
 /**
- * DbUpdater is part of Wallace Point of Sale system (WPOS) API
  *
  * DbUpdater handles incremental upgrades of the database
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    App\Utility
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 14/12/13 07:46 PM
  */
+
+namespace App\Utility;
+
+use App\Database\DbConfig;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminUtilities;
+use App\Controllers\Invoice\Templates;
+use App\Communication\SocketIO;
+use App\Database\AuthModel;
+use App\Database\SaleItemsModel;
+use App\Auth;
+use App\Communication\SocketControl;
+
 class DbUpdater
 {
     private $db;
@@ -81,9 +65,9 @@ class DbUpdater
                     echo ("Setup variables processed.\n");
                 }
 
-                WposAdminSettings::putValue('general', 'version', $this->getLatestVersionName());
+                AdminSettings::putValue('general', 'version', $this->getLatestVersionName());
 
-                $socket = new WposSocketControl();
+                $socket = new SocketControl();
                 if (!$socket->isServerRunning())
                     $socket->startSocketServer();
             }
@@ -109,7 +93,7 @@ class DbUpdater
                 exec('cp -arn "' . $basePath . '/storage-template/." "' . $storagePath . '"');
             }
             exec('chmod -R 774 ' . $storagePath);
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->generateHashKey();
         }
     }
@@ -157,7 +141,7 @@ class DbUpdater
             }
         }
 
-        $settings = WposAdminSettings::getSettingsObject('general');
+        $settings = AdminSettings::getSettingsObject('general');
         $cur_version = $settings->version;
         if (!isset($cur_version) || $cur_version == "") {
             return "The database has not been installed, use the installer instead";
@@ -168,7 +152,7 @@ class DbUpdater
         }
 
         echo ("Backing up database...\n");
-        WposAdminUtilities::backUpDatabase(false);
+        AdminUtilities::backUpDatabase(false);
 
         $keys = array_keys(self::$versions);
         $cur_index = array_search($cur_version, $keys);
@@ -188,7 +172,7 @@ class DbUpdater
         }
 
         // Send reset request to all online terminals
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         $socket->sendResetCommand();
 
         return "Update completed";
@@ -241,7 +225,7 @@ class DbUpdater
                 }
             }
 
-            WposAdminSettings::putValue('general', 'version', $versionInfo['name']);
+            AdminSettings::putValue('general', 'version', $versionInfo['name']);
 
             return true;
         } catch (\Exception $e) {
@@ -252,18 +236,18 @@ class DbUpdater
     private function upgradeVersion1_4_1()
     {
         // set print id setting
-        WposAdminSettings::putValue('pos', 'recprintid', false);
-        $labels = WposAdminSettings::getSettingsObject('general')->altlabels;
+        AdminSettings::putValue('pos', 'recprintid', false);
+        $labels = AdminSettings::getSettingsObject('general')->altlabels;
         $labels->{"transaction-id"} = "Transaction ID";
-        WposAdminSettings::putValue('general', 'altlabels', $labels);
+        AdminSettings::putValue('general', 'altlabels', $labels);
         return true;
     }
 
     private function upgradeVersion1_4_2()
     {
         // set tax setting
-        WposAdminSettings::putValue('pos', 'taxedit', 'no');
-        WposAdminSettings::putValue('pos', 'recprintdesc', false);
+        AdminSettings::putValue('pos', 'taxedit', 'no');
+        AdminSettings::putValue('pos', 'recprintdesc', false);
         return true;
     }
 
@@ -290,7 +274,7 @@ class DbUpdater
 
     private function upgradeVersion1_4_0()
     {
-        WposAdminSettings::putValue('pos', 'negative_items', false);
+        AdminSettings::putValue('pos', 'negative_items', false);
         // copy .htaccess if needed
         $basePath = base_path();
         $storagePath = storage_path();
@@ -298,24 +282,24 @@ class DbUpdater
         if (!file_exists($storagePath . '/.htaccess')) {
             copy($basePath . '/storage-template/.htaccess', $storagePath . '/.htaccess');
         }
-        $socket = new WposSocketIO();
+        $socket = new SocketIO();
         $socket->generateHashKey();
     }
 
     private function upgradeVersion1_3()
     {
         // set default template values & copy templates
-        WposAdminSettings::putValue('pos', 'rectemplate', 'receipt');
-        WposAdminSettings::putValue('invoice', 'defaulttemplate', 'invoice');
+        AdminSettings::putValue('pos', 'rectemplate', 'receipt');
+        AdminSettings::putValue('invoice', 'defaulttemplate', 'invoice');
         if (!file_exists(storage_path('templates')))
             mkdir(storage_path('templates'));
-        WposTemplates::restoreDefaults();
+        Templates::restoreDefaults();
         // put alternate language values
         $labels = json_decode('{"cash":"Cash","credit":"Credit","eftpos":"Eftpos","cheque":"Cheque","deposit":"Deposit","tendered":"Tendered","change":"Change","transaction-ref":"Transaction Ref","sale-time":"Sale Time","subtotal":"Subtotal","total":"Total","item":"Item","items":"Items","refund":"Refund","void-transaction":"Void Transaction"}}');
-        WposAdminSettings::putValue('general', 'altlabels', $labels);
+        AdminSettings::putValue('general', 'altlabels', $labels);
         // set updated receipt currency symbol support values
-        WposAdminSettings::putValue('pos', 'reccurrency', '');
-        WposAdminSettings::putValue('pos', 'reccurrency_codepage', 0);
+        AdminSettings::putValue('pos', 'reccurrency', '');
+        AdminSettings::putValue('pos', 'reccurrency_codepage', 0);
 
         return true;
     }
@@ -427,7 +411,7 @@ class DbUpdater
             }
         }
 
-        WposAdminSettings::putValue('general', 'currencyformat', '$~2~.~,~0');
+        AdminSettings::putValue('general', 'currencyformat', '$~2~.~,~0');
 
         return true;
     }
@@ -458,9 +442,9 @@ class DbUpdater
             $this->db->update($sql, [":processdt" => $sale['processdt'], ":saleid" => $sale['id']]);
         }
         // update config, add google keys
-        WposAdminSettings::putValue('general', 'gcontact', 0);
-        WposAdminSettings::putValue('general', 'gcontacttoken', '');
-        WposAdminSettings::putValue('pos', 'priceedit', 'blank');
+        AdminSettings::putValue('general', 'gcontact', 0);
+        AdminSettings::putValue('general', 'gcontacttoken', '');
+        AdminSettings::putValue('pos', 'priceedit', 'blank');
         // copy new templates
         $basePath = base_path();
         $storagePath = storage_path();

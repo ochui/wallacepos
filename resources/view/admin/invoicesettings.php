@@ -77,7 +77,7 @@
 
     function saveSettings(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var data = {};
         $("form :input").each(function(){
             if ($(this).prop('id')=="defaultduedtnum" || $(this).prop('id')=="defaultduedtunit") {
@@ -90,16 +90,16 @@
         });
         data['payinst'] = $("#payinst").html();
         data['emailmsg'] = $("#emailmsg").html();
-        var result = WPOS.sendJsonData("settings/invoice/set", JSON.stringify(data));
+        var result = POSsendJsonData("settings/invoice/set", JSON.stringify(data));
         if (result !== false){
-            WPOS.setConfigSet('invoice', result);
+            POSsetConfigSet('invoice', result);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function loadSettings(){
-        options = WPOS.getJsonData("settings/invoice/get");
+        options = POSgetJsonData("settings/invoice/get");
         // load option values into the form
         for (var i in options){
             if (i=="defaultduedt"){
@@ -117,7 +117,7 @@
     }
 
     function refreshTemplateList(selectedid){
-        var templates = WPOS.getConfigTable()['templates'];
+        var templates = POSgetConfigTable()['templates'];
         var list = $("#defaulttemplate");
         list.html('');
         for (var i in templates){
@@ -132,7 +132,7 @@
     });
 
     function uploadLogo(event){
-        WPOS.uploadFile(event, function(data){
+        POSuploadFile(event, function(data){
             $("#bizlogo").val(data.path);
             $("#bizlogoprev").prop("src", data.path);
             saveSettings();
@@ -147,6 +147,6 @@
 
         loadSettings();
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     })
 </script>

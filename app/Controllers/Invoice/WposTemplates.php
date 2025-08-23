@@ -1,35 +1,20 @@
 <?php
 
+/**
+ *
+ * Templates provides functionality for mustache based templates, used for invoice & receipt generation.
+ * Additionally this class provides methods for managing and editing these templates
+ *
+ */
+
 namespace App\Controllers\Invoice;
 
 use Mustache_Engine;
-use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\AdminSettings;
 use App\Utility\JsonValidate;
 
-/**
- * WposTemplates is part of Wallace Point of Sale system (WPOS) API
- *
- * WposTemplates provides functionality for mustache based templates, used for invoice & receipt generation.
- * Additionally this class provides methods for managing and editing these templates
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 10/12/15 14:38 PM
- */
-class WposTemplates
+
+class Templates
 {
     /**
      * @var mixed
@@ -57,7 +42,7 @@ class WposTemplates
      */
     public static function getTemplates($result = ['error' => 'OK'])
     {
-        $templates = WposAdminSettings::getSettingsObject('templates');
+        $templates = AdminSettings::getSettingsObject('templates');
         if (!$templates) {
             $result['error'] = "Failed to load templates";
             return $result;
@@ -92,7 +77,7 @@ class WposTemplates
         assert(is_object($template));
         $template->name = $this->data->name;
         unset($template->template);
-        WposAdminSettings::putValue('templates', $this->data->id, $template);
+        AdminSettings::putValue('templates', $this->data->id, $template);
 
         if (!file_put_contents(storage_path("templates/" . $template->filename), $this->data->template)) {
             $result['error'] = "Error saving template file";
@@ -123,7 +108,7 @@ class WposTemplates
      */
     private function getTemplate($id)
     {
-        $templates = WposAdminSettings::getSettingsObject('templates');
+        $templates = AdminSettings::getSettingsObject('templates');
         if (isset($templates->{$id})) {
             $template = $templates->{$id};
             $template->template = $this->getTemplateData($template->filename);

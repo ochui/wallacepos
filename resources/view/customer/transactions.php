@@ -47,9 +47,9 @@ var datatable;
 
 $(function() {
     // get default data
-    var data = WPOS.getJsonData("transactions/get");
+    var data = POSgetJsonData("transactions/get");
     if (data===false) return;
-    WPOS.transactions.setTransactions(data);
+    POStransactions.setTransactions(data);
     var itemarray = [];
     for (var key in data){
         itemarray.push(data[key]);
@@ -62,18 +62,18 @@ $(function() {
                 { "mData":"id" },
                 { "mData":function(data, type, val){ return '<a class="reflabel" title="'+data.ref+'" href="">'+data.ref.split("-")[2]+'</a>'; } },
                 { "mData":"type" },
-                { "mData":function(data, type, val){return WPOS.util.getShortDate(data.processdt);} },
-                { "mData":function(data, type, val){return WPOS.util.getShortDate(data.duedt);} },
-                { "mData":function(data,type,val){return WPOS.currency()+data["total"];} },
-                { "mData":function(data,type,val){return WPOS.currency()+data["balance"];} },
-                { "mData":function(data,type,val){return WPOS.transactions.getTransactionStatus(data.ref, true);} },
-                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="WPOS.transactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a></div>', "bSortable": false }
+                { "mData":function(data, type, val){return POSutil.getShortDate(data.processdt);} },
+                { "mData":function(data, type, val){return POSutil.getShortDate(data.duedt);} },
+                { "mData":function(data,type,val){return POScurrency()+data["total"];} },
+                { "mData":function(data,type,val){return POScurrency()+data["balance"];} },
+                { "mData":function(data,type,val){return POStransactions.getTransactionStatus(data.ref, true);} },
+                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POStransactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a></div>', "bSortable": false }
             ] } );
     // insert table wrapper
     $(".dataTables_wrapper table").wrap("<div class='table_wrapper'></div>");
 
     // hide loader
-    WPOS.util.hideLoader();
+    POSutil.hideLoader();
 });
 
 </script>

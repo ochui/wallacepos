@@ -116,49 +116,49 @@
 </div>
 <script type="text/javascript">
     function restartNode(){
-        WPOS.util.confirm("Are you sure you want to restart the feed server?", function() {
+        POSutil.confirm("Are you sure you want to restart the feed server?", function() {
             doFeedServerRestart();
         });
     }
     function doFeedServerRestart(){
         // show loader
-        WPOS.util.showLoader();
-        var stat = WPOS.getJsonData("node/restart");
+        POSutil.showLoader();
+        var stat = POSgetJsonData("node/restart");
         if (stat==true){
             setUIStatus(true);
-            WPOS.notifications.success("Feed server successfully restarted!", "Server Restarted");
+            POSnotifications.success("Feed server successfully restarted!", "Server Restarted");
         } else {
             setUIStatus(false);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function stopNode(){
-        WPOS.util.confirm("Are you sure you want to stop the feed server?", function() {
+        POSutil.confirm("Are you sure you want to stop the feed server?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.getJsonData("node/stop")!==false){
+            POSutil.showLoader();
+            if (POSgetJsonData("node/stop")!==false){
                 setUIStatus(false);
             } else {
                 setUIStatus(true);
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
     function startNode(){
         // show loader
-        WPOS.util.showLoader();
-        if (WPOS.getJsonData("node/start")!==false){
+        POSutil.showLoader();
+        if (POSgetJsonData("node/start")!==false){
             setUIStatus(true);
         } else {
             setUIStatus(false);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function getNodeStatus(){
-        var result = WPOS.getJsonData("node/status");
+        var result = POSgetJsonData("node/status");
         if (result!==false){
             setUIStatus(result.status);
             return true;
@@ -194,7 +194,7 @@
     }
 
     function populateLogs(){
-        var logs = WPOS.getJsonData("logs/list");
+        var logs = POSgetJsonData("logs/list");
         if (logs!==false){
             $("#loglist").html('');
             for (var i in logs){
@@ -204,7 +204,7 @@
     }
 
     function viewLog(filename){
-        var log = WPOS.sendJsonData("logs/read", JSON.stringify({filename: filename}));
+        var log = POSsendJsonData("logs/read", JSON.stringify({filename: filename}));
         if (log!=false){
             log = log.replace(/\n/g, "<br/>");
             $("#logcontents").html(log);
@@ -217,35 +217,35 @@
     }
 
     function restoreTemplates(){
-        WPOS.util.confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.", function() {
-            WPOS.getJsonData('templates/restore');
+        POSutil.confirm("Are you sure you want to restore the default template files?\nThis will DESTROY all changes you have made to the default templates.", function() {
+            POSgetJsonData('templates/restore');
         });
     }
 
     function loadFeedSettings(){
-        var settings = WPOS.getConfigTable().general;
+        var settings = POSgetConfigTable().general;
         $("#feedserver_port").val((settings.hasOwnProperty('feedserver_port') ? settings.feedserver_port : 8080));
         $("#feedserver_proxy").prop("checked", (settings.hasOwnProperty('feedserver_proxy') && settings.feedserver_proxy));
     }
 
     function saveFeedSettings(){
-        WPOS.util.confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.", function() {
-            WPOS.util.showLoader();
+        POSutil.confirm("Are you sure you want to save the feed server settings?\nYou may need to restart devices for the settings to take effect.", function() {
+            POSutil.showLoader();
 
             var port = parseInt($("#feedserver_port").val());
             var proxy = $("#feedserver_proxy").prop("checked") == true;
 
-            var result = WPOS.sendJsonData("settings/general/set", JSON.stringify({
+            var result = POSsendJsonData("settings/general/set", JSON.stringify({
                 feedserver_port: port,
                 feedserver_proxy: proxy
             }));
             if (result !== false) {
-                WPOS.updateConfig('general~feedserver_port', port);
-                WPOS.updateConfig('general~feedserver_proxy', proxy);
+                POSupdateConfig('general~feedserver_port', port);
+                POSupdateConfig('general~feedserver_proxy', proxy);
                 doFeedServerRestart();
             }
 
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
@@ -272,7 +272,7 @@
             populateLogs();
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
 
 </script>

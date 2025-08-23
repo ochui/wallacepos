@@ -1,14 +1,21 @@
 <?php
 
+/**
+ *
+ * Sale is used to process orders, sales, refunds and void
+ * It additionally emails receipts and processes new and updated customer records
+ *
+ */
+
 namespace App\Controllers\Pos;
 
-use App\Controllers\Admin\WposAdminCustomers;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminStock;
-use App\Communication\WposSocketIO;
-use App\Controllers\Invoice\WposTemplateData;
-use App\Controllers\Invoice\WposTemplates;
-use App\Controllers\Transaction\WposTransactions;
+use App\Controllers\Admin\AdminCustomers;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminStock;
+use App\Communication\SocketIO;
+use App\Controllers\Invoice\TemplateData;
+use App\Controllers\Invoice\Templates;
+use App\Controllers\Transaction\Transactions;
 use App\Database\DevicesModel;
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;
@@ -16,31 +23,9 @@ use App\Database\SalesModel;
 use App\Database\SaleVoidsModel;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
-use App\Utility\WposMail;
+use App\Utility\Mail;
 
-/**
- * WposSale is part of Wallace Point of Sale system (WPOS) API
- *
- * WposSale is used to process orders, sales, refunds and void
- * It additionally emails receipts and processes new and updated customer records
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- */
-class WposPosSale
+class PosSale
 {
     /**
      * @var SalesModel
@@ -306,7 +291,7 @@ class WposPosSale
             $this->jsonobj->status = 1;
 
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $this->jsonobj->userid, "Created", "Sale created");
+            Transactions::addTransactionHistory($this->id, $this->jsonobj->userid, "Created", "Sale created");
             // log data
             Logger::write("Sale Processed with ref: " . $this->ref . " (ID:" . $this->id . ")", "SALE", json_encode($this->jsonobj));
         } else {
@@ -483,7 +468,7 @@ class WposPosSale
                         $saleItemsMdl->incrementQtyRefunded($this->id, $item->ref, $item->numreturned);
                     }
                     // Create transaction history record
-                    WposTransactions::addTransactionHistory($this->id, isset($_SESSION['userId']) ? $_SESSION['userId'] : 0, "Refunded", "Sale refunded");
+                    Transactions::addTransactionHistory($this->id, isset($_SESSION['userId']) ? $_SESSION['userId'] : 0, "Refunded", "Sale refunded");
                     // log data
                     Logger::write("Refund processed with ref: " . $this->ref . " (ID:" . $this->id . ")", "REFUND", json_encode($refund));
                 }
@@ -500,7 +485,7 @@ class WposPosSale
                 } else {
                     // return stock to original sale location
                     if (sizeof($this->jsonobj->items) > 0) {
-                        $wposStock = new WposAdminStock();
+                        $wposStock = new AdminStock();
                         foreach ($this->jsonobj->items as $item) {
                             if ($item->sitemid > 0) {
                                 $wposStock->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, false);
@@ -508,7 +493,7 @@ class WposPosSale
                         }
                     }
                     // Create transaction history record
-                    WposTransactions::addTransactionHistory($this->id, isset($_SESSION['userId']) ? $_SESSION['userId'] : 0, "Voided", "Sale voided");
+                    Transactions::addTransactionHistory($this->id, isset($_SESSION['userId']) ? $_SESSION['userId'] : 0, "Voided", "Sale voided");
                     // log data
                     Logger::write("Sale voided with ref: " . $this->ref . " (ID:" . $this->id . ")", "VOID", json_encode($this->voiddata));
                 }
@@ -526,7 +511,7 @@ class WposPosSale
     {
         $itemsMdl = new SaleItemsModel();
         //$stockMdl = new StockModel();
-        $wposStock = new WposAdminStock();
+        $wposStock = new AdminStock();
         foreach ($this->jsonobj->items as $key => $item) {
             // fix for offline sales not containing cost field and getting stuck
             if (!isset($item->cost)) $item->cost = 0.00;
@@ -594,14 +579,14 @@ class WposPosSale
             // if customer record (id) exists
             if ($this->jsonobj->custid > 0) {
 
-                if (WposAdminCustomers::updateCustomerData($this->custdata) === true) {
+                if (AdminCustomers::updateCustomerData($this->custdata) === true) {
                     unset($this->jsonobj->custdata); // unset customer data; we don't need to send this back
                     return true;
                 } else {
                     return false;
                 }
             } else {
-                $id = WposAdminCustomers::addCustomerData($this->custdata);
+                $id = AdminCustomers::addCustomerData($this->custdata);
                 if (is_numeric($id)) {
                     $this->jsonobj->custid = $id;
                     unset($this->jsonobj->custdata); // unset customer data; we don't need to send this back
@@ -625,8 +610,8 @@ class WposPosSale
      */
     private function broadcastSale($curdeviceid, $updatedsaleflag = false, $delete = false)
     {
-        $socket = new WposSocketIO();
-        $wposConfig = new WposAdminSettings();
+        $socket = new SocketIO();
+        $wposConfig = new AdminSettings();
         $config = $wposConfig->getSettingsObject("pos");
         $devices = [];
 
@@ -681,15 +666,15 @@ class WposPosSale
 
     private function emailReceipt($email)
     {
-        $tempMdl = new WposTemplates();
-        $config = new WposAdminSettings();
+        $tempMdl = new Templates();
+        $config = new AdminSettings();
         $recval = $config->getSettingsObject("pos");
         $genval = $config->getSettingsObject("general");
         // create the data class
-        $data = new WposTemplateData($this->jsonobj, ['general' => $genval, 'pos' => $recval]);
+        $data = new TemplateData($this->jsonobj, ['general' => $genval, 'pos' => $recval]);
         $html = $tempMdl->renderTemplate($recval->rectemplate, $data);
 
-        $wposMail = new WposMail($genval);
+        $wposMail = new Mail($genval);
 
         if (($mresult = $wposMail->sendHtmlEmail($email, 'Your ' . $genval->bizname . ' receipt', $html)) !== true) {
             return 'Failed to email receipt: ' . $mresult;

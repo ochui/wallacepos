@@ -68,7 +68,7 @@
     var suppliers = null;
     var datatable;
     $(function() {
-        suppliers = WPOS.getJsonData("suppliers/get");
+        suppliers = POSgetJsonData("suppliers/get");
         var suparray = [];
         var supitem;
         for (var key in suppliers){
@@ -187,7 +187,7 @@
             }
         });
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
     // updating records
     function openeditsupdialog(id){
@@ -198,13 +198,13 @@
     }
     function saveSupplier(isnewitem){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var item = {}, result;
         if (isnewitem){
             // adding a new supplier
             var name_field = $("#newsuppliername");
             item.name = name_field.val();
-            result = WPOS.sendJsonData("suppliers/add", JSON.stringify(item));
+            result = POSsendJsonData("suppliers/add", JSON.stringify(item));
             if (result!==false){
                 suppliers[result.id] = result;
                 reloadTable();
@@ -215,7 +215,7 @@
             // updating an item
             item.id = $("#supplierid").val();
             item.name = $("#suppliername").val();
-            result = WPOS.sendJsonData("suppliers/edit", JSON.stringify(item));
+            result = POSsendJsonData("suppliers/edit", JSON.stringify(item));
             if (result!==false){
                 suppliers[result.id] = result;
                 reloadTable();
@@ -223,41 +223,41 @@
             }
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function removeSupplier(id){
 
-        WPOS.util.confirm("Are you sure you want to delete this supplier?", function() {
+        POSutil.confirm("Are you sure you want to delete this supplier?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("suppliers/delete", '{"id":'+id+'}')){
+            POSutil.showLoader();
+            if (POSsendJsonData("suppliers/delete", '{"id":'+id+'}')){
                 delete suppliers[id];
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
     function removeSelectedSuppliers(){
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id });
 
-        WPOS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
+        POSutil.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("suppliers/delete", '{"id":"'+ids.join(",")+'"}')){
+            POSutil.showLoader();
+            if (POSsendJsonData("suppliers/delete", '{"id":"'+ids.join(",")+'"}')){
                 for (var i=0; i<ids.length; i++){
                     delete suppliers[ids[i]];
                 }
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
     function reloadData(){
-        suppliers = WPOS.getJsonData("suppliers/get");
+        suppliers = POSgetJsonData("suppliers/get");
         reloadTable();
     }
     function reloadTable(){

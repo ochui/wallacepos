@@ -333,19 +333,19 @@
         }
         // populate the fields
         $("#salenum").text(totals.salenum);
-        $("#saletotal").text(WPOS.util.currencyFormat(totals.saletotal));
+        $("#saletotal").text(POSutil.currencyFormat(totals.saletotal));
         $("#refundnum").text(totals.refundnum);
-        $("#refundtotal").text(WPOS.util.currencyFormat(totals.refundtotal));
+        $("#refundtotal").text(POSutil.currencyFormat(totals.refundtotal));
         $("#voidnum").text(totals.voidnum);
-        $("#voidtotal").text(WPOS.util.currencyFormat(totals.voidtotal));
-        $("#takings").text(WPOS.util.currencyFormat(totals.totaltakings, true));
-        $("#cost").text(WPOS.util.currencyFormat(totals.cost, true));
-        $("#profit").text(WPOS.util.currencyFormat(totals.profit, true));
+        $("#voidtotal").text(POSutil.currencyFormat(totals.voidtotal));
+        $("#takings").text(POSutil.currencyFormat(totals.totaltakings, true));
+        $("#cost").text(POSutil.currencyFormat(totals.cost, true));
+        $("#profit").text(POSutil.currencyFormat(totals.profit, true));
         // Set onclicks
-        $(".infobox-sales").on('click', function(){ WPOS.transactions.openTransactionList(totals.salerefs); });
-        $(".infobox-refunds").on('click', function(){ WPOS.transactions.openTransactionList(totals.refundrefs); });
-        $(".infobox-voids").on('click', function(){ WPOS.transactions.openTransactionList(totals.voidrefs); });
-        $(".infobox-takings").on('click', function(){ WPOS.transactions.openTransactionList(totals.refs); });
+        $(".infobox-sales").on('click', function(){ POStransactions.openTransactionList(totals.salerefs); });
+        $(".infobox-refunds").on('click', function(){ POStransactions.openTransactionList(totals.refundrefs); });
+        $(".infobox-voids").on('click', function(){ POStransactions.openTransactionList(totals.voidrefs); });
+        $(".infobox-takings").on('click', function(){ POStransactions.openTransactionList(totals.refs); });
         return true;
     }
     function loadPopularItems(items){
@@ -360,7 +360,7 @@
         sort.sort(function(a, b){ return b[1] - a[1]; });
 
         for (i=0; (i<6 && i<sort.length); i++){
-            $("#popularitems").append('<tr><td><b>'+items[sort[i][0]].name+'</b></td><td><b class="blue">'+items[sort[i][0]].soldqty+'</b></td><td><b class="green">'+WPOS.util.currencyFormat(items[sort[i][0]].soldtotal)+'</b></td></tr>');
+            $("#popularitems").append('<tr><td><b>'+items[sort[i][0]].name+'</b></td><td><b class="blue">'+items[sort[i][0]].soldqty+'</b></td><td><b class="green">'+POSutil.currencyFormat(items[sort[i][0]].soldtotal)+'</b></td></tr>');
         }
         return true;
     }
@@ -421,13 +421,13 @@
 
     function reloadPieChart(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var vals = getPieValues();
         // fetch the data
-        var data = WPOS.sendJsonData(vals[0], JSON.stringify({"stime":vals[1], "etime":vals[2], "totals":true}));
+        var data = POSsendJsonData(vals[0], JSON.stringify({"stime":vals[1], "etime":vals[2], "totals":true}));
         generatePieChart(data);
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function generatePieChart(data){
@@ -471,11 +471,11 @@
 
         var totals = data['Totals'];
         // Fill total fields
-        $("#piesaletotal").text(WPOS.util.currencyFormat(totals.saletotal));
+        $("#piesaletotal").text(POSutil.currencyFormat(totals.saletotal));
         $("#piesalenum").text(totals.salenum);
-        $("#pierefundtotal").text(WPOS.util.currencyFormat(totals.refundtotal));
+        $("#pierefundtotal").text(POSutil.currencyFormat(totals.refundtotal));
         $("#pierefundnum").text(totals.refundnum);
-        $("#piebalance").text(WPOS.util.currencyFormat(totals.totaltakings));
+        $("#piebalance").text(POSutil.currencyFormat(totals.totaltakings));
 
         return true;
     }
@@ -508,13 +508,13 @@
 
     function reloadGraph(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var vals = getTimeVals($("#grange").text());
         // fetch the data
-        var jdata = WPOS.sendJsonData("graph/general", JSON.stringify({"stime":vals[0], "etime":vals[1], "interval":86400000}));
+        var jdata = POSsendJsonData("graph/general", JSON.stringify({"stime":vals[0], "etime":vals[1], "interval":86400000}));
         drawGraph(jdata);
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     // Graph functions
@@ -597,9 +597,9 @@
                     previousPoint = item.seriesIndex;
                     var tip;
                     if (item.series['percent']!=null){
-                        tip = item.series['label'] + " : " + item.series['percent'].toFixed(2)+'% ('+ WPOS.util.currencyFormat(item.series['data'][0][1])+')';
+                        tip = item.series['label'] + " : " + item.series['percent'].toFixed(2)+'% ('+ POSutil.currencyFormat(item.series['data'][0][1])+')';
                     } else {
-                        tip = item.series['label'] + " : "+WPOS.util.currencyFormat(item.datapoint[1]);
+                        tip = item.series['label'] + " : "+POSutil.currencyFormat(item.datapoint[1]);
                     }
                     $tooltip.show().children(0).text(tip);
                 }
@@ -617,11 +617,11 @@
         };
         var clickpie = function(event, pos, item){
             if (item==null) return;
-            WPOS.transactions.openTransactionList(item.series['refs']);
+            POStransactions.openTransactionList(item.series['refs']);
         };
         var clickgraph = function(event, pos, item){
             if (item==null) return;
-            WPOS.transactions.openTransactionList(item.series['refs'][item.dataIndex]);
+            POStransactions.openTransactionList(item.series['refs'][item.dataIndex]);
         };
         // graph tooltips
         placeholder.on('plothover', tooltip);
@@ -638,7 +638,7 @@
         
         // Create parallel requests
         var itemsellingPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("stats/itemselling", JSON.stringify({"stime":tmonth[0], "etime":tmonth[1]}), function(data) {
+            POSsendJsonDataAsync("stats/itemselling", JSON.stringify({"stime":tmonth[0], "etime":tmonth[1]}), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch item selling stats"));
                 } else {
@@ -648,7 +648,7 @@
         });
         
         var generalStatsPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("stats/general", JSON.stringify({"stime":ttoday[0], "etime":ttoday[1]}), function(data) {
+            POSsendJsonDataAsync("stats/general", JSON.stringify({"stime":ttoday[0], "etime":ttoday[1]}), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch general stats"));
                 } else {
@@ -658,7 +658,7 @@
         });
         
         var graphPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("graph/general", JSON.stringify({"stime":gvals[0], "etime":gvals[1], "interval":86400000}), function(data) {
+            POSsendJsonDataAsync("graph/general", JSON.stringify({"stime":gvals[0], "etime":gvals[1], "interval":86400000}), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch graph data"));
                 } else {
@@ -668,7 +668,7 @@
         });
         
         var piePromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync(pvals[0], JSON.stringify({"stime":pvals[1], "etime":pvals[2], "totals":true}), function(data) {
+            POSsendJsonDataAsync(pvals[0], JSON.stringify({"stime":pvals[1], "etime":pvals[2], "totals":true}), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch pie chart data"));
                 } else {
@@ -692,11 +692,11 @@
             // load popular items
             loadPopularItems(itemsellingData);
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         }).catch(function(error) {
             console.error("Error loading data:", error);
-            WPOS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
-            WPOS.util.hideLoader();
+            POSnotifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
+            POSutil.hideLoader();
         });
     });
 

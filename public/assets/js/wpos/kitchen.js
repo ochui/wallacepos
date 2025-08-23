@@ -22,7 +22,7 @@
  */
 
 function WPOSKitchen() {
-    var WPOS = this;
+    var POS= this;
     var initialsetup = false;
     this.initApp = function () {
         // set cache default to true
@@ -31,11 +31,11 @@ function WPOSKitchen() {
         });
         // check online status to determine start & load procedure.
         if (checkOnlineStatus()) {
-            WPOS.checkCacheUpdate(); // check if application cache is updating or already updated
+            POScheckCacheUpdate(); // check if application cache is updating or already updated
         } else {
             // check approppriate offline records exist
             if (switchToOffline()) {
-                WPOS.initLogin();
+                POSinitLogin();
             }
         }
     };
@@ -49,7 +49,7 @@ function WPOSKitchen() {
         swManager.init({
             onCacheReady: function() {
                 console.log("Service Worker cache loaded for the first time, no need for reload.");
-                WPOS.initLogin();
+                POSinitLogin();
             },
             onUpdateAvailable: function() {
                 console.log("Service Worker update available, applying...");
@@ -70,18 +70,18 @@ function WPOSKitchen() {
             onError: function(error) {
                 console.error("Service Worker error:", error);
                 // Fallback to normal initialization if SW fails
-                WPOS.initLogin();
+                POSinitLogin();
             }
         }).then(function() {
             // If service worker is already active, proceed with login
             if (navigator.serviceWorker.controller) {
                 console.log("Service Worker already active");
-                WPOS.initLogin();
+                POSinitLogin();
             }
         }).catch(function(error) {
             console.error("Service Worker initialization failed:", error);
             // Fallback to normal initialization
-            WPOS.initLogin();
+            POSinitLogin();
         });
     };
     // Check for device UUID & present Login, initial setup is triggered if the device UUID is not present
@@ -89,7 +89,7 @@ function WPOSKitchen() {
         showLogin();
         if (getDeviceUUID() == null) {
             // The device has not been setup yet; User will have to login as an admin to setup the device.
-            WPOS.notifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
+            POSnotifications.warning("The device has not been setup yet, please login as an administrator to setup the device.", "Initial Setup Required");
             initialsetup = true;
             online = true;
             return false;
@@ -101,14 +101,14 @@ function WPOSKitchen() {
         // load keypad if set
         setKeypad(true);
         // load printer plugin
-        WPOS.print.loadPrintSettings();
+        POSprint.loadPrintSettings();
     };
     this.initKeypad = function(){
         setKeypad(false);
     };
     function setKeypad(setcheckbox){
         if (getLocalConfig().keypad == true ){
-            WPOS.util.initKeypad();
+            POSutil.initKeypad();
             if (setcheckbox)
                 $("#keypadset").prop("checked", true);
         } else {
@@ -128,11 +128,11 @@ function WPOSKitchen() {
                 onComplete: function(barcode){
                     // switch to sales tab
                     $("#wrapper").tabs( "option", "active", 0 );
-                    WPOS.items.addItemFromStockCode(barcode);
+                    POSitems.addItemFromStockCode(barcode);
                 }
             });
         }).error(function(){
-            WPOS.notifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
+            POSnotifications.error("Failed to load the scanning plugin.", "Scanner Plugin Error");
         });
     }
 
@@ -147,7 +147,7 @@ function WPOSKitchen() {
     }
 
     this.userLogin = function () {
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var loginbtn = $('#loginbutton');
         // disable login button
         $(loginbtn).prop('disabled', true);
@@ -159,7 +159,7 @@ function WPOSKitchen() {
         var username = userfield.val();
         var password = passfield.val();
         // hash password
-        password = WPOS.util.SHA256(password);
+        password = POSutil.SHA256(password);
         // authenticate
         if (authenticate(username, password) === true) {
             userfield.val('');
@@ -171,7 +171,7 @@ function WPOSKitchen() {
                 if (isUserAdmin()) {
                     initSetup();
                 } else {
-                    WPOS.notifications.error("You must login as an administrator for first time setup", "Admin Access Required");
+                    POSnotifications.error("You must login as an administrator for first time setup", "Admin Access Required");
                     showLogin();
                 }
             } else {
@@ -181,16 +181,16 @@ function WPOSKitchen() {
         passfield.val('');
         $(loginbtn).val('Login');
         $(loginbtn).prop('disabled', false);
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     };
 
     this.logout = function () {
-        WPOS.util.confirm("Are you sure you want to logout?", function() {
-            WPOS.util.showLoader();
+        POSutil.confirm("Are you sure you want to logout?", function() {
+            POSutil.showLoader();
             stopSocket();
-            WPOS.getJsonData("logout");
+            POSgetJsonData("logout");
             showLogin();
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     };
 
@@ -198,7 +198,7 @@ function WPOSKitchen() {
         // auth against server if online, offline table if not.
         if (online == true) {
             // send request to server
-            var response = WPOS.sendJsonData("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}));
+            var response = POSsendJsonData("auth", JSON.stringify({username: user, password: hashpass, getsessiontokens:true}));
             if (response !== false) {
                 // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
                 setCurrentUser(response);
@@ -214,7 +214,7 @@ function WPOSKitchen() {
 
     function sessionRenew(){
         // send request to server
-        var response = WPOS.sendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
+        var response = POSsendJsonData("authrenew", JSON.stringify({username:currentuser.username, auth_hash:currentuser.auth_hash}));
         if (response !== false) {
             // set current user will possibly get passed additional data from server in the future but for now just username and pass is enough
             setCurrentUser(response);
@@ -229,20 +229,20 @@ function WPOSKitchen() {
         if (localStorage.getItem("wpos_auth") !== null) {
             var jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
             if (jsonauth[username] === null || jsonauth[username] === undefined) {
-                WPOS.notifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
+                POSnotifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
                 return false;
             } else {
                 var authentry = jsonauth[username];
-                if (authentry.auth_hash == WPOS.util.SHA256(hashpass+authentry.token)) {
+                if (authentry.auth_hash == POSutil.SHA256(hashpass+authentry.token)) {
                     setCurrentUser(authentry);
                     return true;
                 } else {
-                    WPOS.notifications.error("Access denied!", "Authentication Failed");
+                    POSnotifications.error("Access denied!", "Authentication Failed");
                     return false;
                 }
             }
         } else {
-            WPOS.notifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
+            POSnotifications.error("We tried to authenticate you without an internet connection but there are currently no local credentials stored.", "Offline Authentication Failed");
             return false;
         }
     }
@@ -263,14 +263,14 @@ function WPOSKitchen() {
 
     // initiate the setup process
     this.deviceSetup = function () {
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var devid = $("#posdevices option:selected").val();
         var devname = $("#newposdevice").val();
         var locid = $("#poslocations option:selected").val();
         var locname = $("#newposlocation").val();
         // check input
         if ((devid == null && devname == null) || (locid == null && locname == null)) {
-            WPOS.notifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
+            POSnotifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
         } else {
             // call the setup function
             if (deviceSetup(devid, devname, locid, locname)) {
@@ -279,17 +279,17 @@ function WPOSKitchen() {
                 $("#setupdiv").dialog("close");
                 showLogin();
             } else {
-                WPOS.notifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
+                POSnotifications.error("There was a problem setting up the device, please try again.", "Device Setup Failed");
             }
         }
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     };
 
     function initSetup() {
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         // get pos locations and devices and populate select lists
-        var devices = WPOS.getJsonData("devices/get");
-        var locations = WPOS.getJsonData("locations/get");
+        var devices = POSgetJsonData("devices/get");
+        var locations = POSgetJsonData("locations/get");
 
         for (var i in devices) {
             if (devices[i].disabled==0 && devices[i].type=="kitchen_terminal"){ // only show kitchen devices which aren't disabled
@@ -301,7 +301,7 @@ function WPOSKitchen() {
                 $("#poslocations").append('<option value="' + locations[i].id + '">' + locations[i].name + '</option>');
             }
         }
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
         // show the setup dialog
         $("#setupdiv").dialog("open");
     }
@@ -360,10 +360,10 @@ function WPOSKitchen() {
                     }
                     // start websocket connection
                     startSocket();
-                    setStatusBar(1, "WPOS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+                    setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
                     initDataSuccess(loginloader);
                     // check for offline sales on login
-                    //setTimeout('if (WPOS.sales.getOfflineSalesNum()){ if (WPOS.sales.uploadOfflineRecords()){ WPOS.setStatusBar(1, "WPOS is online"); } }', 2000);
+                    //setTimeout('if (POSsales.getOfflineSalesNum()){ if (POSsales.uploadOfflineRecords()){ POSsetStatusBar(1, "POSis online"); } }', 2000);
                 });
                 break;
         }
@@ -375,7 +375,7 @@ function WPOSKitchen() {
         loadConfigTable();
         loadItemsTable();
         loadSalesTable();
-        WPOS.notifications.info("Your internet connection is not active and WPOS has started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available WPOS will process your transactions on the server.", "Offline Mode");
+        POSnotifications.info("Your internet connection is not active and POShas started in offline mode.\nSome features are not available in offline mode but you can always make sales and alter transactions that are locally available. \nWhen a connection becomes available POSwill process your transactions on the server.", "Offline Mode");
         initDataSuccess(loginloader);
     }
 
@@ -383,10 +383,10 @@ function WPOSKitchen() {
         if (loginloader){
             setLoadingBar(100, "Initializing the awesome...");
             $("title").text("WallacePOS - Your POS in the cloud");
-            WPOS.initPlugins();
+            POSinitPlugins();
             setTimeout('$("#modaldiv").hide();', 500);
         }
-        WPOS.kitchen.populateOrders();
+        POSkitchen.populateOrders();
     }
 
     function setLoadingBar(progress, status) {
@@ -510,13 +510,13 @@ function WPOSKitchen() {
         if (canDoOffline()==true) {
             // set js indicator: important
             online = false;
-            setStatusBar(3, "WPOS is Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
+            setStatusBar(3, "POSis Offline", "The POS is offine and will store sale data locally until a connection becomes available.", 0);
             // start online check routine
             checktimer = setInterval(doOnlineCheck, 60000);
             return true;
         } else {
             // display error notice
-            WPOS.notifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
+            POSnotifications.error("There was an error connecting to the webserver & files needed to run offline are not present :( \nPlease check your connection and try again.", "Connection Error");
             $("#modaldiv").show();
             ('#loginbutton').prop('disabled', true);
             setLoadingBar(100, "Error switching to offine mode");
@@ -533,13 +533,13 @@ function WPOSKitchen() {
 
     function switchToOnline() {
         // upload offline sales
-        //if (WPOS.sales.uploadOfflineRecords()){
+        //if (POSsales.uploadOfflineRecords()){
             // set js and ui indicators
             online = true;
             // load fresh data
             initData(false);
             // initData();
-        setStatusBar(1, "WPOS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+        setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         //}
     }
 
@@ -559,7 +559,7 @@ function WPOSKitchen() {
             if (response.status == "200") {
                 var json = $.parseJSON(response.responseText);
                 if (json == null) {
-                    WPOS.notifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
+                    POSnotifications.error("Error: The response that was returned from the server could not be parsed!", "Parse Error");
                     return false;
                 }
                 var errCode = json.errorCode;
@@ -567,31 +567,31 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
+                        POSnotifications.warning(json.warning, "Warning", {delay: 0});
                     }
                     return json.data;
                 } else {
                     if (errCode == "auth") {
                         if (sessionRenew()) {
                             // try again after authenticating
-                            return WPOS.sendJsonData(action, data);
+                            return POSsendJsonData(action, data);
                         } else {
                             //alert(err);
                             return false;
                         }
                     } else {
-                        WPOS.notifications.error(err, "Error", {delay: 0});
+                        POSnotifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
             } else {
                 switchToOffline();
-                WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
+                POSnotifications.error("There was an error connecting to the server: \n"+response.statusText+", \n switching to offline mode", "Connection Error");
                 return false;
             }
         } catch (ex) {
             switchToOffline();
-            WPOS.notifications.error("There was an error sending data, switching to offline mode", "Connection Error");
+            POSnotifications.error("There was an error sending data, switching to offline mode", "Connection Error");
             return false;
         }
     };
@@ -612,26 +612,26 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            WPOS.notifications.warning(json.warning, "Warning");
+                            POSnotifications.warning(json.warning, "Warning");
                         }
                         callback(json.data, callbackref);
                     } else {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                callback(WPOS.sendJsonData(action, data), callbackref);
+                                callback(POSsendJsonData(action, data), callbackref);
                             } else {
                                 //alert(err);
                                 callback(false, callbackref);
                             }
                         } else {
-                            WPOS.notifications.error(err, "Server Error");
+                            POSnotifications.error(err, "Server Error");
                             callback(false, callbackref);
                         }
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    WPOS.notifications.error(error, "Connection Error");
+                    POSnotifications.error(error, "Connection Error");
                     callback(false, callbackref);
                 }
             });
@@ -659,25 +659,25 @@ function WPOSKitchen() {
                 if (err == "OK") {
                     // echo warning if set
                     if (json.hasOwnProperty('warning')){
-                        WPOS.notifications.warning(json.warning, "Warning");
+                        POSnotifications.warning(json.warning, "Warning");
                     }
                     return json.data;
                 } else {
                     if (errCode == "auth") {
                         if (sessionRenew()) {
                             // try again after authenticating
-                            return WPOS.getJsonData(action);
+                            return POSgetJsonData(action);
                         } else {
                             //alert(err);
                             return false;
                         }
                     } else {
-                        WPOS.notifications.error(err, "Error", {delay: 0});
+                        POSnotifications.error(err, "Error", {delay: 0});
                         return false;
                     }
                 }
             } else {
-                WPOS.notifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
+                POSnotifications.error("There was an error connecting to the server: \n"+response.statusText, "Connection Error");
                 return false;
             }
         } catch (ex){
@@ -700,7 +700,7 @@ function WPOSKitchen() {
                     if (err == "OK") {
                         // echo warning if set
                         if (json.hasOwnProperty('warning')){
-                            WPOS.notifications.warning(json.warning, "Warning", {delay: 0});
+                            POSnotifications.warning(json.warning, "Warning", {delay: 0});
                         }
                         if (callback)
                             callback(json.data);
@@ -708,7 +708,7 @@ function WPOSKitchen() {
                         if (errCode == "auth") {
                             if (sessionRenew()) {
                                 // try again after authenticating
-                                var result = WPOS.sendJsonData(action, data);
+                                var result = POSsendJsonData(action, data);
                                 if (result){
                                     if (callback)
                                         callback(result);
@@ -716,19 +716,19 @@ function WPOSKitchen() {
                                 }
                             }
                         }
-                        WPOS.notifications.error(err, "Error", {delay: 0});
+                        POSnotifications.error(err, "Error", {delay: 0});
                         if (callback)
                             callback(false);
                     }
                 },
                 error   : function(jqXHR, status, error){
-                    WPOS.notifications.error(error, "Request Error", {delay: 0});
+                    POSnotifications.error(error, "Request Error", {delay: 0});
                     if (callback)
                         callback(false);
                 }
             });
         } catch (ex) {
-            WPOS.notifications.error("Exception: "+ex, "Exception", {delay: 0});
+            POSnotifications.error("Exception: "+ex, "Exception", {delay: 0});
             if (callback)
                 callback(false);
         }
@@ -767,7 +767,7 @@ function WPOSKitchen() {
     function fetchConfigTable(callback) {
         var data = {};
         data.uuid = getDeviceUUID();
-        return WPOS.sendJsonDataAsync("config/get", JSON.stringify(data), function(data){
+        return POSsendJsonDataAsync("config/get", JSON.stringify(data), function(data){
             if (data) {
                 console.log(data);
                 if (data.hasOwnProperty("remdev")){ // return false if dev is disabled
@@ -803,7 +803,7 @@ function WPOSKitchen() {
     }
 
     function setAppCustomization(){
-        var url = WPOS.getConfigTable().general.bizlogo;
+        var url = POSgetConfigTable().general.bizlogo;
         console.log(url);
         $("#watermark").css("background-image", "url('"+url+"')");
     }
@@ -876,7 +876,7 @@ function WPOSKitchen() {
         } else {
             data.locationid = locid;
         }
-        var configobj = WPOS.sendJsonData("devices/setup", JSON.stringify(data));
+        var configobj = POSsendJsonData("devices/setup", JSON.stringify(data));
         if (configobj) {
             localStorage.setItem("wpos_config", JSON.stringify(configobj));
             configtable = configobj;
@@ -908,7 +908,7 @@ function WPOSKitchen() {
         } else {
             // generate a md5 UUID using datestamp and rand for entropy and return the result
             var date = new Date().getTime();
-            uuid = WPOS.util.SHA256((date * Math.random()).toString());
+            uuid = POSutil.SHA256((date * Math.random()).toString());
             localStorage.setItem("wpos_kitchen_devuuid", uuid);
         }
         return uuid;
@@ -925,7 +925,7 @@ function WPOSKitchen() {
     };
 
     function fetchSalesTable(callback) {
-        return WPOS.sendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
+        return POSsendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
             if (data) {
                 salestable = data;
                 localStorage.setItem("wpos_csales", JSON.stringify(data));
@@ -969,7 +969,7 @@ function WPOSKitchen() {
 
     // fetches from server
     function fetchItemsTable(callback) {
-        return WPOS.getJsonDataAsync("items/get", function(data){
+        return POSgetJsonDataAsync("items/get", function(data){
             if (data) {
                 itemtable = data;
                 localStorage.setItem("wpos_items", JSON.stringify(data));
@@ -1006,8 +1006,8 @@ function WPOSKitchen() {
     var authretry = false;
     function startSocket(){
         if (socket==null){
-            var proxy = WPOS.getConfigTable().general.feedserver_proxy;
-            var port = WPOS.getConfigTable().general.feedserver_port;
+            var proxy = POSgetConfigTable().general.feedserver_proxy;
+            var port = POSgetConfigTable().general.feedserver_port;
             var socketPath = window.location.protocol+'//'+window.location.hostname+(proxy==false ? ':'+port : '');
             socket = io.connect(socketPath);
             socket.on('connection', onSocketConnect);
@@ -1025,7 +1025,7 @@ function WPOSKitchen() {
                     case "sale":
                         console.log("Sale data received:");
                         console.log(data.data);
-                        WPOS.kitchen.processOrder(data.data);
+                        POSkitchen.processOrder(data.data);
                         break;
 
                     case "config":
@@ -1037,7 +1037,7 @@ function WPOSKitchen() {
                         break;
 
                     case "msg":
-                        WPOS.notifications.info(data.data, "Message");
+                        POSnotifications.info(data.data, "Message");
                         break;
 
                     case "reset":
@@ -1048,14 +1048,14 @@ function WPOSKitchen() {
                         if (!authretry && data.data.hasOwnProperty('code') && data.data.code=="auth"){
                             authretry = true;
                             stopSocket();
-                            var result = WPOS.getJsonData('auth/websocket');
+                            var result = POSgetJsonData('auth/websocket');
                             if (result===true){
                                 startSocket();
                                 return;
                             }
                         }
 
-                        WPOS.notifications.error(data.data, "Error");
+                        POSnotifications.error(data.data, "Error");
                         break;
                 }
                 var statustypes = ['item', 'sale', 'customer', 'config'];
@@ -1073,13 +1073,13 @@ function WPOSKitchen() {
 
     function onSocketConnect(){
         socketon = true;
-        if (WPOS.isOnline() && defaultStatus.type != 1){
-            setStatusBar(1, "WPOS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+        if (POSisOnline() && defaultStatus.type != 1){
+            setStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
     function socketError(){
-        if (WPOS.isOnline())
+        if (POSisOnline())
             setStatusBar(5, "Update Feed Offline", "The POS is running in online mode.\nThe feed server is disconnected and this terminal will not receive realtime updates.", 0);
         socketon = false;
         authretry = false;
@@ -1148,7 +1148,7 @@ function WPOSKitchen() {
     }
     // TODO: On socket error, start a timer to reconnect
     // Contructor code
-    // load WPOS Objects
+    // load POSObjects
     this.print = new WPOSPrint(true); // kitchen mode
     this.trans = new WPOSTransactions();
     this.util = new WPOSUtil();
@@ -1161,7 +1161,7 @@ function WPOSKitchenMod(){
     var orderhistcontain = $("#orderhistcontainer");
     // populate orders in the UI
     this.populateOrders = function(){
-        var sales = WPOS.getSalesTable();
+        var sales = POSgetSalesTable();
         for (var ref in sales){
             var sale = sales[ref];
             if (sale.hasOwnProperty('orderdata'))
@@ -1182,7 +1182,7 @@ function WPOSKitchenMod(){
         var elem = $("#orderbox_template").clone().removeClass('hide').attr('id', 'order_box_'+saleobj.ref+'-'+order.id);
         elem.find('.orderbox_orderid').text(order.id);
         elem.find('.orderbox_saleref').text(saleobj.ref);
-        elem.find('.orderbox_orderdt').text(WPOS.util.getDateFromTimestamp(order.processdt));
+        elem.find('.orderbox_orderdt').text(POSutil.getDateFromTimestamp(order.processdt));
         var itemtbl = elem.find('.orderbox_items');
         for (var i in order.items){
             var item = saleobj.items[order.items[i]]; // the items object links the item id with it's index in the data
@@ -1190,7 +1190,7 @@ function WPOSKitchenMod(){
             if (item.hasOwnProperty('mod')){
                 for (var x=0; x<item.mod.items.length; x++){
                     var mod = item.mod.items[x];
-                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+WPOS.util.currencyFormat(mod.price)+')';
+                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POSutil.currencyFormat(mod.price)+')';
                 }
             }
             itemtbl.append('<tr><td style="width:10%;"><strong>'+item.qty+'</strong></td><td><strong>'+item.name+'</strong>'+modStr+'<br/></td></tr>');
@@ -1215,8 +1215,8 @@ function WPOSKitchenMod(){
         if (typeof data === "object") {
             ref = data.ref;
             // check for old data, if none available process as new orders
-            if (WPOS.getSalesTable().hasOwnProperty(ref)) {
-                olddata = WPOS.getSalesTable()[ref];
+            if (POSgetSalesTable().hasOwnProperty(ref)) {
+                olddata = POSgetSalesTable()[ref];
                 if (data.hasOwnProperty('orderdata')){
                     for (var i in data.orderdata){
                         if (olddata.orderdata.hasOwnProperty(i)){
@@ -1252,8 +1252,8 @@ function WPOSKitchenMod(){
         } else {
             ref = data;
             // process removed orders if they exists in the system
-            if (WPOS.getSalesTable().hasOwnProperty(ref)){
-                olddata = WPOS.getSalesTable()[ref];
+            if (POSgetSalesTable().hasOwnProperty(ref)){
+                olddata = POSgetSalesTable()[ref];
                 if (olddata.hasOwnProperty('orderdata'))
                     for (var d in olddata.orderdata){
                         processDeletedOrder(olddata, d);
@@ -1262,18 +1262,18 @@ function WPOSKitchenMod(){
             }
         }
         // save new sales data
-        WPOS.updateSalesTable(data);
+        POSupdateSalesTable(data);
 
         if (modcount)
-            WPOS.sendAcknowledgement(deviceid, ref);
+            POSsendAcknowledgement(deviceid, ref);
     };
 
     this.onPrintButtonClick = function(element){
         var ref = $(element).parent().find('.orderbox_saleref').text();
         var ordernum = $(element).parent().find('.orderbox_orderid').text();
-        var data = WPOS.getSalesTable()[ref];
+        var data = POSgetSalesTable()[ref];
         if (data)
-            WPOS.print.printOrderTicket("orders", data, ordernum);
+            POSprint.printOrderTicket("orders", data, ordernum);
 
         console.log(data);
     };
@@ -1283,14 +1283,14 @@ function WPOSKitchenMod(){
         var order = saleobj.orderdata[orderid];
         insertOrder(saleobj, orderid);
         playChime();
-        switch (WPOS.getLocalConfig().printing.recask) {
+        switch (POSgetLocalConfig().printing.recask) {
             case "ask":
-                WPOS.util.confirm("Print order ticket?", function() {
-                    WPOS.print.printOrderTicket("orders", saleobj, orderid, null);
+                POSutil.confirm("Print order ticket?", function() {
+                    POSprint.printOrderTicket("orders", saleobj, orderid, null);
                 });
                 break;
             case "print":
-                WPOS.print.printOrderTicket("orders", saleobj, orderid, null);
+                POSprint.printOrderTicket("orders", saleobj, orderid, null);
         }
     }
 
@@ -1298,17 +1298,17 @@ function WPOSKitchenMod(){
         console.log("Processed updated order "+saleobj.ref+" "+orderid);
         var order = saleobj.orderdata[orderid];
         // remove old record that may be present
-        WPOS.kitchen.removeOrder(saleobj.ref, orderid);
+        POSkitchen.removeOrder(saleobj.ref, orderid);
         insertOrder(saleobj, order.id);
         playChime();
-        switch (WPOS.getLocalConfig().printing.recask) {
+        switch (POSgetLocalConfig().printing.recask) {
             case "ask":
-                WPOS.util.confirm("Print order ticket?", function() {
-                    WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
+                POSutil.confirm("Print order ticket?", function() {
+                    POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
                 });
                 break;
             case "print":
-                WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
+                POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER UPDATED");
         }
     }
 
@@ -1316,16 +1316,16 @@ function WPOSKitchenMod(){
         console.log("Processed deleted order "+saleobj.ref+" "+orderid);
         var order = saleobj.orderdata[orderid];
         // remove old record that may be present
-        WPOS.kitchen.moveOrderToHistory(saleobj.ref, orderid);
+        POSkitchen.moveOrderToHistory(saleobj.ref, orderid);
         playChime();
-        switch (WPOS.getLocalConfig().printing.recask) {
+        switch (POSgetLocalConfig().printing.recask) {
             case "ask":
-                WPOS.util.confirm("Print order ticket?", function() {
-                    WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
+                POSutil.confirm("Print order ticket?", function() {
+                    POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
                 });
                 break;
             case "print":
-                WPOS.print.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
+                POSprint.printOrderTicket("orders", saleobj, orderid, "ORDER CANCELLED");
         }
     }
 
@@ -1336,12 +1336,12 @@ function WPOSKitchenMod(){
 
     return this;
 }
-var WPOS;
+var POS;
 $(function () {
     // initiate core object
-    WPOS = new WPOSKitchen();
+    POS= new WPOSKitchen();
     // initiate startup routine
-    WPOS.initApp();
+    POSinitApp();
 
     $("#wrapper").tabs();
 
@@ -1400,6 +1400,6 @@ $(function () {
 
     // dev/demo quick login
     if (document.location.host=="demo.wallacepos.com" || document.location.host=="alpha.wallacepos.com"){
-        $("#logindiv").append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); WPOS.userLogin();">Demo Login</button>');
+        $("#logindiv").append('<button class="btn btn-primary btn-sm" onclick="$(\'#username\').val(\'admin\');$(\'#password\').val(\'admin\'); POSuserLogin();">Demo Login</button>');
     }
 });

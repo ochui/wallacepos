@@ -1,34 +1,19 @@
 <?php
 
+/**
+ *
+ * TemplateData formats & provides data to render mustache receipt and invoice templates
+ *
+ */
+
 namespace App\Controllers\Invoice;
 
 use Mustache_LambdaHelper;
-use App\Controllers\Admin\WposAdminCustomers;
-use App\Controllers\Admin\WposAdminUtilities;
+use App\Controllers\Admin\AdminCustomers;
+use App\Controllers\Admin\AdminUtilities;
 
-/**
- * WposTemplateData is part of Wallace Point of Sale system (WPOS) API
- *
- * WposTemplateData formats & provides data to render mustache receipt and invoice templates
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 10/12/15 14:38 PM
- */
-class WposTemplateData
+
+class TemplateData
 {
 
     public $ref;
@@ -90,7 +75,7 @@ class WposTemplateData
     {
         $taxArr = [];
         if (!isset($this->taxitems))
-            $this->taxitems = WposAdminUtilities::getTaxTable()['items'];
+            $this->taxitems = AdminUtilities::getTaxTable()['items'];
 
         foreach ($taxdata as $key => $value) {
             $tax = $this->taxitems[$key];
@@ -109,9 +94,9 @@ class WposTemplateData
      * @param array $config
      * @param bool $invoice
      */
-    public function WposTemplateData($data, $config = [], $invoice = false)
+    public function TemplateData($data, $config = [], $invoice = false)
     {
-        $this->Utils = new WposAdminUtilities();
+        $this->Utils = new AdminUtilities();
         $this->Utils->setCurrencyFormat($config['general']->currencyformat);
 
         $this->sale_id = $data->id;
@@ -183,7 +168,7 @@ class WposTemplateData
             $this->invoice_paid = $data->total - $data->balance;
             $this->invoice_balance = $data->balance;
             if (isset($data->custid) && $data->custid > 0) {
-                $custMdl = new WposAdminCustomers();
+                $custMdl = new AdminCustomers();
                 $this->customer = $custMdl->getCustomerData($data->custid);
             }
             $this->payment_instructions = $config['invoice']->payinst;

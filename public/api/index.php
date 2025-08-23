@@ -1,10 +1,8 @@
 <?php
+
 /**
- * WallacePOS Main API Entry Point
+ * Main API Entry Point
  * 
- * This file implements the modern bootstrap pattern for API requests.
- * It replaces the legacy direct instantiation approach with proper
- * PSR-4 autoloading and dependency injection.
  */
 
 // Register the Composer autoloader...

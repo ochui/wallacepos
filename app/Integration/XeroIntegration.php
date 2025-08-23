@@ -1,32 +1,16 @@
 <?php
 
-namespace App\Integration;
-
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminStats;
-
 /**
- * XeroIntergration is part of Wallace Point of Sale system (WPOS) API
  *
  * XeroIntergration is used to provide wrapper functions for interacting with the Xero API
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       http://www.example.com/package/PackageName
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
  */
+
+namespace App\Integration;
+
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminStats;
+
 class XeroIntegration
 {
     private static $cosumer_key = "FTPU0FOJ8F2SP3BLDOYDPXWIBS0YCY";
@@ -72,7 +56,7 @@ class XeroIntegration
 
         // setup session tokens if they exist
         if ($addtoken) {
-            $xeroCfg = WposAdminSettings::getSettingsObject('accounting');
+            $xeroCfg = AdminSettings::getSettingsObject('accounting');
             $xeroApi->config['access_token'] = isset($xeroCfg->xerotoken->oauth_token) ? $xeroCfg->xerotoken->oauth_token : '';
             $xeroApi->config['access_token_secret'] = isset($xeroCfg->xerotoken->oauth_token_secret) ? $xeroCfg->xerotoken->oauth_token_secret : '';
         }
@@ -137,9 +121,9 @@ class XeroIntegration
     public static function removeXeroAuth()
     {
         // nullify access tokens
-        WposAdminSettings::putValue('accounting', 'xerotoken', '');
+        AdminSettings::putValue('accounting', 'xerotoken', '');
         // turn off intergration
-        WposAdminSettings::putValue('accounting', 'xeroenabled', 0);
+        AdminSettings::putValue('accounting', 'xeroenabled', 0);
     }
 
     /**
@@ -151,8 +135,8 @@ class XeroIntegration
         // add expiry
         $token['expiredt'] = time() + 1795; // -5 seconds for better user experience //TODO: change when partner xero app
         // set new access token in the config
-        WposAdminSettings::putValue('accounting', 'xerotoken', $token);
-        WposAdminSettings::putValue('accounting', 'xeroenabled', 1);
+        AdminSettings::putValue('accounting', 'xerotoken', $token);
+        AdminSettings::putValue('accounting', 'xeroenabled', 1);
     }
 
     public static function getXeroAccounts($result)
@@ -235,7 +219,7 @@ class XeroIntegration
 
     private static function getXeroXml($stime, $etime)
     {
-        $Wstat = new WposAdminStats();
+        $Wstat = new AdminStats();
         $Wstat->setRange($stime, $etime);
         $Wstat->setType('sale');
         $taxStats = $Wstat->getTaxStats([]);
@@ -247,7 +231,7 @@ class XeroIntegration
             return "Could not generate export payment data " . $taxStats['error'];
         }
         // get account map
-        $accnmap = WposAdminSettings::getSettingsObject("accounting")->xeroaccnmap;
+        $accnmap = AdminSettings::getSettingsObject("accounting")->xeroaccnmap;
         if ($accnmap == '') {
             return "Xero integration setup not completed, please save account mappings first.";
         }

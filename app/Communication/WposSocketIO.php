@@ -1,36 +1,20 @@
 <?php
 
+/**
+ * 
+ * SocketIO is used to send data to the node.js socket.io (websocket) server
+ * It uses ElephantIO library to send the data
+ *
+ */
+
 namespace App\Communication;
 
 use ElephantIO\Client as Client;
 use ElephantIO\Engine\SocketIO\Version4X as Version4X;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminUtilities;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminUtilities;
 
-/**
- * WposSocketIO is part of Wallace Point of Sale system (WPOS) API
- *
- * WposSocketIO is used to send data to the node.js socket.io (websocket) server
- * It uses ElephantIO library to send the data
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    App\Communication
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 30/04/14 9:28 PM
- */
-class WposSocketIO
+class SocketIO
 {
 
     /**
@@ -47,7 +31,7 @@ class WposSocketIO
      */
     function __construct()
     {
-        $conf = WposAdminSettings::getConfigFileValues(true);
+        $conf = AdminSettings::getConfigFileValues(true);
         if (isset($conf->feedserver_key)) {
             $this->hashkey = $conf->feedserver_key;
         }
@@ -94,10 +78,10 @@ class WposSocketIO
      */
     public function generateHashKey()
     {
-        $key = hash('sha256', WposAdminUtilities::getToken(256));
-        WposAdminSettings::setConfigFileValue('feedserver_key', $key);
+        $key = hash('sha256', AdminUtilities::getToken(256));
+        AdminSettings::setConfigFileValue('feedserver_key', $key);
 
-        $socket = new WposSocketControl();
+        $socket = new SocketControl();
         if ($socket->isServerRunning())
             $this->sendData('hashkey', ['hashkey' => $this->hashkey, 'newhashkey' => $key]);
 

@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Controllers\Api;
-
-use App\Auth;
-use App\Controllers\Pos\WposPosSetup;
-use App\Controllers\Pos\WposPosData;
-use App\Controllers\Pos\WposPosSale;
-use App\Controllers\Transaction\WposTransactions;
-
 /**
  * POS API Controller
  * Handles POS-specific API endpoints
  */
+
+namespace App\Controllers\Api;
+
+use App\Auth;
+use App\Controllers\Pos\PosSetup;
+use App\Controllers\Pos\PosData;
+use App\Controllers\Pos\PosSale;
+use App\Controllers\Transaction\Transactions;
+
+
 class PosController
 {
     private $auth;
@@ -28,7 +30,7 @@ class PosController
     public function getConfig()
     {
         $data = $this->getRequestData();
-        $setup = new WposPosSetup($data);
+        $setup = new PosSetup($data);
         $this->result = $setup->getDeviceRecord($this->result);
         return $this->returnResult();
     }
@@ -38,7 +40,7 @@ class PosController
      */
     public function getItems()
     {
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getItems($this->result);
         return $this->returnResult();
     }
@@ -49,7 +51,7 @@ class PosController
     public function getSales()
     {
         $data = $this->getRequestData();
-        $jsondata = new WposPosData($data);
+        $jsondata = new PosData($data);
         $this->result = $jsondata->getSales($this->result);
         return $this->returnResult();
     }
@@ -59,7 +61,7 @@ class PosController
      */
     public function getTaxes()
     {
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getTaxes($this->result);
         return $this->returnResult();
     }
@@ -69,7 +71,7 @@ class PosController
      */
     public function getCustomers()
     {
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getCustomers($this->result);
         return $this->returnResult();
     }
@@ -79,7 +81,7 @@ class PosController
      */
     public function getDevices()
     {
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getPosDevices($this->result);
         return $this->returnResult();
     }
@@ -89,7 +91,7 @@ class PosController
      */
     public function getLocations()
     {
-        $jsondata = new WposPosData();
+        $jsondata = new PosData();
         $this->result = $jsondata->getPosLocations($this->result);
         return $this->returnResult();
     }
@@ -100,7 +102,7 @@ class PosController
     public function setOrder()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosSale($data);
+        $sale = new PosSale($data);
         $this->result = $sale->setOrder($this->result);
         return $this->returnResult();
     }
@@ -111,7 +113,7 @@ class PosController
     public function removeOrder()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosSale($data);
+        $sale = new PosSale($data);
         $this->result = $sale->removeOrder($this->result);
         return $this->returnResult();
     }
@@ -122,7 +124,7 @@ class PosController
     public function addSale()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosSale($data);
+        $sale = new PosSale($data);
         $this->result = $sale->insertTransaction($this->result);
         return $this->returnResult();
     }
@@ -133,7 +135,7 @@ class PosController
     public function voidSale()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosSale($data, false);
+        $sale = new PosSale($data, false);
         $this->result = $sale->insertVoid($this->result);
         return $this->returnResult();
     }
@@ -144,7 +146,7 @@ class PosController
     public function searchSales()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosData();
+        $sale = new PosData();
         if (isset($data)) {
             $this->result = $sale->searchSales($data, $this->result);
         }
@@ -157,7 +159,7 @@ class PosController
     public function updateSaleNotes()
     {
         $data = $this->getRequestData();
-        $sale = new WposPosSale($data, false);
+        $sale = new PosSale($data, false);
         $this->result = $sale->updateTransationNotes($this->result);
         return $this->returnResult();
     }
@@ -168,7 +170,7 @@ class PosController
     public function getTransaction()
     {
         $data = $this->getRequestData();
-        $trans = new WposTransactions($data);
+        $trans = new Transactions($data);
         $this->result = $trans->getTransaction($this->result);
         return $this->returnResult();
     }
@@ -201,9 +203,9 @@ class PosController
     private function returnResult()
     {
         if (($resstr = json_encode($this->result)) === false) {
-            echo(json_encode(["error" => "Failed to encode the response data into json"]));
+            echo (json_encode(["error" => "Failed to encode the response data into json"]));
         } else {
-            echo($resstr);
+            echo ($resstr);
         }
         die();
     }

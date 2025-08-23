@@ -3,18 +3,9 @@
 namespace App\Utility;
 
 /**
- * EventStream is part of Wallace Point of sales system API
  *
  * EventStream is used to output progress/result in HTML5 EventSource format
  *
- * LICENSE: WPOS is currently under development, all rights are reserved.
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014-2020 WallaceIT. (https://wallaceit.com.au)
- * @license    http://www.example.com/license   BSD License
- * @link       http://www.example.com/package/PackageName
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 11/10/14 12:51PM
  */
 class EventStream
 {

@@ -1,12 +1,18 @@
 <?php
 
+/**
+ *
+ * Transactions is used to administer transactions including deleting, voiding and retracting voids & refunds
+ *
+ */
+
 namespace App\Controllers\Transaction;
 
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminStock;
-use App\Controllers\Invoice\WposTemplateData;
-use App\Controllers\Invoice\WposTemplates;
-use App\Communication\WposSocketIO;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminStock;
+use App\Controllers\Invoice\TemplateData;
+use App\Controllers\Invoice\Templates;
+use App\Communication\SocketIO;
 use App\Database\TransactionsModel;
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;
@@ -15,32 +21,11 @@ use App\Database\SaleVoidsModel;
 use App\Database\TransHistModel;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
-use App\Utility\WposMail;
+use App\Utility\Mail;
 
-/**
- * WposTransactions is part of Wallace Point of Sale system (WPOS) API
- *
- * WposTransactions is used to administer transactions including deleting, voiding and retracting voids & refunds
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
 
-class WposTransactions
+
+class Transactions
 {
     // incoming data
     private $data;
@@ -170,7 +155,7 @@ class WposTransactions
         } else {
             $result['data'] = true;
             // broadcast the sale; supplying the id only indicates deletion
-            $socket = new WposSocketIO();
+            $socket = new SocketIO();
             $socket->sendSaleUpdate($this->data->id);
 
             // log data
@@ -248,7 +233,7 @@ class WposTransactions
         $voiddata = new \stdClass();
         $voiddata->processdt = time() * 1000; // convert to milliseconds
         $voiddata->userid = $_SESSION['userId'];
-        $voiddata->deviceid = 0; // id of zero corresponds to "admin dashboard", which is added into the JSON array sent to the client with WposSetup/getConfig
+        $voiddata->deviceid = 0; // id of zero corresponds to "admin dashboard", which is added into the JSON array sent to the client with Setup/getConfig
         $voiddata->locationid = 0;
         $voiddata->reason = $this->data->reason;
         // insert void record
@@ -264,7 +249,7 @@ class WposTransactions
                     $result['data'] = $data;
                     // return stock to original sale location
                     if (sizeof($data->items) > 0) {
-                        $wposStock = new WposAdminStock();
+                        $wposStock = new AdminStock();
                         foreach ($data->items as $item) {
                             if ($item->sitemid > 0) {
                                 $wposStock->incrementStockLevel($item->sitemid, $data->locid, $item->qty, false);
@@ -272,7 +257,7 @@ class WposTransactions
                         }
                     }
                     // Create transaction history record
-                    WposTransactions::addTransactionHistory($this->data->id, $_SESSION['userId'], "Voided", "Transaction Voided");
+                    Transactions::addTransactionHistory($this->data->id, $_SESSION['userId'], "Voided", "Transaction Voided");
                     // Success; log data
                     Logger::write("Sale voided with ref:" . $data->ref, "VOID");
                 }
@@ -354,7 +339,7 @@ class WposTransactions
                         $result['data'] = $jsondata;
                         // if sale has been unvoided, remove item stock from the location where created
                         if (($foundtype == 'void' && $status != 3) && sizeof($jsondata->items) > 0) {
-                            $wposStock = new WposAdminStock();
+                            $wposStock = new AdminStock();
                             foreach ($jsondata->items as $item) {
                                 if ($item->sitemid > 0) {
                                     $wposStock->incrementStockLevel($item->sitemid, $jsondata->locid, $item->qty, true);
@@ -362,7 +347,7 @@ class WposTransactions
                             }
                         }
                         // Create transaction history record
-                        WposTransactions::addTransactionHistory($this->data->id, $_SESSION['userId'], "Retract", "Transaction Void/Refund Retracted");
+                        Transactions::addTransactionHistory($this->data->id, $_SESSION['userId'], "Retract", "Transaction Void/Refund Retracted");
                         // Success; log data
                         Logger::write("Retracted void/refund from:" . $jsondata->ref, "RETRACT", json_encode($foundrecord));
                     }
@@ -430,13 +415,13 @@ class WposTransactions
         $cc = isset($this->data->cc) ? $this->data->cc : null;
         $bcc = isset($this->data->bcc) ? $this->data->bcc : null;
         // Constuct & send email
-        $email = new WposMail();
+        $email = new Mail();
         $emlresult = $email->sendHtmlEmail($this->data->to, $subject, $message, $cc, $bcc, $attachment);
         if ($emlresult !== true) {
             $result['error'] = $emlresult;
         } else {
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->trans->id, $_SESSION['userId'], "Emailed", "Invoice emailed to: " . $this->data->to . ($cc != null ? "," . $cc : "") . ($bcc != null ? "," . $bcc : ""));
+            Transactions::addTransactionHistory($this->trans->id, $_SESSION['userId'], "Emailed", "Invoice emailed to: " . $this->data->to . ($cc != null ? "," . $cc : "") . ($bcc != null ? "," . $bcc : ""));
         }
 
         return $result;
@@ -449,12 +434,12 @@ class WposTransactions
      */
     private function generateInvoiceHtml($template = "")
     {
-        $tempMdl = new WposTemplates();
-        $config = new WposAdminSettings();
+        $tempMdl = new Templates();
+        $config = new AdminSettings();
         $invval = $config->getSettingsObject("invoice");
         $genval = $config->getSettingsObject("general");
         // create the data class
-        $data = new WposTemplateData($this->trans, ['general' => $genval, 'invoice' => $invval], true);
+        $data = new TemplateData($this->trans, ['general' => $genval, 'invoice' => $invval], true);
         return $tempMdl->renderTemplate($template != "" ? $template : $invval->defaulttemplate, $data);
     }
 

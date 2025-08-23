@@ -1,34 +1,17 @@
 <?php
 
+/**
+ *
+ * AdminGraph generates graph plot data using the functions available in AdminStats
+ * It can plot using any function that provides stime/etime parameters
+ */
+
 namespace App\Controllers\Admin;
 
 use App\Utility\JsonValidate;
 
-/**
- * WposAdminGraph is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminGraph generates graph plot data using the functions available in WposAdminStats
- * It can plot using any function that provides stime/etime parameters
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
 
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 14/04/14 9:42 PM
- */
-class WposAdminGraph
+class AdminGraph
 {
     /**
      * @var mixed provided paramters decoded from JSON
@@ -63,7 +46,7 @@ class WposAdminGraph
             return $result;
         }
         // Initialize the stats object
-        $stats = new WposAdminStats(null);
+        $stats = new AdminStats(null);
         $graph = [];
         $serieslist = [];
         $interval = isset($this->data->interval) ? $this->data->interval : (86400000); // default interval is one day

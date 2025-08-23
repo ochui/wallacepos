@@ -4,8 +4,8 @@
 </div>
 <script>
     $(function(){
-       var name = WPOS.getUser().name;
-       $("#welcome").text('Hi '+name+', Welcome to your '+WPOS.getConfigTable().general.bizname+' Account.');
-       WPOS.util.hideLoader();
+       var name = POSgetUser().name;
+       $("#welcome").text('Hi '+name+', Welcome to your '+POSgetConfigTable().general.bizname+' Account.');
+       POSutil.hideLoader();
     });
 </script>

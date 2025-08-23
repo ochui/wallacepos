@@ -51,10 +51,10 @@
     // Generate report
     function generateReport(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var type = $("#reptype").val();
         // load the data
-        repdata = WPOS.sendJsonData(type, JSON.stringify({"stime":stime, "etime":etime, "type":$("#reptranstype").val()}));
+        repdata = POSsendJsonData(type, JSON.stringify({"stime":stime, "etime":etime, "type":$("#reptranstype").val()}));
         // populate the report using the correct function
         switch (type){
             case "stats/general":
@@ -88,7 +88,7 @@
                 populateTax();
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     // REPORT GEN FUNCTIONS
@@ -99,18 +99,18 @@
     function getCurrentReportHeader(heading){
         var timestamp = new Date();
         timestamp = timestamp.getTime();
-        return "<div id='#repheader' style='text-align: center; margin-bottom: 5px;'><h3>"+heading+"</h3><h5>"+WPOS.util.getDateFromTimestamp(timestamp)+"</h5>";
+        return "<div id='#repheader' style='text-align: center; margin-bottom: 5px;'><h3>"+heading+"</h3><h5>"+POSutil.getDateFromTimestamp(timestamp)+"</h5>";
     }
 
     function populateSummary(){
         var html = getReportHeader("Summary");
         html += "<table class='table table-stripped' style='width: 100%'><thead><tr><td></td><td># Sales</td><td>Total</td></tr></thead><tbody>";
-        html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+repdata.salerefs+'\');">Sales</a></td><td>'+repdata.salenum+'</td><td>'+WPOS.util.currencyFormat(repdata.saletotal)+'</td></tr>';
-        html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+repdata.refundrefs+'\');">Refunds</a></td><td>'+repdata.refundnum+'</td><td>'+WPOS.util.currencyFormat(repdata.refundtotal)+'</td></tr>';
-        html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+repdata.voidrefs+'\');">Voids</a></td><td>'+repdata.voidnum+'</td><td>'+WPOS.util.currencyFormat(repdata.voidtotal)+'</td></tr>';
-        html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+repdata.refs+'\');">Revenue</a></td><td>'+repdata.salenum+'</td><td>'+WPOS.util.currencyFormat(repdata.totaltakings)+'</td></tr>';
-        html += '<tr><td>Cost</td><td>'+repdata.salenum+'</td><td>'+WPOS.util.currencyFormat(repdata.cost)+'</td></tr>';
-        html += '<tr><td>Profit</td><td>'+repdata.salenum+'</td><td>'+WPOS.util.currencyFormat(repdata.profit)+'</td></tr>';
+        html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+repdata.salerefs+'\');">Sales</a></td><td>'+repdata.salenum+'</td><td>'+POSutil.currencyFormat(repdata.saletotal)+'</td></tr>';
+        html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+repdata.refundrefs+'\');">Refunds</a></td><td>'+repdata.refundnum+'</td><td>'+POSutil.currencyFormat(repdata.refundtotal)+'</td></tr>';
+        html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+repdata.voidrefs+'\');">Voids</a></td><td>'+repdata.voidnum+'</td><td>'+POSutil.currencyFormat(repdata.voidtotal)+'</td></tr>';
+        html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+repdata.refs+'\');">Revenue</a></td><td>'+repdata.salenum+'</td><td>'+POSutil.currencyFormat(repdata.totaltakings)+'</td></tr>';
+        html += '<tr><td>Cost</td><td>'+repdata.salenum+'</td><td>'+POSutil.currencyFormat(repdata.cost)+'</td></tr>';
+        html += '<tr><td>Profit</td><td>'+repdata.salenum+'</td><td>'+POSutil.currencyFormat(repdata.profit)+'</td></tr>';
         html += "</tbody></table>";
 
         $("#reportcontain").html(html);
@@ -122,7 +122,7 @@
         var rowdata;
         for (var i in repdata){
             rowdata = repdata[i];
-            html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refs+'\');">'+(rowdata.hasOwnProperty('name')?rowdata.name:i)+'</a></td><td>'+rowdata.salenum+'</td><td>'+WPOS.util.currencyFormat(rowdata.saletotal)+'</td><td><a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refundrefs+'\');">'+rowdata.refundnum+'</a></td><td>'+WPOS.util.currencyFormat(rowdata.refundtotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.balance)+'</td></tr>';
+            html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+rowdata.refs+'\');">'+(rowdata.hasOwnProperty('name')?rowdata.name:i)+'</a></td><td>'+rowdata.salenum+'</td><td>'+POSutil.currencyFormat(rowdata.saletotal)+'</td><td><a onclick="POStransactions.openTransactionList(\''+rowdata.refundrefs+'\');">'+rowdata.refundnum+'</a></td><td>'+POSutil.currencyFormat(rowdata.refundtotal)+'</td><td>'+POSutil.currencyFormat(rowdata.balance)+'</td></tr>';
         }
 
         html += "</tbody></table>";
@@ -136,7 +136,7 @@
         var rowdata;
         for (var i in repdata){
             rowdata = repdata[i];
-            html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.soldqty+'</td><td>'+WPOS.util.currencyFormat(rowdata.soldtotal)+'</td><td>'+rowdata.refundqty+'</td><td>'+WPOS.util.currencyFormat(rowdata.refundtotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.balance)+'</td></tr>';
+            html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.soldqty+'</td><td>'+POSutil.currencyFormat(rowdata.soldtotal)+'</td><td>'+rowdata.refundqty+'</td><td>'+POSutil.currencyFormat(rowdata.refundtotal)+'</td><td>'+POSutil.currencyFormat(rowdata.balance)+'</td></tr>';
         }
 
         html += "</tbody></table>";
@@ -150,7 +150,7 @@
         var rowdata;
         for (var i in repdata){
             rowdata = repdata[i];
-            html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.soldqty+'</td><td>'+WPOS.util.currencyFormat(rowdata.discounttotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.taxtotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.soldtotal)+'</td><td>'+rowdata.refundqty+'</td><td>'+WPOS.util.currencyFormat(rowdata.refundtotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.balance)+'</td></tr>';
+            html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.soldqty+'</td><td>'+POSutil.currencyFormat(rowdata.discounttotal)+'</td><td>'+POSutil.currencyFormat(rowdata.taxtotal)+'</td><td>'+POSutil.currencyFormat(rowdata.soldtotal)+'</td><td>'+rowdata.refundqty+'</td><td>'+POSutil.currencyFormat(rowdata.refundtotal)+'</td><td>'+POSutil.currencyFormat(rowdata.balance)+'</td></tr>';
         }
 
         html += "</tbody></table>";
@@ -165,14 +165,14 @@
         for (var i in repdata){
             if (i!=0){
                 rowdata = repdata[i];
-                html += '<tr><td><a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.qtyitems+'</td><td>'+WPOS.util.currencyFormat(rowdata.saletotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.saletax)+'</td><td>'+WPOS.util.currencyFormat(rowdata.refundtotal)+'</td><td>'+WPOS.util.currencyFormat(rowdata.refundtax)+'</td><td>'+WPOS.util.currencyFormat(rowdata.balance)+'</td></tr>';
+                html += '<tr><td><a onclick="POStransactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.name+'</a></td><td>'+rowdata.qtyitems+'</td><td>'+POSutil.currencyFormat(rowdata.saletotal)+'</td><td>'+POSutil.currencyFormat(rowdata.saletax)+'</td><td>'+POSutil.currencyFormat(rowdata.refundtotal)+'</td><td>'+POSutil.currencyFormat(rowdata.refundtax)+'</td><td>'+POSutil.currencyFormat(rowdata.balance)+'</td></tr>';
             }
         }
 
         html += "</tbody></table><br/>";
 
         rowdata = repdata[0];
-        html += '<p style="text-align: center;">Note: <a onclick="WPOS.transactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.qty+'</a> sales have been cash rounded to a total amount of '+WPOS.util.currencyFormat(rowdata.total)+'.<br/>Since tax is calculated on a per item level, rounding has not been included in the calculations above.<br/>Subtotals above have discounts applied.</p>';
+        html += '<p style="text-align: center;">Note: <a onclick="POStransactions.openTransactionList(\''+rowdata.refs+'\');">'+rowdata.qty+'</a> sales have been cash rounded to a total amount of '+POSutil.currencyFormat(rowdata.total)+'.<br/>Since tax is calculated on a per item level, rounding has not been included in the calculations above.<br/>Subtotals above have discounts applied.</p>';
 
         $("#reportcontain").html(html);
     }
@@ -194,15 +194,15 @@
     }
 
     function exportCurrentReport(){
-        var data  = WPOS.table2CSV($("#reportcontain"));
+        var data  = POStable2CSV($("#reportcontain"));
         var filename = $("#reportcontain div h3").text()+"-"+$("#reportcontain div h5").text();
         filename = filename.replace(" ", "");
-        WPOS.initSave(filename, data);
+        POSinitSave(filename, data);
     }
 
     function browserPrintHtml(html){
         var printw = window.open('', 'wpos report', 'height=800,width=650');
-        printw.document.write('<html><head><title>Wpos Report</title>');
+        printw.document.write('<html><head><title> Report</title>');
         printw.document.write('<link media="all" href="/assets/css/bootstrap.min.css" rel="stylesheet"/><link media="all" rel="stylesheet" href="/assets/css/font-awesome.min.css"/><link media="all" rel="stylesheet" href="/assets/css/ace-fonts.css"/><link media="all" rel="stylesheet" href="/assets/css/ace.min.css"/>');
         printw.document.write('</head><body style="background-color: #FFFFFF;">');
         printw.document.write(html);
@@ -239,6 +239,6 @@
         generateReport(); // generate initial report
 
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
 </script>

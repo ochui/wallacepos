@@ -1,38 +1,21 @@
 <?php
 
+/**
+ *
+ * AdminCustomers is used to modify administrative items including stored items, suppliers, customers and users.
+ *
+ */
+
 namespace App\Controllers\Admin;
 
-use App\Communication\WposSocketIO;
+use App\Communication\SocketIO;
 use App\Database\CustomerModel;
 use App\Integration\GoogleIntegration;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
-use App\Utility\WposMail;
+use App\Utility\Mail;
 
-/**
- * WposAdminCustomers is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminCustomers is used to modify administrative items including stored items, suppliers, customers and users.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    App\Admin
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
-
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 24/12/13 2:05 PM
- */
-class WposAdminCustomers
+class AdminCustomers
 {
     private $data;
 
@@ -79,7 +62,7 @@ class WposAdminCustomers
      */
     public static function addCustomerData($data)
     {
-        $settings = WposAdminSettings::getSettingsObject('general');
+        $settings = AdminSettings::getSettingsObject('general');
         $gid = '';
         if ($settings->gcontact == 1) {
             // add google
@@ -94,8 +77,8 @@ class WposAdminCustomers
             // get full customer record
             $data = self::getCustomerData($qresult);
             // broadcast to devices
-            $WposSocketIO = new WposSocketIO();
-            $WposSocketIO->sendCustomerUpdate($data);
+            $SocketIO = new SocketIO();
+            $SocketIO->sendCustomerUpdate($data);
             // log data
             Logger::write("Customer added with id:" . $qresult, "CUSTOMER", json_encode($data));
 
@@ -131,7 +114,7 @@ class WposAdminCustomers
      */
     public static function updateCustomerData($data)
     {
-        $settings = WposAdminSettings::getSettingsObject('general');
+        $settings = AdminSettings::getSettingsObject('general');
         $custMdl = new CustomerModel();
         $gid = null;
         if ($settings->gcontact == 1) {
@@ -155,8 +138,8 @@ class WposAdminCustomers
             // get full customer record
             $_data = self::getCustomerData($data->id);
             // broadcast to devices
-            $WposSocketIO = new WposSocketIO();
-            $WposSocketIO->sendCustomerUpdate($_data);
+            $SocketIO = new SocketIO();
+            $SocketIO->sendCustomerUpdate($_data);
             // log data
             Logger::write("Customer updated with id:" . $_data->id, "CUSTOMER", json_encode($_data));
 
@@ -225,8 +208,8 @@ class WposAdminCustomers
         } else {
             $result['data'] = $this->getCustomerData($this->data->customerid);
             // broadcast to devices
-            $WposSocketIO = new WposSocketIO();
-            $WposSocketIO->sendCustomerUpdate($result['data']);
+            $SocketIO = new SocketIO();
+            $SocketIO->sendCustomerUpdate($result['data']);
             // log data
             Logger::write("Contact added with id:" . $this->data->id . " to customer id: " . $this->data->customerid, "CUSTOMER", json_encode($this->data));
         }
@@ -252,8 +235,8 @@ class WposAdminCustomers
         } else {
             $result['data'] = $this->getCustomerData($this->data->customerid);;
             // broadcast to devices
-            $WposSocketIO = new WposSocketIO();
-            $WposSocketIO->sendCustomerUpdate($result['data']);
+            $SocketIO = new SocketIO();
+            $SocketIO->sendCustomerUpdate($result['data']);
             // log data
             Logger::write("Contact updated with id:" . $this->data->id, "CUSTOMER", json_encode($this->data));
         }
@@ -345,7 +328,7 @@ class WposAdminCustomers
             return $result;
         }
         // generate url
-        $token = WposAdminUtilities::getToken();
+        $token = AdminUtilities::getToken();
         $link = "https://" . $_SERVER['SERVER_NAME'] . "/myaccount/resetpassword.php?token=" . $token;
         // set token
         if ($custMdl->setAuthToken($this->data->id, $token) === false) {
@@ -353,7 +336,7 @@ class WposAdminCustomers
         }
         // send reset email
         $linkhtml = '<a href="' . $link . '">' . $link . '</a>';
-        $mailer = new WposMail();
+        $mailer = new Mail();
         if (($mres = $mailer->sendPredefinedMessage($customer['email'], 'reset_email', ['name' => $customer['name'], 'link' => $linkhtml])) !== true) {
             $result['error'] = $mres;
         }

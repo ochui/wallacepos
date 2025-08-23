@@ -1,40 +1,25 @@
 <?php
 
+/**
+ *
+ * CustomersAccess is used to modify administrative items including stored items, suppliers, customers and users.
+ *
+ */
+
 namespace App\Controllers\Customer;
 
-use App\Controllers\Admin\WposAdminCustomers;
-use App\Controllers\Admin\WposAdminSettings;
-use App\Controllers\Admin\WposAdminUtilities;
-use App\Controllers\Transaction\WposTransactions;
+use App\Controllers\Admin\AdminCustomers;
+use App\Controllers\Admin\AdminSettings;
+use App\Controllers\Admin\AdminUtilities;
+use App\Controllers\Transaction\Transactions;
 use App\Database\CustomerModel;
 use App\Database\TaxItemsModel;
 use App\Database\TransactionsModel;
 use App\Utility\JsonValidate;
-use App\Utility\WposMail;
+use App\Utility\Mail;
 
-/**
- * WposCustomersAccess is part of Wallace Point of Sale system (WPOS) API
- *
- * WposCustomersAccess is used to modify administrative items including stored items, suppliers, customers and users.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 24/12/13 2:05 PM
- */
-class WposCustomerAccess
+
+class CustomerAccess
 {
     private $data;
 
@@ -65,14 +50,14 @@ class WposCustomerAccess
             return $result;
         }
         // create customer, check for error ( this does email check)
-        $wposCust = new WposAdminCustomers();
+        $wposCust = new AdminCustomers();
         $res = $wposCust->addCustomerData($this->data);
         if (!is_numeric($res)) {
             $result['error'] = $res;
             return $result;
         }
         // set activation url with random hash as a token
-        $token = WposAdminUtilities::getToken();
+        $token = AdminUtilities::getToken();
         $link = "https://" . $_SERVER['SERVER_NAME'] . "/myaccount/activate.php?token=" . $token;
         // set token
         $custMdl = new CustomerModel();
@@ -81,7 +66,7 @@ class WposCustomerAccess
         }
         // send reset email
         $linkhtml = '<a href="' . $link . '">' . $link . '</a>';
-        $mailer = new WposMail();
+        $mailer = new Mail();
         if (($mres = $mailer->sendPredefinedMessage($this->data->email, 'register_email', ['name' => $this->data->name, 'link' => $linkhtml])) !== true) {
             $result['error'] = $mres;
         }
@@ -130,7 +115,7 @@ class WposCustomerAccess
         // run normal email password reset routine from admin functions
         $data = new \stdClass();
         $data->id = $customers[0]['id'];
-        $wAdminCust = new WposAdminCustomers($data);
+        $wAdminCust = new AdminCustomers($data);
         $result = $wAdminCust->sendResetEmail($result);
         return $result;
     }
@@ -165,7 +150,7 @@ class WposCustomerAccess
      */
     public function getSettings($result)
     {
-        $settings = WposAdminSettings::getSettingsObject('general');
+        $settings = AdminSettings::getSettingsObject('general');
         unset($settings->gcontacttoken);
         $taxMdl = new TaxItemsModel();
         $taxes = $taxMdl->get();
@@ -191,7 +176,7 @@ class WposCustomerAccess
             $result['error'] = "Customer ID not found in current session";
             return $result;
         }
-        $result['data'] = WposAdminCustomers::getCustomerData($_SESSION['cust_id']);
+        $result['data'] = AdminCustomers::getCustomerData($_SESSION['cust_id']);
         return $result;
     }
 
@@ -220,7 +205,7 @@ class WposCustomerAccess
         // set id
         $this->data->id = $_SESSION['cust_id'];
 
-        $dres = WposAdminCustomers::updateCustomerData($this->data);
+        $dres = AdminCustomers::updateCustomerData($this->data);
         if ($dres === false) {
             $result['error'] = "Failed to update customer details.";
         }
@@ -267,7 +252,7 @@ class WposCustomerAccess
         if (!isset($_SESSION['cust_id'])) {
             die("Customer ID not found in current session");
         }
-        $Wtrans = new WposTransactions(null, $id, true);
+        $Wtrans = new Transactions(null, $id, true);
         // check for customerId match
         if ($Wtrans->getCurrentTransaction()->custid !== $_SESSION['cust_id']) {
             die("You are not authorised to view this transaction");

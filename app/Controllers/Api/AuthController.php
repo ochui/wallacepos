@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Controllers\Api;
-
-use App\Auth;
-
 /**
  * API Authentication Controller
  * Handles authentication-related API endpoints
  */
+
+namespace App\Controllers\Api;
+
+use App\Auth;
+
 class AuthController
 {
     private $auth;
@@ -37,7 +38,7 @@ class AuthController
         }
 
         $authres = $this->auth->login($data->username, $data->password, isset($data->getsessiontokens));
-        
+
         switch ($authres) {
             case true:
                 $this->result['data'] = $this->auth->getUser();
@@ -79,7 +80,7 @@ class AuthController
         }
 
         $authres = $this->auth->renewTokenSession($data->username, $data->auth_hash);
-        
+
         switch ($authres) {
             case true:
                 $this->result['data'] = $this->auth->getUser();
@@ -149,7 +150,7 @@ class AuthController
         }
 
         $authres = $this->auth->customerLogin($data->username, $data->password);
-        
+
         if ($authres === true) {
             $this->result['data'] = $this->auth->getCustomer();
         } else if ($authres == -1) {
@@ -183,9 +184,9 @@ class AuthController
         } else {
             $this->result['data']->user = false;
         }
-        
+
         // Provide business info for customer interface
-        $conf = \App\Controllers\Admin\WposAdminSettings::getSettingsObject('general');
+        $conf = \App\Controllers\Admin\AdminSettings::getSettingsObject('general');
         $this->result['data']->bizname = $conf->bizname;
         $this->result['data']->bizlogo = $conf->bizlogo;
 
@@ -207,9 +208,9 @@ class AuthController
     private function returnResult()
     {
         if (($resstr = json_encode($this->result)) === false) {
-            echo(json_encode(["error" => "Failed to encode the response data into json"]));
+            echo (json_encode(["error" => "Failed to encode the response data into json"]));
         } else {
-            echo($resstr);
+            echo ($resstr);
         }
         die();
     }

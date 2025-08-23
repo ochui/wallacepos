@@ -1,13 +1,13 @@
 <?php
 
+/**
+ * Configuration management class provides Laravel-style configuration access
+ * 
+ */
+
 namespace App\Core;
 
-/**
- * Configuration management class for WallacePOS
- * 
- * Provides Laravel-style configuration access while maintaining
- * compatibility with legacy configuration methods.
- */
+
 class Config
 {
     private static $config = [];

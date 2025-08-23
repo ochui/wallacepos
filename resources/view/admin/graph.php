@@ -142,7 +142,7 @@
 
     function getData(action){
         // fetch the data
-        return WPOS.sendJsonData(action, JSON.stringify({"stime": stime, "etime": etime, "interval": $("#graphinterval").val()}));
+        return POSsendJsonData(action, JSON.stringify({"stime": stime, "etime": etime, "interval": $("#graphinterval").val()}));
     }
 
     function userLoadDataSet(){
@@ -159,11 +159,11 @@
                 break;
         }
         // hide loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
 
         loadDataSet(action, label, "balance");
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function loadDataSet(action, label, property){
@@ -223,7 +223,7 @@
 
     function setGraphRange() {
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         loadDefaultData();
         // clear data set list and readd the default for now
         // TODO: Reinitilize/reload the current datasets when changing range
@@ -234,7 +234,7 @@
         addUIRow('cost', "Cost");
         addUIRow('profit', "Profit");
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function drawChart() {
@@ -294,7 +294,7 @@
             if (item) {
                 if (previousPoint != item.seriesIndex) {
                     previousPoint = item.seriesIndex;
-                    var tip = item.series['label'] + " : " + WPOS.util.currencyFormat(item.datapoint[1]);
+                    var tip = item.series['label'] + " : " + POSutil.currencyFormat(item.datapoint[1]);
                     $tooltip.show().children(0).text(tip);
                 }
                 var left, right;
@@ -313,7 +313,7 @@
             if (item.series['refs'].length==0) return;
             var refs = item.series['refs'][item.dataIndex];
             if (refs == "") return;
-            WPOS.transactions.openTransactionList(refs);
+            POStransactions.openTransactionList(refs);
         };
         var chart = $('#plot-chart');
         chart.on('plothover', tooltip);
@@ -349,6 +349,6 @@
         loadDefaultData();
 
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
 </script>

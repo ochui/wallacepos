@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controllers;
-
 /**
  * ViewController handles serving template files for admin and customer interfaces
  */
+
+namespace App\Controllers;
+
 class ViewController
 {
     /**
@@ -22,21 +23,21 @@ class ViewController
 
         // Construct template path
         $templatePath = base_path("resources/view/{$section}/{$template}.php");
-        
+
         // Check if template exists
         if (!file_exists($templatePath)) {
             http_response_code(404);
             echo "Template not found: {$section}/{$template}";
             return;
         }
-        
+
         // Set appropriate headers
         header('Content-Type: text/html; charset=utf-8');
-        
+
         // Include the template file
         include $templatePath;
     }
-    
+
     /**
      * Handle admin content requests
      * 
@@ -47,7 +48,7 @@ class ViewController
     {
         $this->serveTemplate('admin', $template);
     }
-    
+
     /**
      * Handle customer content requests
      * 

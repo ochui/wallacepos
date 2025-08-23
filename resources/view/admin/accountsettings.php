@@ -226,7 +226,7 @@
 
     function saveSettings(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var data = {};
         data.xeroaccnmap = {};
         $("#accnsettings :input").each(function(){
@@ -243,16 +243,16 @@
 
         data['xeroenabled'] = $("#xeroenabled").is(":checked")?1:0;
         data['name'] = "accounting";
-        var result = WPOS.sendJsonData("settings/set", JSON.stringify(data));
+        var result = POSsendJsonData("settings/set", JSON.stringify(data));
         if (result !== false){
-            WPOS.setConfigSet('accounting', result);
+            POSsetConfigSet('accounting', result);
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function loadSettings(){
-        options = WPOS.sendJsonData("settings/get", JSON.stringify({name:"accounting"}));
+        options = POSsendJsonData("settings/get", JSON.stringify({name:"accounting"}));
         // load option values into the form
         for (var i in options){
             if (i!="xeroaccnmap"){
@@ -268,7 +268,7 @@
         if (options.xeroaval==1){
             $(".conxaccn").hide();
             $(".disxaccn").show();
-            var tax = WPOS.getTaxTable().items;
+            var tax = POSgetTaxTable().items;
             var taxtable = $("#taxmaptable");
             for (var i in tax){
                 taxtable.append('<tr><td>'+tax[i].name+'</td><td><select id="xeromap-tax-'+tax[i].id+'" class="width-100 xerotaxselect"></select></td></tr>');
@@ -283,7 +283,7 @@
         }
     }
     function getXeroAccountSelects(){
-        WPOS.sendJsonDataAsync("settings/xero/configvalues", '', populateXeroAccounts);
+        POSsendJsonDataAsync("settings/xero/configvalues", '', populateXeroAccounts);
     }
     function populateXeroAccounts(data){
         var sselect = $("#xeromap-sales");
@@ -319,25 +319,25 @@
             if (child.closed) {
                 // refresh the main panes content
                 clearInterval(timer);
-                WPOS.loadPageContent("");
+                POSloadPageContent("");
             }
         }
     }
     function removeXeroAuth(){
-        WPOS.util.confirm("Are you sure you want to remove the current Xero account & turn off integration?", function() {
+        POSutil.confirm("Are you sure you want to remove the current Xero account & turn off integration?", function() {
             // show loader
-            WPOS.util.showLoader();
-            var result = WPOS.getJsonData("settings/xero/oauthremove");
+            POSutil.showLoader();
+            var result = POSgetJsonData("settings/xero/oauthremove");
             if (result!==false){
-                WPOS.notifications.success("Xero account successfully disconnected.", "Xero Disconnected");
+                POSnotifications.success("Xero account successfully disconnected.", "Xero Disconnected");
                 options.xeroenabled=0;
                 options.xeroaval=0;
                 setXeroUI();
             } else {
-                WPOS.notifications.error("Xero account removal failed.", "Disconnection Failed", {delay: 0});
+                POSnotifications.error("Xero account removal failed.", "Disconnection Failed", {delay: 0});
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
@@ -408,7 +408,7 @@
         etime.setHours(23); etime.setMinutes(59); etime.setSeconds(59);
         etime = etime.getTime();
         if (etime<stime){
-            WPOS.notifications.warning("The start date cannot come before the end date", "Date Range Error");
+            POSnotifications.warning("The start date cannot come before the end date", "Date Range Error");
             return; // Added return to prevent further execution
         }
         // find out how many days
@@ -419,7 +419,7 @@
         var cetime = etime - ((days-1)*86400000);
         var error = false;
         while (cetime<=etime){
-            var result = WPOS.sendJsonData("settings/xero/export", JSON.stringify({"stime":stime,"etime":cetime}));
+            var result = POSsendJsonData("settings/xero/export", JSON.stringify({"stime":stime,"etime":cetime}));
             if (result==false){
                 error = true;
                 break;
@@ -445,7 +445,7 @@
     }
     // tax stuff
     var taxitemtable, taxruletable, rulearray, itemarray;
-    var taxtable = WPOS.getTaxTable();
+    var taxtable = POSgetTaxTable();
     function initTaxTables(){
         loadTaxRuleData();
         taxruletable = $('#tax-rule-table').dataTable(
@@ -455,7 +455,7 @@
                 "aoColumns": [
                     { "mData":"id" }, { "mData":"name" },
                     { "mData":function(data, type, val){ return data.inclusive?'<i class="icon-cogs green"></i>&nbsp;Inclusive':'<i class="icon-cogs red"></i>&nbsp;Exclusive' } },
-                    { "mData":function(data, type, val){ return data.hasOwnProperty('mode')?WPOS.util.capFirstLetter(data.mode):''; } },
+                    { "mData":function(data, type, val){ return data.hasOwnProperty('mode')?POSutil.capFirstLetter(data.mode):''; } },
                     { "mData":function(data, type, val){ if (data.id==1) return ""; else return '<div class="action-buttons" style="width: 40px;"><a class="green" onclick="openTaxRuleDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
                         '<a class="red" onclick="deleteTaxRule($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false }
                 ] } );
@@ -528,8 +528,8 @@
     }
     function insertTaxLocationRule(locid, taxid){
         var lochtml="";
-        for (var key in WPOS.locations){
-            lochtml+='<option value="'+WPOS.locations[key].id+'" '+(locid==WPOS.locations[key].id?'selected=selected':'')+'>'+WPOS.locations[key].name+'</option>';
+        for (var key in POSlocations){
+            lochtml+='<option value="'+POSlocations[key].id+'" '+(locid==POSlocations[key].id?'selected=selected':'')+'>'+POSlocations[key].name+'</option>';
         }
         $("#taxrulelocalstable").append("<tr><td><select class='taxlocals-locid'>"+lochtml+"</option></td>" +
                 "<td><select class='taxlocals-taxid'>"+getTaxSelectOptions(taxid)+'</option></td><td><div class="action-buttons text-right"><a class="red" onclick="$(this).closest(\'tr\').remove();"><i class="icon-trash bigger-130"></i></a></div></td></tr>');
@@ -583,7 +583,7 @@
         $("#edittaxitemdialog").dialog("open");
     }
     function saveTaxItem(){
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var item = {};
         item.name = $("#taxitemname").val();
         item.altname = $("#taxitemaltname").val();
@@ -593,50 +593,50 @@
         var result;
         if (id==0){
             // adding a new item
-            result = WPOS.sendJsonData("tax/items/add", JSON.stringify(item));
+            result = POSsendJsonData("tax/items/add", JSON.stringify(item));
             if (result){
                 taxtable.items[result.id] = result;
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxItemTable();
                 $("#edittaxitemdialog").dialog("close");
             }
         } else {
             // updating an item
             item.id = id;
-            result = WPOS.sendJsonData("tax/items/edit", JSON.stringify(item));
+            result = POSsendJsonData("tax/items/edit", JSON.stringify(item));
             if (result){
                 taxtable.items[result.id] = result;
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxItemTable();
                 $("#edittaxitemdialog").dialog("close");
             }
         }
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function deleteTaxItem(id){
         // check if it's being used in a rule
         id = parseInt(id);
         for (var i in taxtable.rules){
             if (taxtable.rules[i].base.indexOf(id)!==-1){
-                WPOS.notifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
+                POSnotifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
                 return;
             }
             for (var x in taxtable.rules[i].locations){
                 if (taxtable.rules[i].locations[x].indexOf(id)!==-1){
                     console.log(taxtable.rules[i].locations[x].indexOf(id));
-                    WPOS.notifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
+                    POSnotifications.warning("This tax item is being used in a rule, remove it from the rule first", "Tax Item In Use", {delay: 0});
                     return;
                 }
             }
         }
-        WPOS.util.confirm("Are you sure you want to delete this tax item?", function() {
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("tax/items/delete", '{"id":'+id+'}')){
+        POSutil.confirm("Are you sure you want to delete this tax item?", function() {
+            POSutil.showLoader();
+            if (POSsendJsonData("tax/items/delete", '{"id":'+id+'}')){
                 delete taxtable.items[id];
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxItemTable();
             }
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
     function openTaxRuleDialog(id){
@@ -665,7 +665,7 @@
         $("#edittaxruledialog").dialog("open");
     }
     function saveTaxRule(){
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var rule = {};
         rule.name = $("#taxrulename").val();
         rule.inclusive = $("#taxruleinc").is(":checked");
@@ -686,41 +686,41 @@
         var result;
         if (id==0){
             // adding a new item
-            result = WPOS.sendJsonData("tax/rules/add", JSON.stringify(rule));
+            result = POSsendJsonData("tax/rules/add", JSON.stringify(rule));
             if (result){
                 taxtable.rules[result.id] = result;
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxRuleTable();
                 $("#edittaxruledialog").dialog("close");
             }
         } else {
             // updating an item
             rule.id = id;
-            result = WPOS.sendJsonData("tax/rules/edit", JSON.stringify(rule));
+            result = POSsendJsonData("tax/rules/edit", JSON.stringify(rule));
             if (result){
                 taxtable.rules[result.id] = result;
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxRuleTable();
                 $("#edittaxruledialog").dialog("close");
             }
         }
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function deleteTaxRule(id){
-        WPOS.util.confirm("Are you sure you want to delete this tax rule?\nIf the rule is applied to stored items, this tax will no longer apply.", function() {
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("tax/rules/delete", '{"id":'+id+'}')){
+        POSutil.confirm("Are you sure you want to delete this tax rule?\nIf the rule is applied to stored items, this tax will no longer apply.", function() {
+            POSutil.showLoader();
+            if (POSsendJsonData("tax/rules/delete", '{"id":'+id+'}')){
                 delete taxtable.rules[id];
-                WPOS.putTaxTable(taxtable);
+                POSputTaxTable(taxtable);
                 reloadTaxRuleTable();
             }
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
     $(function(){
         initTaxTables();
         loadSettings();
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     })
 </script>

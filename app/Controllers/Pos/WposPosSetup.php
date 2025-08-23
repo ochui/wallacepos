@@ -1,40 +1,25 @@
 <?php
 
+/**
+ *
+ * Setup handles setup of pos devices, including first time setup and other device specific configuration.
+ * It also provides device/user specific config records
+ *
+ */
+
 namespace App\Controllers\Pos;
 
-use App\Controllers\Admin\WposAdminSettings;
-use App\Communication\WposSocketIO;
-use App\Controllers\Invoice\WposTemplates;
+use App\Controllers\Admin\AdminSettings;
+use App\Communication\SocketIO;
+use App\Controllers\Invoice\Templates;
 use App\Database\AuthModel;
 use App\Database\DevicesModel;
 use App\Database\LocationsModel;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 
-/**
- * WposSetup is part of Wallace Point of Sale system (WPOS) API
- *
- * WposSetup handles setup of pos devices, including first time setup and other device specific configuration.
- * It also provides device/user specific config records
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 14/12/13 07:46 PM
- */
-class WposPosSetup
+
+class PosSetup
 {
     /**
      * @var mixed
@@ -94,8 +79,8 @@ class WposPosSetup
         $result['data']->registration = $reg;
 
         // Get general & global pos configuration
-        $WposConfig = new WposAdminSettings();
-        $settings = $WposConfig->getAllSettings();
+        $Config = new AdminSettings();
+        $settings = $Config->getAllSettings();
         $result['data']->general = $settings['general'];
         $result['data']->pos = $settings['pos'];
         $result['data']->invoice = $settings['invoice'];
@@ -109,7 +94,7 @@ class WposPosSetup
             $result['error'] = "User info could not be retrieved!";
         }
 
-        $dataMdl = new WposPosData();
+        $dataMdl = new PosData();
         $categories = $dataMdl->getCategories([]);
         if ($result['data'] === false) {
             $result['error'] = "Categories could not be retrieved: " . $categories['error'];
@@ -118,7 +103,7 @@ class WposPosSetup
         }
 
         // get tax
-        $tax = WposPosData::getTaxes();
+        $tax = PosData::getTaxes();
         $taxError = $tax['error'] ?? null;
         if ($taxError === null) {
             $result['data']->tax = $tax['data'] ?? null;
@@ -127,7 +112,7 @@ class WposPosSetup
         }
 
         // get templates
-        $templates = WposTemplates::getTemplates();
+        $templates = Templates::getTemplates();
         if ($templates['error'] == "OK") {
             $result['data']->templates = $templates['data'];
         } else {
@@ -145,9 +130,9 @@ class WposPosSetup
     public function getAdminConfig($result)
     {
         $result['data'] = new \stdClass();
-        $WposConfig = new WposAdminSettings();
+        $Config = new AdminSettings();
         // Get general & global pos configuration
-        $settings = $WposConfig->getAllSettings();
+        $settings = $Config->getAllSettings();
 
         if ($settings === false) {
             $result['error'] = "Global config could not be retrieved!";
@@ -166,7 +151,7 @@ class WposPosSetup
         }
 
         // get tax
-        $tax = WposPosData::getTaxes();
+        $tax = PosData::getTaxes();
         if (!isset($tax['error'])) {
             $result['data']->tax = $tax['data'];
         } else {
@@ -174,7 +159,7 @@ class WposPosSetup
         }
 
         // get templates
-        $templates = WposTemplates::getTemplates();
+        $templates = Templates::getTemplates();
         if ($templates['error'] == "OK") {
             $result['data']->templates = $templates['data'];
         } else {
@@ -325,7 +310,7 @@ class WposPosSetup
             }
         }
 
-        $socketIO = new WposSocketIO();
+        $socketIO = new SocketIO();
         $deviceData->id = $this->data->deviceid;
         $deviceData->locationname = $this->data->locationname;
         $socketIO->sendDeviceConfigUpdate($deviceData);
@@ -382,7 +367,7 @@ class WposPosSetup
         } else {
             $this->data->id = $newid;
             $this->data->locationname = $locname;
-            $socketIO = new WposSocketIO();
+            $socketIO = new SocketIO();
             $socketIO->sendDeviceConfigUpdate($this->data);
             // log data
             Logger::write("New device added", "CONFIG", json_encode($this->data));
@@ -411,7 +396,7 @@ class WposPosSetup
         if ($this->devMdl->edit($this->data->id, $this->data) !== false) {
             $this->data->locationname = $locname;
             $result['data'] = $this->data;
-            $socketIO = new WposSocketIO();
+            $socketIO = new SocketIO();
             $socketIO->sendDeviceConfigUpdate($this->data);
             // log data
             Logger::write("Device updated", "CONFIG", json_encode($this->data));
@@ -435,7 +420,7 @@ class WposPosSetup
         }
         if ($this->devMdl->remove($this->data->id) !== false) {
             $result['data'] = true;
-            $socketIO = new WposSocketIO();
+            $socketIO = new SocketIO();
             $socketIO->sendDeviceConfigUpdate(['id' => $this->data->id, 'a' => "removed"]);
             // log data
             Logger::write("Device deleted with id:" . $this->data->id, "CONFIG");
@@ -469,7 +454,7 @@ class WposPosSetup
             $result['error'] = "Could not enable/disable the device: " . $this->devMdl->errorInfo;
         }
         if ($this->data->disable) {
-            $socketIO = new WposSocketIO();
+            $socketIO = new SocketIO();
             $socketIO->sendDeviceConfigUpdate(['id' => $this->data->id, 'a' => "disabled"]);
         }
         // log data

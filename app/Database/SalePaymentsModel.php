@@ -1,30 +1,12 @@
 <?php
 
-namespace App\Database;
-
 /**
- * SalePaymentsModel is part of Wallace Point of Sale system (WPOS) API
  *
  * SalePaymentsModel extends the DbConfig PDO class to interact with the config DB table
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
-
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 26/12/13 16:15 PM
  */
+
+namespace App\Database;
 
 class SalePaymentsModel extends DbConfig
 {

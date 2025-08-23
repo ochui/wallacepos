@@ -178,7 +178,7 @@
     var users = null;
     var datatable;
     $(function() {
-        users = WPOS.getJsonData("users/get");
+        users = POSgetJsonData("users/get");
         var itemarray = [];
         for (var key in users){
             itemarray.push(users[key]);
@@ -279,7 +279,7 @@
         });
 
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
     function setPermState(state){
         var cb = $('.permcb');
@@ -375,7 +375,7 @@
     }
     function saveItem(isnewitem){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var user = {};
         var username, pass, cpass, isadmin, hpass;
         if (isnewitem){
@@ -390,27 +390,27 @@
             isadmin = ($("#permaccess :selected").val()=="admin"?1:0);
         }
         if (username==""){
-            WPOS.notifications.warning("Please enter a username", "Username Required");
+            POSnotifications.warning("Please enter a username", "Username Required");
             return false;
         }
         if (isnewitem || pass != ""){
             if (pass == cpass){
-                hpass = WPOS.util.SHA256(pass);
+                hpass = POSutil.SHA256(pass);
             } else {
-                WPOS.notifications.warning("Passwords do not match", "Password Mismatch");
+                POSnotifications.warning("Passwords do not match", "Password Mismatch");
                 return false;
             }
         }
         if (isnewitem){
             if (pass == ""){
-                WPOS.notifications.warning("Please enter a new password", "Password Required");
+                POSnotifications.warning("Please enter a new password", "Password Required");
                 return false;
             }
             // adding a new item
             user.username = username;
             user.pass = hpass;
             user.admin = isadmin;
-            if (WPOS.sendJsonData("users/add", JSON.stringify(user))){
+            if (POSsendJsonData("users/add", JSON.stringify(user))){
                 reloadTable();
                 $("#adduserdialog").dialog("close");
                 // clear form
@@ -423,40 +423,40 @@
             user.pass = hpass;
             user.admin = isadmin;
             user.permissions = getPermissionsObject();
-            if (WPOS.sendJsonData("users/edit", JSON.stringify(user))){
+            if (POSsendJsonData("users/edit", JSON.stringify(user))){
                 reloadTable();
                 $("#edituserdialog").dialog("close");
             }
         }
        // hide loader
-       WPOS.util.hideLoader();
+       POSutil.hideLoader();
        return true;
     }
     function removeItem(id){
 
-        WPOS.util.confirm("Are you sure you want to delete this item? It's recommended to either back up first or disable the user instead.", function() {
+        POSutil.confirm("Are you sure you want to delete this item? It's recommended to either back up first or disable the user instead.", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("users/delete", '{"id":'+id+'}')){
+            POSutil.showLoader();
+            if (POSsendJsonData("users/delete", '{"id":'+id+'}')){
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
     function setUserDisabled(id, disable){
-        WPOS.util.confirm("Are you sure you want to disable this user?", function() {
+        POSutil.confirm("Are you sure you want to disable this user?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("users/disable", '{"id":'+id+', "disable":'+disable+'}')!==false){
+            POSutil.showLoader();
+            if (POSsendJsonData("users/disable", '{"id":'+id+', "disable":'+disable+'}')!==false){
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
     function reloadTable(){
-        users = WPOS.getJsonData("users/get");
+        users = POSgetJsonData("users/get");
         var itemarray = [];
         for (var key in users){
             itemarray.push(users[key]);

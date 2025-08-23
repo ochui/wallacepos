@@ -1,32 +1,15 @@
 <?php
 
-namespace App\Database;
-
 /**
- * TaxRulesModel is part of Wallace Point of Sale system (WPOS) API
- *
  * TaxItemsModel extends the DbConfig PDO class to interact with the config DB table.
  * Tax Rules consist of tax components, or "tax_items" which are applied to items.
  * This allows for applying multiple tax rates to an item & applying conditional taxes based on location
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
-
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 11/23/13 10:36 PM
  */
+
+namespace App\Database;
+
+
 
 class TaxRulesModel extends DbConfig
 {

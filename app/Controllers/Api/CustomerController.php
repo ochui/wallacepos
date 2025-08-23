@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Controllers\Api;
-
-use App\Auth;
-use App\Controllers\Customer\WposCustomerAccess;
-
 /**
  * Customer API Controller
  * Handles customer-specific API endpoints
  */
+
+namespace App\Controllers\Api;
+
+use App\Auth;
+use App\Controllers\Customer\CustomerAccess;
+
+
 class CustomerController
 {
     private $auth;
@@ -31,7 +33,7 @@ class CustomerController
         header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->register($this->result);
         return $this->returnResult();
     }
@@ -48,7 +50,7 @@ class CustomerController
         header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->sendResetPasswordEmail($this->result);
         return $this->returnResult();
     }
@@ -65,7 +67,7 @@ class CustomerController
         header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->doPasswordReset($this->result);
         return $this->returnResult();
     }
@@ -82,7 +84,7 @@ class CustomerController
         header("Access-Control-Allow-Methods: OPTIONS, POST, GET");
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->getSettings($this->result);
         return $this->returnResult();
     }
@@ -105,7 +107,7 @@ class CustomerController
         }
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->getCurrentCustomerDetails($this->result);
         return $this->returnResult();
     }
@@ -128,7 +130,7 @@ class CustomerController
         }
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->saveCustomerDetails($this->result);
         return $this->returnResult();
     }
@@ -151,7 +153,7 @@ class CustomerController
         }
 
         $data = $this->getRequestData();
-        $wCust = new WposCustomerAccess($data);
+        $wCust = new CustomerAccess($data);
         $this->result = $wCust->getCustomerTransactions($this->result);
         return $this->returnResult();
     }
@@ -173,7 +175,7 @@ class CustomerController
             return $this->returnResult();
         }
 
-        $wCust = new WposCustomerAccess();
+        $wCust = new CustomerAccess();
         $wCust->generateCustomerInvoice($_REQUEST['id']);
     }
 
@@ -199,9 +201,9 @@ class CustomerController
     private function returnResult()
     {
         if (($resstr = json_encode($this->result)) === false) {
-            echo(json_encode(["error" => "Failed to encode the response data into json"]));
+            echo (json_encode(["error" => "Failed to encode the response data into json"]));
         } else {
-            echo($resstr);
+            echo ($resstr);
         }
         die();
     }

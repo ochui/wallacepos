@@ -1,8 +1,15 @@
 <?php
 
+/**
+ *
+ * JsonData is used for retrieving database tables into JSON for use by the pos client.
+ * The device,location and tax functions are no longer used much as Setup now provides these values alongside the config.
+ *
+ */
+
 namespace App\Controllers\Pos;
 
-use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\AdminSettings;
 use App\Database\AuthModel;
 use App\Database\CategoriesModel;
 use App\Database\CustomerModel;
@@ -15,30 +22,8 @@ use App\Database\SuppliersModel;
 use App\Database\TaxItemsModel;
 use App\Database\TaxRulesModel;
 
-/**
- * JsonData is part of Wallace Point of Sale system (WPOS) API
- *
- * JsonData is used for retrieving database tables into JSON for use by the pos client.
- * The device,location and tax functions are no longer used much as WposSetup now provides these values alongside the config.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 17/11/13 2:16 PM
- */
-class WposPosData
+
+class PosData
 {
     // these variables will determine which records to provide when requesting sales
     /**
@@ -196,8 +181,8 @@ class WposPosData
     {
         if (!isset($this->data->stime) && !isset($this->data->etime)) {
             // time not set, retrieving POS records, get config.
-            $WposConfig = new WposAdminSettings();
-            $config = $WposConfig->getSettingsObject("pos");
+            $Config = new AdminSettings();
+            $config = $Config->getSettingsObject("pos");
 
             // set the sale range based on the config setting
             $etime = time() * 1000;

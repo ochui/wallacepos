@@ -1,32 +1,14 @@
 <?php
 
-namespace App\Integration;
-
-use App\Controllers\Admin\WposAdminSettings;
-
 /**
- * GoogleIntergration is part of Wallace Point of Sale system (WPOS) API
  *
  * GoogleIntergration is used to provide wrapper functions for interacting with the Google API
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
-
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
  */
+
+namespace App\Integration;
+
+use App\Controllers\Admin\AdminSettings;
 
 class GoogleIntegration
 {
@@ -70,9 +52,9 @@ class GoogleIntegration
     public static function removeGoogleAuth()
     {
         // nullify access tokens
-        WposAdminSettings::putValue('general', 'gcontacttoken', '');
+        AdminSettings::putValue('general', 'gcontacttoken', '');
         // turn off intergration
-        WposAdminSettings::putValue('general', 'gcontact', 0);
+        AdminSettings::putValue('general', 'gcontact', 0);
     }
 
     /**
@@ -82,7 +64,7 @@ class GoogleIntegration
     private static function setNewAccessToken($token)
     {
         // set new access token in the config
-        WposAdminSettings::putValue('general', 'gcontacttoken', $token);
+        AdminSettings::putValue('general', 'gcontacttoken', $token);
     }
     /**
      * Adds or updates the google contact entry for the specified account

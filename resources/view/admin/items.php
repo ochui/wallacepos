@@ -226,7 +226,7 @@
     $(function() {
         // get default data using parallel requests
         var itemsPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("items/get", JSON.stringify(""), function(data) {
+            POSsendJsonDataAsync("items/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch items"));
                 } else {
@@ -236,7 +236,7 @@
         });
         
         var suppliersPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("suppliers/get", JSON.stringify(""), function(data) {
+            POSsendJsonDataAsync("suppliers/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch suppliers"));
                 } else {
@@ -246,7 +246,7 @@
         });
         
         var categoriesPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("categories/get", JSON.stringify(""), function(data) {
+            POSsendJsonDataAsync("categories/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch categories"));
                 } else {
@@ -261,7 +261,7 @@
             categories = results[2];
         var itemarray = [];
         var tempitem;
-        var taxrules = WPOS.getTaxTable().rules;
+        var taxrules = POSgetTaxTable().rules;
         for (var key in stock){
             tempitem = stock[key];
             if (taxrules.hasOwnProperty(tempitem.taxid)){
@@ -283,7 +283,7 @@
                 { "mData":"description" },
                 { "mData":"taxname" },
                 { "mData":"qty" },
-                { "mData":function(data,type,val){return (data['price']==""?"":WPOS.util.currencyFormat(data["price"]));} },
+                { "mData":function(data,type,val){return (data['price']==""?"":POSutil.currencyFormat(data["price"]));} },
                 { "mData":"code" },
                 { "mData":function(data,type,val){return (categories.hasOwnProperty(data.categoryid)?categories[data.categoryid].name:'None'); } },
                 { "mData":function(data,type,val){return (suppliers.hasOwnProperty(data.supplierid)?suppliers[data.supplierid].name:'None'); } },
@@ -412,8 +412,8 @@
         // populate tax records in select boxes
         var taxsel = $(".taxselect");
         taxsel.html('');
-        for (key in WPOS.getTaxTable().rules){
-            taxsel.append('<option class="taxid-'+WPOS.getTaxTable().rules[key].id+'" value="'+WPOS.getTaxTable().rules[key].id+'">'+WPOS.getTaxTable().rules[key].name+'</option>');
+        for (key in POSgetTaxTable().rules){
+            taxsel.append('<option class="taxid-'+POSgetTaxTable().rules[key].id+'" value="'+POSgetTaxTable().rules[key].id+'">'+POSgetTaxTable().rules[key].name+'</option>');
         }
         // populate category & supplier records in select boxes
         var supsel = $(".supselect");
@@ -431,11 +431,11 @@
         }
 
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         }).catch(function(error) {
             console.error("Error loading data:", error);
-            WPOS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
-            WPOS.util.hideLoader();
+            POSnotifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
+            POSutil.hideLoader();
         });
     });
     // updating records
@@ -496,7 +496,7 @@
     }
     function saveItem(isnewitem){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var item = {};
         var result;
         var costval;
@@ -515,7 +515,7 @@
             item.categoryid = $("#newitemcategory").val();
             item.type = "general";
             item.modifiers = [];
-            result = WPOS.sendJsonData("items/add", JSON.stringify(item));
+            result = POSsendJsonData("items/add", JSON.stringify(item));
             if (result!==false){
                 stock[result.id] = result;
                 reloadTable();
@@ -558,7 +558,7 @@
                mod.price = $(this).find(".modprice").val();
                item.modifiers.push(mod);
             });
-            result = WPOS.sendJsonData("items/edit", JSON.stringify(item));
+            result = POSsendJsonData("items/edit", JSON.stringify(item));
             if (result!==false){
                 stock[result.id] = result;
                 reloadTable();
@@ -566,41 +566,41 @@
             }
         }
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
     function removeItem(id){
 
-        WPOS.util.confirm("Are you sure you want to delete this item?", function() {
+        POSutil.confirm("Are you sure you want to delete this item?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("items/delete", '{"id":'+id+'}')){
+            POSutil.showLoader();
+            if (POSsendJsonData("items/delete", '{"id":'+id+'}')){
                 delete stock[id];
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
     function removeSelectedItems(){
         var ids = datatable.api().rows('.selected').data().map(function(row){ return row.id });
 
-        WPOS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
+        POSutil.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
-            WPOS.util.showLoader();
-            if (WPOS.sendJsonData("items/delete", '{"id":"'+ids.join(",")+'"}')){
+            POSutil.showLoader();
+            if (POSsendJsonData("items/delete", '{"id":"'+ids.join(",")+'"}')){
                 for (var i=0; i<ids.length; i++){
                     delete stock[ids[i]];
                 }
                 reloadTable();
             }
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         });
     }
 
     function reloadData(){
-        stock = WPOS.getJsonData("items/get");
+        stock = POSgetJsonData("items/get");
         reloadTable();
     }
     function reloadTable(){
@@ -608,7 +608,7 @@
         var tempitem;
         for (var key in stock){
             tempitem = stock[key];
-            tempitem.taxname = WPOS.getTaxTable().rules[tempitem.taxid].name;
+            tempitem.taxname = POSgetTaxTable().rules[tempitem.taxid].name;
             itemarray.push(tempitem);
         }
         datatable.fnClearTable(false);
@@ -617,7 +617,7 @@
     }
     function exportItems(){
 
-        var filename = "items-"+WPOS.util.getDateFromTimestamp(new Date());
+        var filename = "items-"+POSutil.getDateFromTimestamp(new Date());
         filename = filename.replace(" ", "");
 
         var data = {};
@@ -633,17 +633,17 @@
             data = stock;
         }
 
-        var csv = WPOS.data2CSV(
+        var csv = POSdata2CSV(
             ['ID', 'Stock Code', 'Name', 'Description', 'Default Qty', 'Unit Cost', 'Unit Price', 'Tax Rule Name', 'Category Name', 'Supplier Name'],
             ['id', 'code', 'name', 'description', 'qty', 'cost', 'price',
-                {key:'taxid', func: function(value){ var taxtable = WPOS.getTaxTable().rules; return taxtable.hasOwnProperty(value) ? taxtable[value].name : 'Unknown'; }},
+                {key:'taxid', func: function(value){ var taxtable = POSgetTaxTable().rules; return taxtable.hasOwnProperty(value) ? taxtable[value].name : 'Unknown'; }},
                 {key:'categoryid', func: function(value){ return categories.hasOwnProperty(value) ? categories[value].name : 'Unknown'; }},
                 {key:'supplierid', func: function(value){ return suppliers.hasOwnProperty(value) ? suppliers[value].name : 'Unknown'; }}
             ],
             data
         );
 
-        WPOS.initSave(filename, csv);
+        POSinitSave(filename, csv);
     }
 
     var importdialog = null;
@@ -683,9 +683,9 @@
         var percent_inc = total / 100;
         setModalLoaderStatus("Uploading data...");
         var data = {"options":options, "import_data": jsondata};
-        var result = WPOS.sendJsonDataAsync('items/import/set', JSON.stringify(data), function(data){
+        var result = POSsendJsonDataAsync('items/import/set', JSON.stringify(data), function(data){
             if (data!==false){
-                WPOS.startEventSourceProcess(
+                POSstartEventSourceProcess(
                     '/api/items/import/start',
                     function(data){
                         if (data.hasOwnProperty('progress')) {

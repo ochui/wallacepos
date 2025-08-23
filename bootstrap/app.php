@@ -1,7 +1,7 @@
 <?php
 
 /**
- * WallacePOS Application Bootstrap
+ *  Application Bootstrap
  * 
  * This file sets up the application environment, loads dependencies,
  * and returns an application instance that can handle requests.

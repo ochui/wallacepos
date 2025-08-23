@@ -1,36 +1,21 @@
 <?php
 
+/**
+ *
+ * AdminUtilities is used for misc tasks including data backup and archiving
+ *
+ */
+
 namespace App\Controllers\Admin;
 
 use App\Database\ConfigModel;
 use App\Database\DbConfig;
-use App\Controllers\Pos\WposPosData;
+use App\Controllers\Pos\PosData;
 use App\Utility\Logger;
 use Ifsnop\Mysqldump as IMysqldump;
 
-/**
- * WposAdminUtilities is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminUtilities is used for misc tasks including data backup and archiving
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
-class WposAdminUtilities
+
+class AdminUtilities
 {
     /**
      * @var mixed
@@ -136,7 +121,7 @@ class WposAdminUtilities
     public static function getTaxTable()
     {
         if (self::$taxTable == null) {
-            self::$taxTable = WposPosData::getTaxes([])['data'];
+            self::$taxTable = PosData::getTaxes([])['data'];
         }
         return self::$taxTable;
     }

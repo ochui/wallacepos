@@ -86,7 +86,7 @@
                     <i class="icon-chevron-left pull-right" data-icon-hide="icon-chevron-down" data-icon-show="icon-chevron-left"></i>
 
                     <i class="icon-fast-forward bigger-130"></i>
-                    &nbsp; How is WPOS so fast to load some things?
+                    &nbsp; How is POS so fast to load some things?
                 </a>
             </div>
 
@@ -250,7 +250,7 @@
 
             <div class="panel-collapse collapse" id="faq-2-1">
                 <div class="panel-body">
-                    <p>Tyro integrated eftpos allows seemless integration between WPOS and your eftpos terminal to save time and avoid operator mistakes.</p>
+                    <p>Tyro integrated eftpos allows seemless integration between POS and your eftpos terminal to save time and avoid operator mistakes.</p>
                     <strong>To set up integrated Eftpos:</strong>
                     <ol>
                         <li>Login to the <a href="/">WPOS terminal</a> and click on the settings tab.</li>
@@ -260,7 +260,7 @@
                         <li>If you need to, change Eftpos receipt options based on your preferences.</li>
                         <li>Enter your merchant and terminal IDs and click on "Start Tyro Pairing". You will be prompted to perform the "Authorise POS" function on your terminal described in the next step.</li>
                         <li>From your Tyro device select Menu -> Settings -> Integrated Eftpos -> Authorise POS. Enter your Admin Password and press Ok.</li>
-                        <li>After successfully Authorising on your tyro terminal, you will receive a "Pairing successful" message in the WPOS terminal. You are now ready to take Eftpos payments.</li>
+                        <li>After successfully Authorising on your tyro terminal, you will receive a "Pairing successful" message in the POS terminal. You are now ready to take Eftpos payments.</li>
                     </ol>
                     <p>Note: Due to license limitations, Tyro integration is only available in our hosted or enterprise versions.</p>
 
@@ -273,7 +273,7 @@
                             <img style="padding-top: 5px;" src="../assets/images/faq/faq-eftpos-receipts.png">
                         </li>
                     </ol>
-                    <p>Note: At this time, WPOS only supports one integrated Eftpos transaction per sale.</p>
+                    <p>Note: At this time, POS only supports one integrated Eftpos transaction per sale.</p>
                 </div>
             </div>
         </div>
@@ -471,7 +471,7 @@
                 <a href="#faq-3-3" data-parent="#faq-list-3" data-toggle="collapse" class="accordion-toggle collapsed">
                     <i class="icon-plus smaller-80" data-icon-hide="icon-minus" data-icon-show="icon-plus"></i>
                     &nbsp;
-                    How do I use WPOS for a restaurant or cafe order?
+                    How do I use POS for a restaurant or cafe order?
                 </a>
             </div>
 
@@ -574,6 +574,6 @@
         reglink.attr("href", "https://"+window.location.hostname+"/");
         reglink.text("https://"+window.location.hostname+"/");
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
 </script>

@@ -72,18 +72,18 @@
 
     function saveDetails(){
         // show loader
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var data = {};
         $("form :input").each(function(){
             data[$(this).prop('id')] = $(this).val();
         });
-        WPOS.sendJsonData("mydetails/save", JSON.stringify(data));
+        POSsendJsonData("mydetails/save", JSON.stringify(data));
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function loadDetails(){
-        options = WPOS.getJsonData("mydetails/get");
+        options = POSgetJsonData("mydetails/get");
         // load option values into the form
         for (var i in options){
             $("#"+i).val(options[i]);
@@ -93,6 +93,6 @@
     $(function(){
         loadDetails();
         // hide loader
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     })
 </script>

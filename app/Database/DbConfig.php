@@ -1,34 +1,18 @@
 <?php
 
+/**
+ *
+ * DbConfig is the main PDO class. It is extended by all the *Model.php classes to interact with DB tables.
+ *
+ */
+
 namespace App\Database;
 
 use Dotenv\Dotenv;
 use PDO;
 use PDOException;
 
-/**
- * DbConfig is part of Wallace Point of Sale system (WPOS) API
- *
- * DbConfig is the main PDO class. It is extended by all the *Model.php classes to interact with DB tables.
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    App\Database
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
 
- * @link       https://wallacepos.com
- * @author     Adam Jacquier-Parr <aljparr0@gmail.com>, Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 11/20/13 11:17 PM
- */
 class DbConfig
 {
     /**

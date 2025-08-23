@@ -34,8 +34,8 @@ var WebPrint = function (init, opt) {
 
     this.printSerial = function (data, port) {
         if (isAndroid){
-            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-                WPOS.notifications.error("Serial port printing is not available in Android.", "Platform Limitation", {delay: 0});
+            if (typeof POS!== 'undefined' && POSnotifications) {
+                POSnotifications.error("Serial port printing is not available in Android.", "Platform Limitation", {delay: 0});
             } else {
                 alert("Serial port printing is not available in Android.");
             }
@@ -52,8 +52,8 @@ var WebPrint = function (init, opt) {
 
     this.printHtml = function (data, printer) {
         if (isAndroid){
-            if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-                WPOS.notifications.error("HTML printing is not available in Android.", "Platform Limitation", {delay: 0});
+            if (typeof POS!== 'undefined' && POSnotifications) {
+                POSnotifications.error("HTML printing is not available in Android.", "Platform Limitation", {delay: 0});
             } else {
                 alert("HTML printing is not available in Android.");
             }
@@ -143,8 +143,8 @@ var WebPrint = function (init, opt) {
                     if (options.listPrinterCallback instanceof Function)
                         options.listPrinterCallback(response.printers);
                 } else if (response.hasOwnProperty('error')) {
-                    if (typeof WPOS !== 'undefined' && WPOS.notifications) {
-                        WPOS.notifications.error(response.error, "WebPrint Error", {delay: 0});
+                    if (typeof POS!== 'undefined' && POSnotifications) {
+                        POSnotifications.error(response.error, "WebPrint Error", {delay: 0});
                     } else {
                         alert(response.error);
                     }
@@ -165,8 +165,8 @@ var WebPrint = function (init, opt) {
     }
 
     function dispatchWebPrint() {
-        if (typeof WPOS !== 'undefined' && WPOS.util && WPOS.util.confirm) {
-            WPOS.util.confirm("Cannot communicate with the printing app.\nWould you like to open/install the printing app?", function() {
+        if (typeof POS!== 'undefined' && POSutil && POSutil.confirm) {
+            POSutil.confirm("Cannot communicate with the printing app.\nWould you like to open/install the printing app?", function() {
                 if (isAndroid){
                     deployAndroid();
                     return;

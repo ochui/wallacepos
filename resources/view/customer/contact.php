@@ -37,7 +37,7 @@
 </div>
 <script type="text/javascript">
     $(function(){
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     });
     function sendMail(){
         var submitbtn = $("#submit_contact");
@@ -61,7 +61,7 @@
             $("#sender_message").val('');
             $("#code").val('');
         } else {
-            WPOS.notifications.error(data, "Message Send Error", {delay: 0});
+            POSnotifications.error(data, "Message Send Error", {delay: 0});
             submitbtn.val('Send Message');
             submitbtn.prop('disabled', false);
         }

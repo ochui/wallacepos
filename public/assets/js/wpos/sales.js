@@ -35,7 +35,7 @@ function WPOSItems() {
             .find(".itemqty")
             .focus();
         // mark invalid records
-        WPOS.sales.updateSalesTotal();
+        POSsales.updateSalesTotal();
     };
     /**
      * Removes an item from the sale
@@ -43,7 +43,7 @@ function WPOSItems() {
      */
     this.removeItem = function (sitem) {
         $(sitem).parent('td').parent('tr').remove();
-        WPOS.sales.updateSalesTotal();
+        POSsales.updateSalesTotal();
     };
 
     /**
@@ -52,9 +52,9 @@ function WPOSItems() {
      */
     this.addItemFromStockCode = function (code) {
         // find the item id from the stock code index and use it to retrieve the record.
-        var item = WPOS.getItemsTable()[WPOS.getStockIndex()[code.toUpperCase()]];
+        var item = POSgetItemsTable()[POSgetStockIndex()[code.toUpperCase()]];
         if (item === null || item === undefined || item === "") {//ADAM: Should use triple equals
-            WPOS.notifications.error("Item not found", "Item Error");
+            POSnotifications.error("Item not found", "Item Error");
             $("#codeinput").val('');
         } else {
             // add the item
@@ -67,9 +67,9 @@ function WPOSItems() {
      * @param {Number} id
      */
     this.addItemFromId = function (id) {
-        var item = WPOS.getItemsTable()[id];
+        var item = POSgetItemsTable()[id];
         if (item === null) {
-            WPOS.notifications.error("Item not found", "Item Error");
+            POSnotifications.error("Item not found", "Item Error");
         } else {
             // add the item
             addItem(item);
@@ -87,7 +87,7 @@ function WPOSItems() {
         if (query !== '') {
             var upquery = query.toUpperCase();
             // search items for the text.
-            var itemtable = WPOS.getItemsTable();
+            var itemtable = POSgetItemsTable();
             for (var key in itemtable) {
                 if (!itemtable.hasOwnProperty(key)) {
                     continue;
@@ -105,44 +105,44 @@ function WPOSItems() {
 
     this.generateItemGrid = function(categoryId){
         var iboxitems = $("#iboxitems");
-        iboxitems.html('<div style="padding: 5px;"><button class="btn btn-sm btn-primary" onclick="WPOS.items.generateItemGridCategories();"><i class="icon-backward">&nbsp;</i>Categories</button></div>');
+        iboxitems.html('<div style="padding: 5px;"><button class="btn btn-sm btn-primary" onclick="POSitems.generateItemGridCategories();"><i class="icon-backward">&nbsp;</i>Categories</button></div>');
         var price;
         var items = [];
         if (categoryId>-1){
-            if (WPOS.getCategoryIndex().hasOwnProperty(categoryId)) {
-                var index = WPOS.getCategoryIndex()[categoryId];
-                var tempitems = WPOS.getItemsTable();
+            if (POSgetCategoryIndex().hasOwnProperty(categoryId)) {
+                var index = POSgetCategoryIndex()[categoryId];
+                var tempitems = POSgetItemsTable();
                 for (var x = 0; x < index.length; x++) {
                     items[index[x]] = tempitems[index[x]];
                 }
             }
         } else {
-            items = WPOS.getItemsTable();
+            items = POSgetItemsTable();
         }
 
         for (var i in items){
             price = (items[i].price==""?"??.??":parseFloat(items[i].price).toFixed(2));
-            iboxitems.append('<div class="iboxitem" onclick="WPOS.items.addItemFromId('+items[i].id+'); toggleItemBox(false);">' +
+            iboxitems.append('<div class="iboxitem" onclick="POSitems.addItemFromId('+items[i].id+'); toggleItemBox(false);">' +
                                 '<h6>'+items[i].name+'</h6>'+
-                                '<h5>'+WPOS.util.currencyFormat(price)+'</h5>'+
+                                '<h5>'+POSutil.currencyFormat(price)+'</h5>'+
                             '</div>');
         }
     };
 
     this.generateItemGridCategories = function(){
         var iboxitems = $("#iboxitems");
-        iboxitems.html('<div class="iboxitem" onclick="WPOS.items.generateItemGrid(-1);"><h5>All Categories</h5><h6>('+Object.keys(WPOS.getItemsTable()).length+' items)</h6></div>');
-        var catindex = WPOS.getCategoryIndex();
-        var categories = WPOS.getConfigTable().item_categories;
+        iboxitems.html('<div class="iboxitem" onclick="POSitems.generateItemGrid(-1);"><h5>All Categories</h5><h6>('+Object.keys(POSgetItemsTable()).length+' items)</h6></div>');
+        var catindex = POSgetCategoryIndex();
+        var categories = POSgetConfigTable().item_categories;
         //console.log(catindex);
         for (var i in categories){
-            iboxitems.append('<div class="iboxitem" onclick="WPOS.items.generateItemGrid('+i+');">' +
+            iboxitems.append('<div class="iboxitem" onclick="POSitems.generateItemGrid('+i+');">' +
                 '<h5>'+categories[i].name+'</h5>'+
                 '<h6>('+(catindex.hasOwnProperty(i)?catindex[i].length:0)+' items)</h6>'+
                 '</div>');
         }
         var misctotal = catindex.hasOwnProperty(0)?catindex[0].length:0;
-        iboxitems.append('<div class="iboxitem" onclick="WPOS.items.generateItemGrid(0);"><h5>Miscellaneous</h5><h6>('+misctotal+' items)</h6></div>');
+        iboxitems.append('<div class="iboxitem" onclick="POSitems.generateItemGrid(0);"><h5>Miscellaneous</h5><h6>('+misctotal+' items)</h6></div>');
     };
 
     /**
@@ -157,16 +157,16 @@ function WPOSItems() {
     function addItemRow(qty, name, unit, taxid, sitemid, data) {
         sitemid = (sitemid>0?sitemid:0);
         var disable = (sitemid>0); // disable fields that are filled by the stored item
-        var disableprice = (sitemid>0 && WPOS.getConfigTable().pos.priceedit!="always");
-        var disabletax = (!WPOS.getConfigTable().pos.hasOwnProperty('taxedit') || WPOS.getConfigTable().pos.taxedit=='no');
+        var disableprice = (sitemid>0 && POSgetConfigTable().pos.priceedit!="always");
+        var disabletax = (!POSgetConfigTable().pos.hasOwnProperty('taxedit') || POSgetConfigTable().pos.taxedit=='no');
         var row = $('<tr class="item_row">' +
-            '<td><input class="itemid" type="hidden" value="' + sitemid + '" data-options=\''+JSON.stringify(data)+'\' /><input onChange="WPOS.sales.updateSalesTotal();" style="width:50px;" type="text" class="itemqty numpad" value="' + qty + '" /></td>' +
-            '<td><input '+((disable==true && name!="")?"disabled":"")+' style="width: 100%; min-width: 100px;" type="text" class="itemname" value="' + name + '" onChange="WPOS.sales.updateSalesTotal();" /><div class="itemmodtxt"></div></td>' +
-            '<td><input '+((disableprice==true && unit!="")?"disabled":"")+' onChange="WPOS.sales.updateSalesTotal();" style="max-width:50px;" type="text" class="itemunit numpad" value="' + unit + '" /></td>' +
-            '<td><button onclick="WPOS.items.openItemModDialog(this);" class="btn btn-primary btn-xs"><i class="icon-list-ul"></i></button><div class="itemmodtext"></div></td>' +
-            '<td><select '+((disabletax==true && taxid!=null)?"disabled":"")+' onChange="WPOS.sales.updateSalesTotal();" style="max-width:110px;" class="itemtax">' +getTaxSelectHTML(taxid)+ '</select><input class="itemtaxval" type="hidden" value="0.00" /></td>' +
+            '<td><input class="itemid" type="hidden" value="' + sitemid + '" data-options=\''+JSON.stringify(data)+'\' /><input onChange="POSsales.updateSalesTotal();" style="width:50px;" type="text" class="itemqty numpad" value="' + qty + '" /></td>' +
+            '<td><input '+((disable==true && name!="")?"disabled":"")+' style="width: 100%; min-width: 100px;" type="text" class="itemname" value="' + name + '" onChange="POSsales.updateSalesTotal();" /><div class="itemmodtxt"></div></td>' +
+            '<td><input '+((disableprice==true && unit!="")?"disabled":"")+' onChange="POSsales.updateSalesTotal();" style="max-width:50px;" type="text" class="itemunit numpad" value="' + unit + '" /></td>' +
+            '<td><button onclick="POSitems.openItemModDialog(this);" class="btn btn-primary btn-xs"><i class="icon-list-ul"></i></button><div class="itemmodtext"></div></td>' +
+            '<td><select '+((disabletax==true && taxid!=null)?"disabled":"")+' onChange="POSsales.updateSalesTotal();" style="max-width:110px;" class="itemtax">' +getTaxSelectHTML(taxid)+ '</select><input class="itemtaxval" type="hidden" value="0.00" /></td>' +
             '<td><input style="max-width:50px;" type="text" class="itemprice" value="0.00" disabled /></td>' +
-            '<td style="text-align: center;"><button class="btn btn-sm btn-danger" onclick="WPOS.items.removeItem($(this));">X</button></td>' +
+            '<td style="text-align: center;"><button class="btn btn-sm btn-danger" onclick="POSitems.removeItem($(this));">X</button></td>' +
             '</tr>');
         if (data.orderid) {
             row.insertAfter("#order_row_"+data.orderid);
@@ -175,7 +175,7 @@ function WPOSItems() {
         }
         $('#items_contain').scrollTop(1E10);
         // reinitialize keypad & field listeners
-        WPOS.initKeypad();
+        POSinitKeypad();
     }
     this.addItemRow = function(qty, name, unit, taxid, sitemid, data){
         addItemRow(qty, name, unit, taxid, sitemid, data)
@@ -188,7 +188,7 @@ function WPOSItems() {
      */
     function getTaxSelectHTML(taxid) {
         var taxselecthtml = "";
-        var taxrules = WPOS.getTaxTable().rules;
+        var taxrules = POSgetTaxTable().rules;
             for (var key in taxrules) {
                 if (taxrules.hasOwnProperty(key)) {
                     taxselecthtml += "<option id='taxrule-" + key + "' value='" + key + "' "+(taxid==key?"selected='selected'":"")+">" + taxrules[key].name + "</option>";
@@ -216,7 +216,7 @@ function WPOSItems() {
             }
         }
         $("#codeinput").val('');
-        WPOS.sales.updateSalesTotal();
+        POSsales.updateSalesTotal();
     }
 
     function isItemAdded(itemid, addqty){
@@ -243,17 +243,17 @@ function WPOSItems() {
         var data = itemrow.find('.itemid').data('options');
         //console.log(data);
         $("#itemdesc").val(data.desc);
-        var disableprice = (itemrow.find('.itemid').val()>0 && WPOS.getConfigTable().pos.priceedit!="always");
+        var disableprice = (itemrow.find('.itemid').val()>0 && POSgetConfigTable().pos.priceedit!="always");
         $("#itemcost").val(data.cost).prop('disabled', (disableprice && data.cost!=""));
         $("#itemaltname").val(data.alt_name);
         // get stored item mods
         var itemid = itemrow.find('.itemid').val();
         modtable.html('');
         if (itemid>0){
-            var itemmods = WPOS.getItemsTable()[itemid].modifiers;
+            var itemmods = POSgetItemsTable()[itemid].modifiers;
             if (itemmods!=null && itemmods.length>0){
                 for (var i=0; i<itemmods.length; i++){
-                    zerostr = WPOS.util.currencyFormat(0);
+                    zerostr = POSutil.currencyFormat(0);
                     if (itemmods[i].type=="select"){
                         insertSelectModRow(itemmods[i]);
                     } else {
@@ -274,11 +274,11 @@ function WPOSItems() {
                             qtyelem.text(qtyelem.data('default') + mod.qty);
                             costelem.data('modqty', mod.qty);
                             costelem.data('modprice', mod.price);
-                            costelem.text(WPOS.util.currencyFormat(mod.price));
+                            costelem.text(POSutil.currencyFormat(mod.price));
                         } else {
                             row.find('.modselect').val(mod.value);
                             costelem.data('modprice', mod.price);
-                            costelem.text(WPOS.util.currencyFormat(mod.price));
+                            costelem.text(POSutil.currencyFormat(mod.price));
                         }
                     } else {
                         // TODO: Handle mods deleted from stored items that are already in the order
@@ -294,7 +294,7 @@ function WPOSItems() {
     function insertSimpleModRow(mod){
         modtable.append('<tr id="mod-'+mod.name.replace(/\s/g, "")+'">' +
             '<td><span class="modname">'+mod.name+'</span></td>' +
-            '<td><button onclick="WPOS.items.incrementModQty(this, true);" class="btn btn-primary btn-xs" style="margin-right: 5px;"><i class="icon-arrow-up"></i></button><button onclick="WPOS.items.incrementModQty(this, false);" class="btn btn-primary btn-xs" style="margin-right: 4px;"><i class="icon-arrow-down"></i></button>' +
+            '<td><button onclick="POSitems.incrementModQty(this, true);" class="btn btn-primary btn-xs" style="margin-right: 5px;"><i class="icon-arrow-up"></i></button><button onclick="POSitems.incrementModQty(this, false);" class="btn btn-primary btn-xs" style="margin-right: 4px;"><i class="icon-arrow-down"></i></button>' +
             '<span data-min="'+mod.minqty+'" data-max="'+mod.maxqty+'" data-default="'+mod.qty+'" data-price="'+mod.price+'" class="modqty">'+mod.qty+'</span></td>' +
             '<td><span data-moddefault="'+mod.qty+'" data-modqty="0" data-modprice="0" class="modcost">'+zerostr+'</span></td></tr>');
     }
@@ -308,7 +308,7 @@ function WPOSItems() {
         var newqty = parseInt(qtyelem.text()) + (positive?1:-1);
         if (newqty<minqty || newqty>maxqty){
             var ismax = newqty>maxqty;
-            WPOS.notifications.warning("Cannot have "+(ismax?"more":"less")+" than "+(ismax?maxqty:minqty)+" "+row.find('.modname').text(), "Quantity Limit");
+            POSnotifications.warning("Cannot have "+(ismax?"more":"less")+" than "+(ismax?maxqty:minqty)+" "+row.find('.modname').text(), "Quantity Limit");
             return;
         }
         var modqty = newqty-defaultqty;
@@ -317,7 +317,7 @@ function WPOSItems() {
         var costelem = row.find('.modcost');
         costelem.data('modqty', modqty);
         costelem.data('modprice', newprice);
-        costelem.text(WPOS.util.currencyFormat(newprice));
+        costelem.text(POSutil.currencyFormat(newprice));
         calculateTotalMods();
     };
     function insertSelectModRow(mod){
@@ -329,7 +329,7 @@ function WPOSItems() {
         }
         modtable.append('<tr id="mod-'+mod.name.replace(/\s/g, "")+'">' +
             '<td><span class="modname">'+mod.name+'</span></td>' +
-            '<td><select onchange="WPOS.items.modSelectValue(this);" class="modselect">'+selecthtml+'</select></td>' +
+            '<td><select onchange="POSitems.modSelectValue(this);" class="modselect">'+selecthtml+'</select></td>' +
             '<td><span data-moddefault="'+selectdefault.name+'" data-modprice="0" data-defaultprice="'+selectdefault.price+'" class="modcost">'+zerostr+'</span></td></tr>');
     }
     this.modSelectValue = function(selectelem){
@@ -338,7 +338,7 @@ function WPOSItems() {
         var defaultprice = costfield.data('defaultprice');
         var moddiffprice = (newprice - defaultprice).toFixed(2);
         costfield.data('modprice', moddiffprice);
-        costfield.text(WPOS.util.currencyFormat(moddiffprice));
+        costfield.text(POSutil.currencyFormat(moddiffprice));
         calculateTotalMods();
     };
     function calculateTotalMods(){
@@ -348,9 +348,9 @@ function WPOSItems() {
         });
         var totalfield = $("#itemmodtotal");
         totalfield.data('modtotal', total);
-        totalfield.text(WPOS.util.currencyFormat(total));
+        totalfield.text(POSutil.currencyFormat(total));
         var newunit = parseFloat(itemrow.find('.itemunit').val()) + total;
-        $("#itemmodunit").text(WPOS.util.currencyFormat(newunit));
+        $("#itemmodunit").text(POSutil.currencyFormat(newunit));
     }
 
     this.saveItemMods = function(){
@@ -371,7 +371,7 @@ function WPOSItems() {
                     mod.value = modval;
                 }
                 moddata.items.push(mod);
-                modtxt+= (mod.hasOwnProperty('qty')?(mod.qty>0?'+ ':'')+mod.qty:'')+' '+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+WPOS.util.currencyFormat(mod.price)+')<br/>';
+                modtxt+= (mod.hasOwnProperty('qty')?(mod.qty>0?'+ ':'')+mod.qty:'')+' '+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POSutil.currencyFormat(mod.price)+')<br/>';
             }
         });
         itemrow.find('.itemmodtxt').html(modtxt);
@@ -384,12 +384,12 @@ function WPOSItems() {
             delete data.mod;
         }
         itemrow.find('.itemid').data('options', data);
-        WPOS.sales.updateSalesTotal();
+        POSsales.updateSalesTotal();
     };
 
     this.searchCustomers = function(query){
         var results = [];
-        var customers = WPOS.getCustTable();
+        var customers = POSgetCustTable();
         query.trim();
         query = query.toLowerCase();
         for (var key in customers){
@@ -407,7 +407,7 @@ function WPOSItems() {
     };
 
     function loadCustomerIfExists(custid){
-        var custdata = WPOS.getCustTable()[custid];
+        var custdata = POSgetCustTable()[custid];
         if (custdata!=null){
             $("#custid").val(custdata.id);
             $("#custname").val(custdata.name);
@@ -431,13 +431,13 @@ function WPOSItems() {
     this.processNewEmail = function(){ // triggered while the user is typing
         var email = $('#custemail').val();
         if (validateEmail(email)==true){
-            if (loadCustomerIfExists(WPOS.getCustId(email))){
+            if (loadCustomerIfExists(POSgetCustId(email))){
                 return;
             }
         }
         // clear old forms/flags if no account loaded
         $('#custid').val(0);
-        WPOS.sales.clearCustUpdate();
+        POSsales.clearCustUpdate();
         $('#custform').trigger('reset');
     };
 
@@ -462,7 +462,7 @@ $(function () {
 
     $("#itemsearch").autocomplete({
         source: function (request, response) {
-            response(WPOS.items.searchItems(request.term));
+            response(POSitems.searchItems(request.term));
         },
         search: function () {
             // custom minLength
@@ -474,7 +474,7 @@ $(function () {
             return false;
         },
         select: function (event, ui) {
-            WPOS.items.addItemFromId(ui.item.id);
+            POSitems.addItemFromId(ui.item.id);
             this.value = "";
             return false;
         }
@@ -482,7 +482,7 @@ $(function () {
 
     $("#custemail").autocomplete({
         source: function (request, response) {
-            response(WPOS.items.searchCustomers(request.term));
+            response(POSitems.searchCustomers(request.term));
         },
         search: function () {
             // custom minLength
@@ -492,7 +492,7 @@ $(function () {
         },
         select: function (event, ui) {
             this.value = ui.item.email;
-            WPOS.items.loadCustomerDetails(ui.item.id, ui.item.email);
+            POSitems.loadCustomerDetails(ui.item.id, ui.item.email);
             return false;
         }
     });
@@ -516,7 +516,7 @@ $(function () {
                 html: "<i class='icon-save bigger-110'></i>&nbsp; Save",
                 "class" : "btn btn-success btn-xs",
                 click: function() {
-                    WPOS.items.saveItemMods();
+                    POSitems.saveItemMods();
                     $(this).dialog( "close" );
                 }
             }
@@ -531,10 +531,10 @@ $(function () {
         ]
     });
 
-    $("#subtotal").text(WPOS.util.currencyFormat(0));
-    $("#totaltax").text(WPOS.util.currencyFormat(0));
-    $("#discounttxt").text("("+WPOS.util.currencyFormat(0)+")");
-    $("#total").text(WPOS.util.currencyFormat(0));
+    $("#subtotal").text(POSutil.currencyFormat(0));
+    $("#totaltax").text(POSutil.currencyFormat(0));
+    $("#discounttxt").text("("+POSutil.currencyFormat(0)+")");
+    $("#total").text(POSutil.currencyFormat(0));
 });
 
 function WPOSSales() {
@@ -577,8 +577,8 @@ function WPOSSales() {
         // remove cur tax from the total and we have our subtotal
         curtotal = total;
         cursubtotal = (total - curtaxtotal);
-        $("#subtotal").text(WPOS.util.currencyFormat(cursubtotal.toFixed(2)));
-        $("#totaltax").text(WPOS.util.currencyFormat(curtaxtotal.toFixed(2)));
+        $("#subtotal").text(POSutil.currencyFormat(cursubtotal.toFixed(2)));
+        $("#totaltax").text(POSutil.currencyFormat(curtaxtotal.toFixed(2)));
         this.updateDiscount();
     };
 
@@ -596,13 +596,13 @@ function WPOSSales() {
         curtotal = (parseFloat(cursubtotal) + parseFloat(curtaxtotal)); // !important reset total
         if (discount === "" || discount == "0" || discount === null) {
             discountobj.val("0");
-            distxtobj.text("("+WPOS.util.currencyFormat("0.00")+")");
+            distxtobj.text("("+POSutil.currencyFormat("0.00")+")");
         } else {
             var discountsum = ((discount / 100) * curtotal).toFixed(2);
-            distxtobj.text("(" + WPOS.util.currencyFormat(discountsum) + ")");
+            distxtobj.text("(" + POSutil.currencyFormat(discountsum) + ")");
             curtotal = (curtotal - discountsum);
         }
-        $("#total").text(WPOS.util.currencyFormat(curtotal.toFixed(2)));
+        $("#total").text(POSutil.currencyFormat(curtotal.toFixed(2)));
     };
 
     /**
@@ -612,7 +612,7 @@ function WPOSSales() {
     var curround = 0;
     var curbalance = 0;
     this.updatePaymentSums = function () {
-        var roundcents = WPOS.getConfigTable().pos.cashrounding;
+        var roundcents = POSgetConfigTable().pos.cashrounding;
         var totalpaid = 0;
         var temppay = 0;
         var temptend = 0;
@@ -625,12 +625,12 @@ function WPOSSales() {
             temppay = parseFloat(paystr);
             if ($(element).find(".paymethod").val()=='cash'){
                 // apply cash rounding
-                temppay = roundcents>0?WPOS.util.roundToNearestCents(roundcents, temppay):temppay;
+                temppay = roundcents>0?POSutil.roundToNearestCents(roundcents, temppay):temppay;
                 // get tender amount
                 var change, tendfield = $(element).find(".paytender");
                 temptend = parseFloat(tendfield.val()).toFixed(2);
                 // apply cash rounding
-                temptend = roundcents>0?WPOS.util.roundToNearestCents(roundcents, temptend):temptend;
+                temptend = roundcents>0?POSutil.roundToNearestCents(roundcents, temptend):temptend;
                 $(element).find(".paytender").val(temptend);
                 //tendfield.val(temptend); causes problems with keypad
                 if (temptend>temppay){
@@ -658,15 +658,15 @@ function WPOSSales() {
             curgrandtotal = curtotal;
             curround = 0;
         } else {
-            curgrandtotal = roundcents>0?WPOS.util.roundToNearestCents(roundcents, curtotal):curtotal;
+            curgrandtotal = roundcents>0?POSutil.roundToNearestCents(roundcents, curtotal):curtotal;
             curround = curgrandtotal - curtotal;
         }
         // update payment sums
         var balance = -(curgrandtotal - totalpaid).toFixed(2);
-        $("#salestotal").text(WPOS.util.currencyFormat(parseFloat(curgrandtotal).toFixed(2)));
-        $("#paymentstotal").text(WPOS.util.currencyFormat(parseFloat(totalpaid).toFixed(2)));
-        $("#salesbalance").text(WPOS.util.currencyFormat(balance));
-        $("#saleschange").text(WPOS.util.currencyFormat((balance>=0?totalchange.toFixed(2):0.00)));
+        $("#salestotal").text(POSutil.currencyFormat(parseFloat(curgrandtotal).toFixed(2)));
+        $("#paymentstotal").text(POSutil.currencyFormat(parseFloat(totalpaid).toFixed(2)));
+        $("#salesbalance").text(POSutil.currencyFormat(balance));
+        $("#saleschange").text(POSutil.currencyFormat((balance>=0?totalchange.toFixed(2):0.00)));
         salebalanced = balance == 0;
         curbalance = balance;
         //console.log("GT:"+ curgrandtotal + "\nPAID:" + totalpaid+ "\nBALANCE:"+ balance + "\nROUNDCENTS:"+ roundcents + "\nROUNDCENTS:"+ curround);
@@ -681,7 +681,7 @@ function WPOSSales() {
         } /*else {
             // update payment amount field to match tender
             $(element).parent().parent().find(".payamount").val(tender);
-            WPOS.sales.updatePaymentSums();
+            POSsales.updatePaymentSums();
         }*/
         $(element).find(".paychange").val(change.toFixed(2));
     };
@@ -690,7 +690,7 @@ function WPOSSales() {
      *
      */
     this.userAbortSale = function () {
-        WPOS.util.confirm("Are you sure you want to abort this order?", function() {
+        POSutil.confirm("Are you sure you want to abort this order?", function() {
             clearSalesForm();
         });
     };
@@ -707,26 +707,26 @@ function WPOSSales() {
         // clear sales form
         $("#itemtable").html('');
         // add a new order row
-        if (WPOS.isOrderTerminal()) {
+        if (POSisOrderTerminal()) {
             $('<tr class="order_row"><td style="background-color:#438EB9; color:#FFF;" colspan="7"><h4 style="text-align: center; margin: 0;">New Order</h4></td></tr>').appendTo("#itemtable");
             $("#tablenumber").val(0).prop('readonly', true);
             $("#radio_takeaway").prop('checked', true);
         }
         $("#paymentstable").html('');
-        $(".payamount").val(WPOS.util.currencyFormat(0));
+        $(".payamount").val(POSutil.currencyFormat(0));
         $("#salenotes").text("").val('');
         $("#salediscount").val(0);
-        $("#discounttxt").text("("+WPOS.util.currencyFormat(0)+")");
-        $("#totaltax").text(WPOS.util.currencyFormat(0));
-        $("#subtotal").text(WPOS.util.currencyFormat(0));
-        $("#total").text(WPOS.util.currencyFormat(0));
+        $("#discounttxt").text("("+POSutil.currencyFormat(0)+")");
+        $("#totaltax").text(POSutil.currencyFormat(0));
+        $("#subtotal").text(POSutil.currencyFormat(0));
+        $("#total").text(POSutil.currencyFormat(0));
         $("#custemail").val("");
         $("#custid").val(0);
         var emailreccb = $("#emailreceipt");
         emailreccb.prop("checked", false);
         emailreccb.prop("disabled", true);
         $("#custform").trigger('reset');
-        WPOS.sales.clearCustUpdate();
+        POSsales.clearCustUpdate();
         // zero current totals
         cursubtotal = 0.00;
         curtotal = 0.00;
@@ -744,7 +744,7 @@ function WPOSSales() {
     function validateSalesItems(){
         var qty,name, unit, mod, tempprice, tempcost;
         var numinvalid = 0;
-        var allow_negative = WPOS.getConfigTable().pos.negative_items;
+        var allow_negative = POSgetConfigTable().pos.negative_items;
         $("#itemtable").children(".item_row").each(function (index, element) {
                 qty = parseFloat($(element).find(".itemqty").val());
                 name = $(element).find(".itemname").val();
@@ -758,7 +758,7 @@ function WPOSSales() {
                     tempcost = qty * itemdata.cost;
                     // calculate item tax
                     var taxruleid = $(element).find(".itemtax").val();
-                    var taxdata = WPOS.util.calcTax(taxruleid, tempprice, tempcost);
+                    var taxdata = POSutil.calcTax(taxruleid, tempprice, tempcost);
                     if (!taxdata.inclusive) {
                         tempprice += taxdata.total;
                     }
@@ -786,20 +786,20 @@ function WPOSSales() {
     }
 
     this.showPaymentDialog = function () {
-        WPOS.sales.updatePaymentSums();
+        POSsales.updatePaymentSums();
         if (getNumSalesItems() && curgrandtotal>0){
             // Show integrated eftpos button if enabled
             var inteftbtn = $("#eftpospaybtn");
-            if (WPOS.hasOwnProperty('eftpos') && WPOS.eftpos.isEnabledAndReady()){
+            if (POShasOwnProperty('eftpos') && POSeftpos.isEnabledAndReady()){
                 inteftbtn.show();
-                inteftbtn.text(WPOS.util.capFirstLetter(WPOS.eftpos.getType())+' Eftpos');
+                inteftbtn.text(POSutil.capFirstLetter(POSeftpos.getType())+' Eftpos');
             } else {
                 inteftbtn.hide();
             }
             $("#paymentsdiv").dialog('open');
             $("#endsalebtn").prop("disabled", false); // make sure the damn button is active, dunno why but when the page reloads it seems to keep its state.
         } else {
-            WPOS.notifications.warning("Please add some valid items to the sale before proceeding!", "No Items");
+            POSnotifications.warning("Please add some valid items to the sale before proceeding!", "No Items");
         }
     };
 
@@ -809,7 +809,7 @@ function WPOSSales() {
 
     this.removePayment = function(pitem){
         $(pitem).parent('td').parent('tr').remove();
-        WPOS.sales.updatePaymentSums();
+        POSsales.updatePaymentSums();
     };
 
     this.addPayment = function(method){
@@ -818,17 +818,17 @@ function WPOSSales() {
         } else {
             addPaymentRow(method, curgrandtotal.toFixed(2), curgrandtotal.toFixed(2), null);
         }
-        WPOS.sales.updatePaymentSums();
+        POSsales.updatePaymentSums();
     };
 
     this.addPaymentRowWithData = function(method, value, extraData){
         addPaymentRow(method, value, value, 0, extraData);
-        WPOS.sales.updatePaymentSums();
+        POSsales.updatePaymentSums();
     };
 
     this.startEftposPayment = function(){
         // find out if cashout supported by provider
-        if (WPOS.eftpos.isCashoutSupported){
+        if (POSeftpos.isCashoutSupported){
             showCashoutDialog();
         } else {
             initEftposPayment(0);
@@ -854,7 +854,7 @@ function WPOSSales() {
                             $(".keypad-popup").hide();
                             var cashout =  parseFloat($("#cashoutamount").val()).toFixed(2);
                             if (cashout<0){
-                                WPOS.notifications.warning("Cashout value must be positive or 0", "Invalid Amount");
+                                POSnotifications.warning("Cashout value must be positive or 0", "Invalid Amount");
                                 return;
                             }
                             codialog.dialog('close');
@@ -880,9 +880,9 @@ function WPOSSales() {
 
     function initEftposPayment(cashout){
         if ($("#paymentstable").children('tr').length>0){
-            WPOS.eftpos.startEftposPayment((-curbalance+-curround).toFixed(2), cashout); // use current balance, remove rounding
+            POSeftpos.startEftposPayment((-curbalance+-curround).toFixed(2), cashout); // use current balance, remove rounding
         } else {
-            WPOS.eftpos.startEftposPayment(curgrandtotal.toFixed(2), cashout);
+            POSeftpos.startEftposPayment(curgrandtotal.toFixed(2), cashout);
         }
     }
 
@@ -892,7 +892,7 @@ function WPOSSales() {
         }else{
             $(elem).parent().find('.cashvals').hide();
         }
-        WPOS.sales.updatePaymentSums();
+        POSsales.updatePaymentSums();
     };
 
     function addPaymentRow(method, value, tender, change, extraData){
@@ -904,14 +904,14 @@ function WPOSSales() {
             data = "data-paydata='"+JSON.stringify(extraData)+"'";
 
         var curBefore = "", curAfter = "";
-        if (WPOS.util.getCurrencyPlacedAfter()){
-            curAfter = WPOS.util.getCurrencySymbol();
+        if (POSutil.getCurrencyPlacedAfter()){
+            curAfter = POSutil.getCurrencySymbol();
         } else {
-            curBefore = WPOS.util.getCurrencySymbol();
+            curBefore = POSutil.getCurrencySymbol();
         }
 
         var payrow =  '<tr '+data+'><td>' +
-            '<select class="paymethod" onchange="WPOS.sales.onPaymentMethodChange(this);">' +
+            '<select class="paymethod" onchange="POSsales.onPaymentMethodChange(this);">' +
             '<option value="eftpos" '+(method=='eftpos'?'selected':'')+'>Eftpos</option>' +
             '<option value="credit" '+(method=='credit'?'selected':'')+'>Credit</option>' +
             '<option value="cash" '+(method=='cash'?'selected':'')+'>Cash</option>' +
@@ -919,16 +919,16 @@ function WPOSSales() {
             '<option value="deposit" '+(method=='deposit'?'selected':'')+'>Deposit</option>' +
             exmethod+ '</select>' +
             '<div class="cashvals" '+(method!='cash'?'style="display: none"':'width:150px;')+'>' +
-            '<div style="width: 100px; display: inline-block;">Tendered:</div><input onChange="WPOS.sales.updatePaymentChange($(this).parent());" class="paytender numpad" style="width:50px;" type="text" value="'+(method!='cash'?0.00:(tender!=null?tender:value))+'" />' +
+            '<div style="width: 100px; display: inline-block;">Tendered:</div><input onChange="POSsales.updatePaymentChange($(this).parent());" class="paytender numpad" style="width:50px;" type="text" value="'+(method!='cash'?0.00:(tender!=null?tender:value))+'" />' +
             '<div style="width: 100px; display: inline-block;">Change:</div><input class="paychange" style="width:50px;" type="text" value="'+(method!='cash'?0.00:(change!=null?change:0.00))+'" readonly />' +
             '</div></td>' +
-            '<td>'+curBefore+'<input onChange="WPOS.sales.updatePaymentSums();" class="payamount numpad" style="width:50px;" type="text" value="'+value+'" autocomplete="off"/>'+curAfter+'</td>' +
-            '<td><button class="btn btn-xs btn-danger" onclick="WPOS.sales.removePayment($(this));">X</button></td></tr>';
+            '<td>'+curBefore+'<input onChange="POSsales.updatePaymentSums();" class="payamount numpad" style="width:50px;" type="text" value="'+value+'" autocomplete="off"/>'+curAfter+'</td>' +
+            '<td><button class="btn btn-xs btn-danger" onclick="POSsales.removePayment($(this));">X</button></td></tr>';
 
         $("#paymentstable").append(payrow);
 
         // reinitialize keypad & field listeners
-        WPOS.initKeypad();
+        POSinitKeypad();
     }
 
     // FUNCTIONS BEFORE ARE FOR PROCESSING ORDERS
@@ -939,10 +939,10 @@ function WPOSSales() {
     function processOrder(){
         var salesobj = getSaleObject();
         var sales_json = JSON.stringify(salesobj);
-        if (sales_json.length > 16384) return WPOS.notifications.error('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
+        if (sales_json.length > 16384) return POSnotifications.error('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
         if (curref!=null){
             salesobj.ref = curref;
-            var cursale = WPOS.trans.getTransactionRecord(curref);
+            var cursale = POStrans.getTransactionRecord(curref);
             if (cursale.hasOwnProperty('id')){
                 salesobj.id = cursale.id; // make sure we add the id
             }
@@ -952,18 +952,18 @@ function WPOSSales() {
         salesobj.isorder = true;
         // add to offline table temporarily
         addOfflineSale(salesobj, "orders/set");
-        if (WPOS.isOnline()) {
-            WPOS.setStatusBar(2, "Uploading Record...");
-            WPOS.sendJsonDataAsync("orders/set", JSON.stringify(salesobj), function(data){ WPOS.sales.postSaleUpload(data, salesobj.ref); });
+        if (POSisOnline()) {
+            POSsetStatusBar(2, "Uploading Record...");
+            POSsendJsonDataAsync("orders/set", JSON.stringify(salesobj), function(data){ POSsales.postSaleUpload(data, salesobj.ref); });
         } else {
             // update status
-            WPOS.setStatusBar(3, "WPOS is offline ("+WPOS.sales.getOfflineSalesNum()+" offline records)");
+            POSsetStatusBar(3, "POSis offline ("+POSsales.getOfflineSalesNum()+" offline records)");
         }
         // close the payment dialog and clear form
         clearSalesForm();
         $("#paymentsdiv").dialog("close");
         // process the orders
-        WPOS.orders.processOrder(salesobj, cursale);
+        POSorders.processOrder(salesobj, cursale);
     }
 
     this.loadOrder = function(ref){
@@ -971,30 +971,30 @@ function WPOSSales() {
     };
 
     this.removeOrder = function(ref){
-        WPOS.util.confirm("Are you sure you want to delete this order?", function() {
-            WPOS.util.showLoader();
-            WPOS.sendJsonDataAsync("orders/remove", JSON.stringify({ref: ref}), function(result){
+        POSutil.confirm("Are you sure you want to delete this order?", function() {
+            POSutil.showLoader();
+            POSsendJsonDataAsync("orders/remove", JSON.stringify({ref: ref}), function(result){
 
                 if (result){
-                    var cursale = WPOS.trans.getTransactionRecord(ref);
+                    var cursale = POStrans.getTransactionRecord(ref);
                     removeSalesRecord(ref);
                     // if the order is loaded we need to clear the sales form
                     if (ref==curref)
                         clearSalesForm();
                     // process the orders
-                    WPOS.orders.processOrder(ref, cursale);
+                    POSorders.processOrder(ref, cursale);
                 } else {
-                    WPOS.notifications.error("Could not delete the order!", "Order Deletion Failed");
+                    POSnotifications.error("Could not delete the order!", "Order Deletion Failed");
                 }
-                WPOS.util.hideLoader();
-                WPOS.trans.showTransactionView();
+                POSutil.hideLoader();
+                POStrans.showTransactionView();
             });
         });
     };
 
     function loadOrder(ref){
         // get the existing sales object.
-        var salesobj = WPOS.trans.getTransactionRecord(ref);
+        var salesobj = POStrans.getTransactionRecord(ref);
         if (salesobj!=false){
             clearSalesForm();
             $("#itemtable").html('');
@@ -1014,10 +1014,10 @@ function WPOSSales() {
                     orderid:item.orderid
                 };
                 if (item.hasOwnProperty('mod')) data.mod = item.mod;
-                WPOS.items.addItemRow(item.qty, item.name, item.unit, item.taxid, item.sitemid, data);
+                POSitems.addItemRow(item.qty, item.name, item.unit, item.taxid, item.sitemid, data);
             }
             // add a new order row
-            if (WPOS.isOrderTerminal())
+            if (POSisOrderTerminal())
                 $('<tr class="order_row"><td style="background-color:#438EB9; color:#FFF;" colspan="7"><h4 style="text-align: center; margin: 0;">New Order</h4></td></tr>').appendTo("#itemtable");
             // load sale data
             $("#salediscount").val(salesobj.discount);
@@ -1033,7 +1033,7 @@ function WPOSSales() {
                 $("#custsuburb").val(custdata.suburb);
                 $("#custpostcode").val(custdata.postcode);
                 $("#custcountry").val(custdata.country);
-                WPOS.sales.setUpdateCust();
+                POSsales.setUpdateCust();
             }
             var payment;
             for (i in salesobj.payments){
@@ -1050,12 +1050,12 @@ function WPOSSales() {
             }
             // set the current transaction reference and close dialog
             curref = salesobj.ref;
-            WPOS.sales.updateSalesTotal();
-            WPOS.sales.updatePaymentSums();
+            POSsales.updateSalesTotal();
+            POSsales.updatePaymentSums();
             $("#transactiondiv").dialog('close');
             $("#wrapper").tabs("option", "active", 0);
         } else {
-            WPOS.notifications.error("Could not find the current record.", "Record Not Found");
+            POSnotifications.error("Could not find the current record.", "Record Not Found");
         }
     }
 
@@ -1064,12 +1064,12 @@ function WPOSSales() {
         var salebtn = $("#endsalebtn");
         salebtn.prop("disabled", true);
         if (!isSaleBalanced()){
-            WPOS.notifications.warning("Please balance the sale before continuing", "Sale Not Balanced");
+            POSnotifications.warning("Please balance the sale before continuing", "Sale Not Balanced");
             salebtn.prop("disabled", false);
             return;
         }
         if (!validatePayments()){
-            WPOS.notifications.warning("Only cash-out payments may have a negative amount", "Invalid Payment Amount");
+            POSnotifications.warning("Only cash-out payments may have a negative amount", "Invalid Payment Amount");
             salebtn.prop("disabled", false);
             return;
         }
@@ -1098,13 +1098,13 @@ function WPOSSales() {
     function ProcessSaleTransaction(){
         var salesobj = getSaleObject();
         var sales_json = JSON.stringify(salesobj);
-        if (sales_json.length > 16384) return WPOS.notifications.error('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
+        if (sales_json.length > 16384) return POSnotifications.error('Too Many Items', 'Transaction Size Limit'); // depends on database field size for sales.data
 
         // check for sale reference, indicating an exiting order and set it's reference onto the new data
         var cursale = null;
         if (curref!==null){
             //alert("Processing using orders existing reference: "+curref);
-            cursale = WPOS.trans.getTransactionRecord(curref);
+            cursale = POStrans.getTransactionRecord(curref);
             salesobj.ref = curref;
             delete salesobj.isorder;
             removeSalesRecord(curref);
@@ -1112,12 +1112,12 @@ function WPOSSales() {
         // add to offline table temporarily
         addOfflineSale(salesobj, "sales/add");
         lasttransref = salesobj.ref; // set for recall function use
-        if (WPOS.isOnline()) {
-            WPOS.setStatusBar(2, "Uploading Record...");
-            WPOS.sendJsonDataAsync("sales/add", JSON.stringify(salesobj), function(data){ WPOS.sales.postSaleUpload(data, salesobj.ref); });
+        if (POSisOnline()) {
+            POSsetStatusBar(2, "Uploading Record...");
+            POSsendJsonDataAsync("sales/add", JSON.stringify(salesobj), function(data){ POSsales.postSaleUpload(data, salesobj.ref); });
         } else {
             // update status
-            WPOS.setStatusBar(3, "WPOS is offline ("+WPOS.sales.getOfflineSalesNum()+" offline records)");
+            POSsetStatusBar(3, "POSis offline ("+POSsales.getOfflineSalesNum()+" offline records)");
         }
         var recemailed = $("#emailreceipt").is(":checked");
         // close the payment dialog and clear form (clears current ref aswell)
@@ -1126,22 +1126,22 @@ function WPOSSales() {
         // open the draw if a cash payment
         for (var i in salesobj.payments){
             if (salesobj.payments[i].method == "cash"){
-                WPOS.print.openCashDraw(true); // opens cash draw if configured
+                POSprint.openCashDraw(true); // opens cash draw if configured
                 break;
             }
         }
         // process the orders
-        WPOS.orders.processOrder(salesobj, cursale);
+        POSorders.processOrder(salesobj, cursale);
         // print receipt or prompt
-        var psetting = WPOS.print.getGlobalPrintSetting('recask');
+        var psetting = POSprint.getGlobalPrintSetting('recask');
         if (psetting == "print"){
-            WPOS.print.printReceipt(salesobj.ref);
+            POSprint.printReceipt(salesobj.ref);
         } else {
             if (psetting == "email" && recemailed){
                 return; // receipt has been emailed
             }
-            WPOS.util.confirm("Would you like to print a receipt?", function() {
-                WPOS.print.printReceipt(salesobj.ref);
+            POSutil.confirm("Would you like to print a receipt?", function() {
+                POSprint.printReceipt(salesobj.ref);
             });
 
         }
@@ -1157,16 +1157,16 @@ function WPOSSales() {
             // check if customer data available for processing
             if (jsonresponse.custdata != undefined){
                 jsonresponse.custdata.id = jsonresponse.custid;
-                WPOS.updateCustTable(jsonresponse.custdata);
+                POSupdateCustTable(jsonresponse.custdata);
             }
             // reset status Icon
-            WPOS.setStatusBar(1, "WPOS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+            POSsetStatusBar(1, "POSis Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         } else {
             // ERROR
-            if (WPOS.switchToOffline()) { // do not store record if offline mode is not supported.
+            if (POSswitchToOffline()) { // do not store record if offline mode is not supported.
                 // update status
                 var statusmsg = "The POS is offine and will store sale data locally until a connection becomes available.";
-                WPOS.setStatusBar(3, "WPOS is offline ("+WPOS.sales.getOfflineSalesNum()+" offline records)", statusmsg, 0);
+                POSsetStatusBar(3, "POSis offline ("+POSsales.getOfflineSalesNum()+" offline records)", statusmsg, 0);
             } else {
                 // remove from offline temp
                 removeOfflineSale(callbackref);
@@ -1194,7 +1194,7 @@ function WPOSSales() {
             } else {
                 curorder = getNewOrderObject(date);
                 if (orders.hasOwnProperty(curorder.id)){
-                    curorder.id = WPOS.util.getSequencialOrderNumber(); // avoiding a duplicate order numbers in the same transaction
+                    curorder.id = POSutil.getSequencialOrderNumber(); // avoiding a duplicate order numbers in the same transaction
                 }
                 neworderid = curorder.id;
             }
@@ -1215,7 +1215,7 @@ function WPOSSales() {
                 numitems += tempqty;
                 // add item to the array
                 var data = {
-                    "ref": WPOS.util.getRandomId(), // use index as reference for this sale item,
+                    "ref": POSutil.getRandomId(), // use index as reference for this sale item,
                     "sitemid": $(element).find(".itemid").val(),
                     "qty": tempqty,
                     "name": $(element).find(".itemname").val(),
@@ -1232,7 +1232,7 @@ function WPOSSales() {
                     totalcost += (data.cost*data.qty);
                 items.push(data);
 
-                if (WPOS.isOrderTerminal()){
+                if (POSisOrderTerminal()){
                     // if order id is undefined, add to the new order
                     if (!data.hasOwnProperty('orderid')) {
                         data.orderid = neworderid;
@@ -1243,7 +1243,7 @@ function WPOSSales() {
         });
 
         // cycle through orders & match the old order items to the new, if they don't match, update the moddt
-        if (WPOS.isOrderTerminal())
+        if (POSisOrderTerminal())
             for (var o in orders){
                 // check number of items & remove if 0
                 if (Object.keys(orders[o].items).length==0) {
@@ -1256,9 +1256,9 @@ function WPOSSales() {
                             orders[o].moddt = date;
                         } else {
                             // otherwise we need to check against each value
-                            var olditems = WPOS.trans.getTransactionRecord(curref).items;
+                            var olditems = POStrans.getTransactionRecord(curref).items;
                             for (var index in orders[o].items) {
-                                if (!WPOS.util.areObjectsEquivalent(items[orders[o].items[index]], olditems[orders[o].items[index]])) {
+                                if (!POSutil.areObjectsEquivalent(items[orders[o].items[index]], olditems[orders[o].items[index]])) {
                                     console.log("order not equivalent, updating moddt");
                                     orders[o].moddt = date;
                                 }
@@ -1284,9 +1284,9 @@ function WPOSSales() {
 
         // create object
         var salesobj = {};
-        var config = WPOS.getConfigTable();
+        var config = POSgetConfigTable();
         salesobj.ref = date + "-" + config.deviceid + "-" + Math.floor((Math.random() * 10000) + 1);
-        salesobj.userid = WPOS.getCurrentUserId();
+        salesobj.userid = POSgetCurrentUserId();
         salesobj.devid = config.deviceid;
         salesobj.locid = config.locationid;
         salesobj.custid = $("#custid").val();
@@ -1320,7 +1320,7 @@ function WPOSSales() {
         }
 
         // add order data to the record
-        if (WPOS.isOrderTerminal())
+        if (POSisOrderTerminal())
             salesobj.orderdata = orders;
 
         return salesobj;
@@ -1328,7 +1328,7 @@ function WPOSSales() {
 
     function getNewOrderObject(date){
         return {
-            id:         WPOS.util.getSequencialOrderNumber(),
+            id:         POSutil.getSequencialOrderNumber(),
             items:      {},
             processdt:  date,
             received:   false,
@@ -1370,10 +1370,10 @@ function WPOSSales() {
         var formdiv = $("#formdiv");
         formdiv.dialog("option", "title", "Refund transaction");
         var voidbtn = $("#procvoidbtn");
-        voidbtn.attr("onclick", 'WPOS.sales.processRefund();');
+        voidbtn.attr("onclick", 'POSsales.processRefund();');
         voidbtn.prop('disabled', false);
         // populate items
-        var sale = WPOS.trans.getTransactionRecord(ref);
+        var sale = POStrans.getTransactionRecord(ref);
         var items = sale.items;
         var refitems = $("#refunditems");
         refitems.html('');
@@ -1395,7 +1395,7 @@ function WPOSSales() {
                 }
             }
             refitems.append('<tr>' +
-                '<td><input size="4" class="refundqty" type="number" value="0" onchange="WPOS.sales.validateRefund();" autocomplete="off"/>' +
+                '<td><input size="4" class="refundqty" type="number" value="0" onchange="POSsales.validateRefund();" autocomplete="off"/>' +
                 '<input class="refunditemref" type="hidden" value="'+(items[i].hasOwnProperty('ref')?items[i].ref:0)+'"/>' +
                 '<input class="refunditemid" type="hidden" value="'+(items[i].hasOwnProperty('id')?items[i].id:0)+'"/>' + // temp fix for old db records not containing item ref
                 '<input class="refundsqty" type="hidden" value="'+(parseInt(items[i].qty)-refnum)+'"/>' +
@@ -1404,7 +1404,7 @@ function WPOSSales() {
             '</tr>');
         }
         var eftbtn = $("#eftposrefundbtn");
-        if (WPOS.hasOwnProperty('eftpos') && WPOS.eftpos.isEnabledAndReady()){
+        if (POShasOwnProperty('eftpos') && POSeftpos.isEnabledAndReady()){
             eftbtn.show();
         } else {
             eftbtn.hide();
@@ -1428,7 +1428,7 @@ function WPOSSales() {
             var netqty = parseInt($(item).find('.refundsqty').val());
             // check if the amount is larger than bought qty
             if (refundqty>netqty){
-                WPOS.notifications.warning("Cannot return more items than sold + returned!", "Invalid Return Quantity");
+                POSnotifications.warning("Cannot return more items than sold + returned!", "Invalid Return Quantity");
                 $(item).find('.refundqty').val(netqty);
                 return false;
             }
@@ -1450,7 +1450,7 @@ function WPOSSales() {
         var formdiv = $("#formdiv");
         var voidbtn = $("#procvoidbtn");
         formdiv.dialog("option", "title", "Void transaction");
-        voidbtn.attr("onclick", 'WPOS.sales.processVoid();');
+        voidbtn.attr("onclick", 'POSsales.processVoid();');
         voidbtn.prop('disabled', false);
         formdiv.dialog('open');
     };
@@ -1458,45 +1458,45 @@ function WPOSSales() {
     this.processVoid = function(){
         // do not allow for sales with integrated eftpos transactions
         var ref = $("#voidref").val();
-        var trans = WPOS.trans.getTransactionRecord(ref);
+        var trans = POStrans.getTransactionRecord(ref);
         for (var i in trans.payments){
             if (trans.payments[i].method=="tyro"){
-                WPOS.notifications.warning("Sales with Eftpos transactions cannot be voided. Refund this transaction instead.", "Void Not Allowed");
+                POSnotifications.warning("Sales with Eftpos transactions cannot be voided. Refund this transaction instead.", "Void Not Allowed");
                 return;
             }
         }
 
         if ($("#voidreason").val()==""){
-            WPOS.notifications.warning("Reason must not be blank.", "Missing Information");
+            POSnotifications.warning("Reason must not be blank.", "Missing Information");
             return;
         }
-        WPOS.util.confirm("Are you sure you want to void this transaction?", function() {
+        POSutil.confirm("Are you sure you want to void this transaction?", function() {
             $("#procvoidbtn").prop('disabled', true);
             processVoidTransaction(ref, false);
             $("#formdiv").dialog('close');
             lasttransref = ref;
             // update transaction info
-            WPOS.trans.populateTransactionInfo(ref);
+            POStrans.populateTransactionInfo(ref);
         });
     };
 
     this.processRefund = function(){
         if ($("#refundreason").val()==""){
-            WPOS.notifications.warning("Reason must not be blank.", "Missing Information");
+            POSnotifications.warning("Reason must not be blank.", "Missing Information");
             return;
         }
         if ($("#refundamount").val()<=0){
-            WPOS.notifications.warning("Amount must be larger than 0.", "Invalid Amount");
+            POSnotifications.warning("Amount must be larger than 0.", "Invalid Amount");
             return;
         }
         var ref = $("#refundref").val();
-        WPOS.util.confirm("Are you sure you want to refund this transaction?", function() {
+        POSutil.confirm("Are you sure you want to refund this transaction?", function() {
             $("#procvoidbtn").prop('disabled', true);
             processVoidTransaction(ref, true);
             $("#formdiv").dialog('close');
             lasttransref = ref;
             // update transaction info
-            WPOS.trans.populateTransactionInfo(ref);
+            POStrans.populateTransactionInfo(ref);
         });
     };
 
@@ -1506,7 +1506,7 @@ function WPOSSales() {
         processVoidTransaction(ref, true);
         lasttransref = ref;
         // update transaction info
-        WPOS.trans.populateTransactionInfo(ref);
+        POStrans.populateTransactionInfo(ref);
     };
 
     function processVoidTransaction(ref, isrefund){
@@ -1520,25 +1520,25 @@ function WPOSSales() {
         } else {
             refundobj =  getVoidObject(ref, isrefund);
         }
-        if (WPOS.isOnline()){
-            WPOS.setStatusBar(2, "Uploading Record...");
-            WPOS.sendJsonDataAsync("sales/void", JSON.stringify(refundobj), function(data){ WPOS.sales.postVoidUpload(data); });
+        if (POSisOnline()){
+            POSsetStatusBar(2, "Uploading Record...");
+            POSsendJsonDataAsync("sales/void", JSON.stringify(refundobj), function(data){ POSsales.postVoidUpload(data); });
         } else {
             addUpdatedOfflineRecord(true, refundobj, "sales/void"); // update records
             // update status
-            WPOS.setStatusBar(3, "WPOS is offline ("+WPOS.sales.getOfflineSalesNum()+" offline records)");
+            POSsetStatusBar(3, "POSis offline ("+POSsales.getOfflineSalesNum()+" offline records)");
         }
         if (isrefund){
             // open the draw if a cash payment
             if (refundobj.refunddata[refundobj.refunddata.length-1].method == "cash"){
-                WPOS.print.openCashDraw(true); // opens cash draw if configured
+                POSprint.openCashDraw(true); // opens cash draw if configured
             }
             // print receipt or prompt
-            if (WPOS.getLocalConfig().recask == "print"){
-                WPOS.print.printReceipt(refundobj.ref);
+            if (POSgetLocalConfig().recask == "print"){
+                POSprint.printReceipt(refundobj.ref);
             } else {
-                WPOS.util.confirm("Would you like to print a receipt?", function() {
-                    WPOS.print.printReceipt(refundobj.ref);
+                POSutil.confirm("Would you like to print a receipt?", function() {
+                    POSprint.printReceipt(refundobj.ref);
                 });
             }
         }
@@ -1551,13 +1551,13 @@ function WPOSSales() {
             // add json response to sales records
             addSalesRecord(jsonresponse);
             // reset status Icon
-            WPOS.setStatusBar(1, "WPOS is Online");
+            POSsetStatusBar(1, "POSis Online");
         } else {
             // ERROR
-            if (WPOS.switchToOffline()) { // do not store record if offline mode is not supported.
+            if (POSswitchToOffline()) { // do not store record if offline mode is not supported.
                 addUpdatedOfflineRecord(true, refundobject, "sales/void"); // update records
                 // update status
-                WPOS.setStatusBar(3, "WPOS is offline ("+WPOS.sales.getOfflineSalesNum()+" offline records)");
+                POSsetStatusBar(3, "POSis offline ("+POSsales.getOfflineSalesNum()+" offline records)");
             }
         }
     };
@@ -1565,11 +1565,11 @@ function WPOSSales() {
     function getVoidObject(ref, refund){
         var refundobj;
         var date = new Date().getTime();
-        var config = WPOS.getConfigTable();
+        var config = POSgetConfigTable();
         // get data from the trans object, it holds offline + remotely loaded transactions
-        refundobj = WPOS.trans.getTransactionRecord(ref);
+        refundobj = POStrans.getTransactionRecord(ref);
         // add refund/void shared data
-        var shareddata = {"userid": WPOS.getCurrentUserId(), "deviceid": config.deviceid, "locationid": config.locationid, "processdt": date};
+        var shareddata = {"userid": POSgetCurrentUserId(), "deviceid": config.deviceid, "locationid": config.locationid, "processdt": date};
         // add specific data
         if (refund){
             // if refund data is not defined, create an array
@@ -1613,7 +1613,7 @@ function WPOSSales() {
         if (addOfflineSale(jsondata, action)){
             if (removefromsales) removeSalesRecord(jsondata.ref);
         } else {
-            WPOS.notifications.error("Failed to update the record in offline storage, the sale has not been updated.", "Offline Storage Error");
+            POSnotifications.error("Failed to update the record in offline storage, the sale has not been updated.", "Offline Storage Error");
         }
     }
 
@@ -1625,7 +1625,7 @@ function WPOSSales() {
      */
     function addSalesRecord(jsonobj) {
         // add to java object
-        WPOS.updateSalesTable(jsonobj.ref, jsonobj);
+        POSupdateSalesTable(jsonobj.ref, jsonobj);
         // save to local storage
         var jsonsales;
         if (localStorage.getItem("wpos_csales") !== null) {
@@ -1742,13 +1742,13 @@ function WPOSSales() {
             var totalcount = Object.keys(jsonosales).length;
             for (var key in jsonosales){
                 // update status
-                WPOS.setStatusBar(2, "Uploading record "+uploadcount+" of "+totalcount);
+                POSsetStatusBar(2, "Uploading record "+uploadcount+" of "+totalcount);
                 // what action to perform to the offline record is kept in the a var
                 var action = jsonosales[key].a;
                 if (action=="sales/void"){
                     action = (jsonosales[key].data.hasOwnProperty("id")?"sales/void":"sales/add"); // if sale is completely offline, use addsale method.
                 }
-                jsonresponse = WPOS.sendJsonData(action, JSON.stringify(jsonosales[key].data));
+                jsonresponse = POSsendJsonData(action, JSON.stringify(jsonosales[key].data));
                 if (jsonresponse !== false && jsonresponse !== null) {
                     // remove from offline temp
                     removeOfflineSale(jsonosales[key].data.ref);
@@ -1757,12 +1757,12 @@ function WPOSSales() {
                 }
                 uploadcount++;
             }
-            var count = WPOS.sales.getOfflineSalesNum();
+            var count = POSsales.getOfflineSalesNum();
             if (count > 0){
                 // damn so close, go back into offline mode
-                if (WPOS.switchToOffline()) {
+                if (POSswitchToOffline()) {
                     // update status
-                    WPOS.setStatusBar(3, "WPOS is offline ("+count+" offline records)");
+                    POSsetStatusBar(3, "POSis offline ("+count+" offline records)");
                     return false;
                 }
             } else {

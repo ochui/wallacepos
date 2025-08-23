@@ -3,7 +3,7 @@ function WPOSOrders(){
     var orderhistcontain = $("#orderhistcontainer");
 
     this.processOrder = function(orderdata, olddata){
-        var device = WPOS.getConfigTable().deviceconfig;
+        var device = POSgetConfigTable().deviceconfig;
         if (device.type=="order_register") {
             if (device.ordertype == "printer") {
                 // print to the kitchen printer
@@ -33,11 +33,11 @@ function WPOSOrders(){
                                 if (!olddata.orderdata[i].hasOwnProperty('moddt') || data.orderdata[i].moddt>olddata.orderdata[i].moddt) {
 
                                     if (display){
-                                        WPOS.orders.removeOrder(data.ref, i);
+                                        POSorders.removeOrder(data.ref, i);
                                         insertOrder(data, i);
                                     }
                                     if (print)
-                                        WPOS.print.printOrderTicket(print, data, i, "ORDER UPDATED");
+                                        POSprint.printOrderTicket(print, data, i, "ORDER UPDATED");
                                     modcount++;
                                 }
                             }
@@ -46,7 +46,7 @@ function WPOSOrders(){
                             if (display)
                                 insertOrder(data, i);
                             if (print)
-                                WPOS.print.printOrderTicket(print, data, i, null);
+                                POSprint.printOrderTicket(print, data, i, null);
                             modcount++;
                         }
                     }
@@ -55,9 +55,9 @@ function WPOSOrders(){
                     if (olddata.hasOwnProperty('orderdata'))
                         for (var r in olddata.orderdata){
                             if (display)
-                                WPOS.orders.removeOrder(olddata.ref, r);
+                                POSorders.removeOrder(olddata.ref, r);
                             if (print)
-                                WPOS.print.printOrderTicket(print, olddata, r, "ORDER CANCELLED");
+                                POSprint.printOrderTicket(print, olddata, r, "ORDER CANCELLED");
                             modcount++;
                         }
                 }
@@ -68,7 +68,7 @@ function WPOSOrders(){
                         if (display)
                             insertOrder(data, o);
                         if (print)
-                            WPOS.print.printOrderTicket(print, data,o, null);
+                            POSprint.printOrderTicket(print, data,o, null);
                         modcount++;
                     }
             }
@@ -78,9 +78,9 @@ function WPOSOrders(){
                 if (olddata.hasOwnProperty('orderdata'))
                     for (var d in olddata.orderdata){
                         if (display)
-                            WPOS.orders.removeOrder(olddata.ref, d);
+                            POSorders.removeOrder(olddata.ref, d);
                         if (print)
-                            WPOS.print.printOrderTicket(print, olddata, d, "ORDER CANCELLED");
+                            POSprint.printOrderTicket(print, olddata, d, "ORDER CANCELLED");
                         modcount++;
                     }
             }
@@ -101,7 +101,7 @@ function WPOSOrders(){
 
     function kitchenTerminalFallback(orderdata, olddata){
         // TODO: have kitchen printer for a fallback option
-       WPOS.util.confirm("The last order has not been received by the kitchen terminal,\nwould you like to print and order tickets here to take to the kitchen?", function() {
+       POSutil.confirm("The last order has not been received by the kitchen terminal,\nwould you like to print and order tickets here to take to the kitchen?", function() {
            processOrders(orderdata, olddata, 'receipts', false);
        });
     }
@@ -111,7 +111,7 @@ function WPOSOrders(){
         var elem = $("#orderbox_template").clone().removeClass('hide').attr('id', 'order_box_'+saleobj.ref+'-'+order.id);
         elem.find('.orderbox_orderid').text(order.id);
         elem.find('.orderbox_saleref').text(saleobj.ref);
-        elem.find('.orderbox_orderdt').text(WPOS.util.getDateFromTimestamp(order.processdt));
+        elem.find('.orderbox_orderdt').text(POSutil.getDateFromTimestamp(order.processdt));
         var itemtbl = elem.find('.orderbox_items');
         for (var i in order.items){
             var item = saleobj.items[order.items[i]]; // the items object links the item id with it's index in the data
@@ -119,7 +119,7 @@ function WPOSOrders(){
             if (item.hasOwnProperty('mod')){
                 for (var x=0; x<item.mod.items.length; x++){
                     var mod = item.mod.items[x];
-                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+WPOS.util.currencyFormat(mod.price)+')';
+                    modStr+= '<br/>'+(mod.hasOwnProperty('qty')?((mod.qty>0?'+ ':'')+mod.qty+' '):'')+mod.name+(mod.hasOwnProperty('value')?': '+mod.value:'')+' ('+POSutil.currencyFormat(mod.price)+')';
                 }
             }
             itemtbl.append('<tr><td style="width:10%;"><strong>'+item.qty+'</strong></td><td><strong>'+item.name+'</strong>'+modStr+'<br/></td></tr>');

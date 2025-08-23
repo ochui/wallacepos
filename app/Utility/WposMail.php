@@ -1,32 +1,17 @@
 <?php
 
+/**
+ *
+ * Mail is used to send all outgoing emails and can optionally include attachments and predefined message text
+ *
+ */
+
 namespace App\Utility;
 
-use App\Controllers\Admin\WposAdminSettings;
+use App\Controllers\Admin\AdminSettings;
 
-/**
- * WposMail is part of Wallace Point of Sale system (WPOS) API
- *
- * WposMail is used to send all outgoing emails and can optionally include attachments and predefined message text
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
-class WposMail
+
+class Mail
 {
     private $mail;
     private $configMdl;
@@ -38,7 +23,7 @@ class WposMail
         if ($generalconfig !== null) {
             $this->genconfig = $generalconfig;
         } else {
-            $this->configMdl = new WposAdminSettings();
+            $this->configMdl = new AdminSettings();
             $this->genconfig = $this->configMdl->getSettingsObject("general");
         }
         // Initialize mail object
@@ -51,7 +36,7 @@ class WposMail
      */
     private function getMailer()
     {
-        $config = WposAdminSettings::getConfigFileValues(true);
+        $config = AdminSettings::getConfigFileValues(true);
         $mail = new \PHPMailer\PHPMailer\PHPMailer();
         $mail->isSMTP(); // Set mailer to use SMTP
 
@@ -84,7 +69,7 @@ class WposMail
         $mail = $this->getMailer();
         // get message
         if ($this->configMdl == null)
-            $this->configMdl = new WposAdminSettings();
+            $this->configMdl = new AdminSettings();
         $emails = $this->configMdl->getSettingsObject('email');
         $message = $emails->messages->{$msgid};
         if ($message == null) {

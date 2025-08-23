@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Main Application class that handles request routing and processing
+ */
+
 namespace App\Core;
 
 use FastRoute\Dispatcher;
@@ -12,9 +16,7 @@ use App\Controllers\Api\PosController;
 use App\Controllers\Api\AdminController;
 use App\Controllers\Api\CustomerController;
 
-/**
- * Main Application class that handles request routing and processing
- */
+
 class Application
 {
     private $result = ["errorCode" => "OK", "error" => "OK", "data" => ""];
@@ -32,18 +34,18 @@ class Application
      */
     private function createDispatcher()
     {
-        return simpleDispatcher(function(RouteCollector $r) {
+        return simpleDispatcher(function (RouteCollector $r) {
             // Template content routes
             $r->get('/api/admin/content/{template}', [ViewController::class, 'adminContent']);
             $r->get('/api/customer/content/{template}', [ViewController::class, 'customerContent']);
-            
+
             // Authentication routes
             $r->addRoute(['GET', 'POST'], '/api/auth', [AuthController::class, 'authenticate']);
             $r->addRoute(['GET', 'POST'], '/api/authrenew', [AuthController::class, 'renewToken']);
             $r->addRoute(['GET', 'POST'], '/api/logout', [AuthController::class, 'logout']);
             $r->addRoute(['GET', 'POST'], '/api/hello', [AuthController::class, 'hello']);
             $r->addRoute(['GET', 'POST'], '/api/auth/websocket', [AuthController::class, 'authorizeWebsocket']);
-            
+
             // POS routes
             $r->addRoute(['GET', 'POST'], '/api/config/get', [PosController::class, 'getConfig']);
             $r->addRoute(['GET', 'POST'], '/api/items/get', [PosController::class, 'getItems']);
@@ -62,37 +64,37 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/sales/deletevoid', [AdminController::class, 'deleteSaleVoid']);
             $r->addRoute(['GET', 'POST'], '/api/sales/adminvoid', [AdminController::class, 'adminVoidSale']);
             $r->addRoute(['GET', 'POST'], '/api/transactions/get', [PosController::class, 'getTransaction']);
-            
+
             // Admin routes
             $r->addRoute(['GET', 'POST'], '/api/devices/setup', [AdminController::class, 'setupDevice']);
             $r->addRoute(['GET', 'POST'], '/api/adminconfig/get', [AdminController::class, 'getAdminConfig']);
-            
+
             // Items management
             $r->addRoute(['GET', 'POST'], '/api/items/add', [AdminController::class, 'addItem']);
             $r->addRoute(['GET', 'POST'], '/api/items/edit', [AdminController::class, 'editItem']);
             $r->addRoute(['GET', 'POST'], '/api/items/delete', [AdminController::class, 'deleteItem']);
             $r->addRoute(['GET', 'POST'], '/api/items/import/set', [AdminController::class, 'setItemImport']);
             $r->addRoute(['GET', 'POST'], '/api/items/import/start', [AdminController::class, 'startItemImport']);
-            
+
             // Suppliers management
             $r->addRoute(['GET', 'POST'], '/api/suppliers/get', [AdminController::class, 'getSuppliers']);
             $r->addRoute(['GET', 'POST'], '/api/suppliers/add', [AdminController::class, 'addSupplier']);
             $r->addRoute(['GET', 'POST'], '/api/suppliers/edit', [AdminController::class, 'editSupplier']);
             $r->addRoute(['GET', 'POST'], '/api/suppliers/delete', [AdminController::class, 'deleteSupplier']);
-            
+
             // Categories management
             $r->addRoute(['GET', 'POST'], '/api/categories/get', [AdminController::class, 'getCategories']);
             $r->addRoute(['GET', 'POST'], '/api/categories/add', [AdminController::class, 'addCategory']);
             $r->addRoute(['GET', 'POST'], '/api/categories/edit', [AdminController::class, 'editCategory']);
             $r->addRoute(['GET', 'POST'], '/api/categories/delete', [AdminController::class, 'deleteCategory']);
-            
+
             // Stock management
             $r->addRoute(['GET', 'POST'], '/api/stock/get', [AdminController::class, 'getStock']);
             $r->addRoute(['GET', 'POST'], '/api/stock/add', [AdminController::class, 'addStock']);
             $r->addRoute(['GET', 'POST'], '/api/stock/set', [AdminController::class, 'setStock']);
             $r->addRoute(['GET', 'POST'], '/api/stock/transfer', [AdminController::class, 'transferStock']);
             $r->addRoute(['GET', 'POST'], '/api/stock/history', [AdminController::class, 'getStockHistory']);
-            
+
             // Customer management
             $r->addRoute(['GET', 'POST'], '/api/customers/add', [AdminController::class, 'addCustomer']);
             $r->addRoute(['GET', 'POST'], '/api/customers/edit', [AdminController::class, 'editCustomer']);
@@ -103,7 +105,7 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/customers/setaccess', [AdminController::class, 'setCustomerAccess']);
             $r->addRoute(['GET', 'POST'], '/api/customers/setpassword', [AdminController::class, 'setCustomerPassword']);
             $r->addRoute(['GET', 'POST'], '/api/customers/sendreset', [AdminController::class, 'sendCustomerReset']);
-            
+
             // User management
             $r->addRoute(['GET', 'POST'], '/api/users/get', [AdminController::class, 'getUsers']);
             $r->addRoute(['GET', 'POST'], '/api/users/add', [AdminController::class, 'addUser']);
@@ -111,7 +113,7 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/users/delete', [AdminController::class, 'deleteUser']);
             $r->addRoute(['GET', 'POST'], '/api/users/disable', [AdminController::class, 'disableUser']);
             $r->addRoute(['GET', 'POST'], '/api/user/disable', [AdminController::class, 'disableUser']);
-            
+
             // Device management
             $r->addRoute(['GET', 'POST'], '/api/devices/add', [AdminController::class, 'addDevice']);
             $r->addRoute(['GET', 'POST'], '/api/devices/edit', [AdminController::class, 'editDevice']);
@@ -132,7 +134,7 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/location/edit', [AdminController::class, 'editLocation']);
             $r->addRoute(['GET', 'POST'], '/api/location/delete', [AdminController::class, 'deleteLocation']);
             $r->addRoute(['GET', 'POST'], '/api/location/disable', [AdminController::class, 'disableLocation']);
-            
+
             // Invoice management
             $r->addRoute(['GET', 'POST'], '/api/invoices/get', [AdminController::class, 'getInvoices']);
             $r->addRoute(['GET', 'POST'], '/api/invoices/search', [AdminController::class, 'searchInvoices']);
@@ -148,7 +150,7 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/invoices/payments/add', [AdminController::class, 'addInvoicePayment']);
             $r->addRoute(['GET', 'POST'], '/api/invoices/payments/edit', [AdminController::class, 'editInvoicePayment']);
             $r->addRoute(['GET', 'POST'], '/api/invoices/payments/delete', [AdminController::class, 'deleteInvoicePayment']);
-            
+
             // Tax management
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/add', [AdminController::class, 'addTaxRule']);
             $r->addRoute(['GET', 'POST'], '/api/tax/rules/edit', [AdminController::class, 'editTaxRule']);
@@ -156,22 +158,22 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/tax/items/add', [AdminController::class, 'addTaxItem']);
             $r->addRoute(['GET', 'POST'], '/api/tax/items/edit', [AdminController::class, 'editTaxItem']);
             $r->addRoute(['GET', 'POST'], '/api/tax/items/delete', [AdminController::class, 'deleteTaxItem']);
-            
+
             // Node/Socket management
             $r->addRoute(['GET', 'POST'], '/api/node/status', [AdminController::class, 'getNodeStatus']);
             $r->addRoute(['GET', 'POST'], '/api/node/start', [AdminController::class, 'startNode']);
             $r->addRoute(['GET', 'POST'], '/api/node/stop', [AdminController::class, 'stopNode']);
             $r->addRoute(['GET', 'POST'], '/api/node/restart', [AdminController::class, 'restartNode']);
-            
+
             // Logging
             $r->addRoute(['GET', 'POST'], '/api/logs/list', [AdminController::class, 'listLogs']);
             $r->addRoute(['GET', 'POST'], '/api/logs/read', [AdminController::class, 'readLog']);
-            
+
             // Database and utilities
             $r->addRoute(['GET', 'POST'], '/api/db/backup', [AdminController::class, 'backupDatabase']);
             $r->addRoute(['GET', 'POST'], '/api/message/send', [AdminController::class, 'sendMessage']);
             $r->addRoute(['GET', 'POST'], '/api/device/reset', [AdminController::class, 'resetDevice']);
-            
+
             // Settings management
             $r->addRoute(['GET', 'POST'], '/api/settings/get', [AdminController::class, 'getSettings']);
             $r->addRoute(['GET', 'POST'], '/api/settings/set', [AdminController::class, 'saveSettings']);
@@ -196,12 +198,12 @@ class Application
             $r->addRoute(['GET', 'POST'], '/api/graph/devices', [AdminController::class, 'getDevicesGraph']);
             $r->addRoute(['GET', 'POST'], '/api/graph/locations', [AdminController::class, 'getLocationsGraph']);
             $r->addRoute(['GET', 'POST'], '/api/file/upload', [AdminController::class, 'uploadFile']);
-            
+
             // Template management
             $r->addRoute(['GET', 'POST'], '/api/templates/get', [AdminController::class, 'getTemplates']);
             $r->addRoute(['GET', 'POST'], '/api/templates/edit', [AdminController::class, 'editTemplate']);
             $r->addRoute(['GET', 'POST'], '/api/templates/restore', [AdminController::class, 'restoreTemplate']);
-            
+
             // Customer API routes
             $r->addRoute(['GET', 'POST'], '/api/customer/auth', [AuthController::class, 'customerAuth']);
             $r->addRoute(['GET', 'POST'], '/api/customer/logout', [AuthController::class, 'logout']);
@@ -225,7 +227,7 @@ class Application
         // Get request URI and method
         $requestUri = $_SERVER['REQUEST_URI'];
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-        
+
         // Remove query string
         if (($pos = strpos($requestUri, '?')) !== false) {
             $requestUri = substr($requestUri, 0, $pos);
@@ -233,7 +235,7 @@ class Application
 
         // Dispatch request through FastRoute
         $routeInfo = $this->dispatcher->dispatch($requestMethod, $requestUri);
-        
+
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
                 http_response_code(404);
@@ -242,16 +244,16 @@ class Application
                     "requested_uri" => $requestUri
                 ]);
                 break;
-                
+
             case Dispatcher::METHOD_NOT_ALLOWED:
                 http_response_code(405);
                 echo json_encode(["error" => "Method not allowed"]);
                 break;
-                
+
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $vars = $routeInfo[2];
-                
+
                 // Instantiate the controller and call the method
                 $controller = new $handler[0]();
                 call_user_func_array([$controller, $handler[1]], $vars);
@@ -265,9 +267,9 @@ class Application
     private function returnResult()
     {
         if (($resstr = json_encode($this->result)) === false) {
-            echo(json_encode(["error" => "Failed to encode the response data into json"]));
+            echo (json_encode(["error" => "Failed to encode the response data into json"]));
         } else {
-            echo($resstr);
+            echo ($resstr);
         }
         die();
     }

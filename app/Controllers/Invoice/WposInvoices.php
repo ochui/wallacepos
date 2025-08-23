@@ -1,9 +1,15 @@
 <?php
 
+/**
+ *
+ * Invoices is used to create, edit & manage invoice transactions
+ *
+ */
+
 namespace App\Controllers\Invoice;
 
-use App\Controllers\Admin\WposAdminStock;
-use App\Controllers\Transaction\WposTransactions;
+use App\Controllers\Admin\AdminStock;
+use App\Controllers\Transaction\Transactions;
 use App\Database\InvoicesModel;
 use App\Database\SaleItemsModel;
 use App\Database\SalePaymentsModel;
@@ -12,29 +18,8 @@ use App\Database\TransHistModel;
 use App\Utility\JsonValidate;
 use App\Utility\Logger;
 
-/**
- * WposInvoices is part of Wallace Point of Sale system (WPOS) API
- *
- * WposInvoices is used to create, edit & manage invoice transactions
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
-class WposInvoices
+
+class Invoices
 {
     /**
      * @var stdClass provided params
@@ -230,7 +215,7 @@ class WposInvoices
             // decrement stock
             if (!$this->import) {
                 if (sizeof($this->invoice->items) > 0) {
-                    $wposStock = new WposAdminStock();
+                    $wposStock = new AdminStock();
                     foreach ($this->invoice->items as $item) {
                         if ($item->sitemid > 0) {
                             $wposStock->incrementStockLevel($item->sitemid, 0, $item->qty, true);
@@ -239,7 +224,7 @@ class WposInvoices
                 }
 
                 // Create transaction history record
-                WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Created", "Invoice created");
+                Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Created", "Invoice created");
                 // log data
                 Logger::write("Invoice created with id: " . $this->id, "INVOICE", json_encode($this->invoice));
             }
@@ -346,7 +331,7 @@ class WposInvoices
             return $result;
         } else {
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Invoice Modified");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Invoice Modified");
             // log data
             Logger::write("Invoice updated with id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -398,11 +383,11 @@ class WposInvoices
         } else {
             // decrement stock
             if ($this->data->sitemid > 0) {
-                $wposStock = new WposAdminStock();
+                $wposStock = new AdminStock();
                 $wposStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, true);
             }
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Added");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Added");
             // log data
             Logger::write("Invoice item added for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -452,13 +437,13 @@ class WposInvoices
             if ($this->data->sitemid > 0) {
                 // skip if no change in qty
                 if ($qtydifval > 0) {
-                    $wposStock = new WposAdminStock();
+                    $wposStock = new AdminStock();
                     // increment/decrement stock depending on difference calced above
                     $wposStock->incrementStockLevel($this->data->sitemid, 0, $qtydifval, $qtydifdec);
                 }
             }
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Modified");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Modified");
             // log data
             Logger::write("Invoice item modified for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -499,11 +484,11 @@ class WposInvoices
         } else {
             // increment stock
             if ($this->data->sitemid > 0) {
-                $wposStock = new WposAdminStock();
+                $wposStock = new AdminStock();
                 $wposStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, false);
             }
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Removed");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Removed");
             // log data
             Logger::write("Invoice item removed for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -537,7 +522,7 @@ class WposInvoices
             return $result;
         } else {
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Added");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Added");
             // log data
             Logger::write("Invoice payment added for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -576,7 +561,7 @@ class WposInvoices
             return $result;
         } else {
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Modified");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Modified");
             // log data
             Logger::write("Invoice payment modified for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }
@@ -614,7 +599,7 @@ class WposInvoices
             return $result;
         } else {
             // Create transaction history record
-            WposTransactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Removed");
+            Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Payment Removed");
             // log data
             Logger::write("Invoice payment removed for invoice id: " . $this->id, "INVOICE", json_encode($this->data));
         }

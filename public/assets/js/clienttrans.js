@@ -36,7 +36,7 @@ function WPOSCustomerTransactions() {
         translist.html('');
         refs = refs.split(',');
         for (var i in refs){
-            translist.append('<tr><td>'+refs[i]+'</td><td><button class="btn btn-sm btn-primary" onclick="WPOS.transactions.openTransactionDialog(\''+refs[i]+'\');">Details</button></td></tr>');
+            translist.append('<tr><td>'+refs[i]+'</td><td><button class="btn btn-sm btn-primary" onclick="POStransactions.openTransactionDialog(\''+refs[i]+'\');">Details</button></td></tr>');
         }
         transdialog.dialog('open');
     };
@@ -46,9 +46,9 @@ function WPOSCustomerTransactions() {
         // Check for transaction record
         if (transactions.hasOwnProperty(ref)==false){
             // try to load the customer record
-            WPOS.util.showLoader();
+            POSutil.showLoader();
             if (loadTransaction(ref)==false){
-                WPOS.util.hideLoader();
+                POSutil.hideLoader();
                 return;
             }
         }
@@ -58,23 +58,23 @@ function WPOSCustomerTransactions() {
         // Populate general transaction info
         $("#transref").text(record.ref);
         $("#transid").text(record.id);
-        $("#transtime").text(WPOS.util.getDateFromTimestamp(record.processdt));
+        $("#transtime").text(POSutil.getDateFromTimestamp(record.processdt));
         $("#transptime").text(record.dt);
-        $("#transsubtotal").text(WPOS.currency() + record.subtotal);
+        $("#transsubtotal").text(POScurrency() + record.subtotal);
         if (record.discount > 0) {
-            $("#transdiscount").text(record.discount + "% (" + WPOS.currency() + record.discountval + ')');
+            $("#transdiscount").text(record.discount + "% (" + POScurrency() + record.discountval + ')');
             $("#transdisdiv").show();
         } else {
             $("#transdisdiv").hide();
         }
-        $("#transtotal").text(WPOS.currency() + record.total);
+        $("#transtotal").text(POScurrency() + record.total);
 
         populateItemsTable(record.items);
         populatePaymentsTable(record.payments);
         populateTaxinfo(record);
         populateVoidInfo(record);
 
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
         $("#edittransdialog").dialog("open");
     };
 
@@ -88,9 +88,9 @@ function WPOSCustomerTransactions() {
     };
 
     function loadTransaction(ref){
-        var trans = WPOS.sendJsonData("transactions/get", JSON.stringify({ref: ref}));
+        var trans = POSsendJsonData("transactions/get", JSON.stringify({ref: ref}));
         if (!trans.hasOwnProperty(ref)){
-            WPOS.notifications.error("Could not load the selected transaction.", "Transaction Load Error", {delay: 0});
+            POSnotifications.error("Could not load the selected transaction.", "Transaction Load Error", {delay: 0});
             return false;
         }
         transactions[ref] = trans[ref];
@@ -107,7 +107,7 @@ function WPOSCustomerTransactions() {
         if (record.hasOwnProperty('taxdata')) {
             for (var i in record.taxdata) {
                 if (i != 1)
-                    transtax.append('<label class="fixedlabel">' + WPOS.getTaxTable()[i].name + ' (' + WPOS.getTaxTable()[i].value + '%):</label><span>' + WPOS.currency() + record.taxdata[i] + '</span><br/>');
+                    transtax.append('<label class="fixedlabel">' + POSgetTaxTable()[i].name + ' (' + POSgetTaxTable()[i].value + '%):</label><span>' + POScurrency() + record.taxdata[i] + '</span><br/>');
             }
         }
     }
@@ -136,12 +136,12 @@ function WPOSCustomerTransactions() {
         $(itemtable).html('');
         var taxval;
         for (var i = 0; i < items.length; i++) {
-            if (WPOS.getTaxTable().hasOwnProperty(items[i].taxid)) {
-                taxval = WPOS.currency() + items[i].tax + " (" + WPOS.getTaxTable()[items[i].taxid].name + ")";
+            if (POSgetTaxTable().hasOwnProperty(items[i].taxid)) {
+                taxval = POScurrency() + items[i].tax + " (" + POSgetTaxTable()[items[i].taxid].name + ")";
             } else {
                 taxval = "N/A";
             }
-            $(itemtable).append('<tr><td>' + items[i].qty + '</td><td>' + items[i].name + '</td><td>' + WPOS.currency() + items[i].unit + '</td><td>' + (taxval != null ? taxval : "") + '</td><td>' + WPOS.currency() + items[i].price + '</td>');
+            $(itemtable).append('<tr><td>' + items[i].qty + '</td><td>' + items[i].name + '</td><td>' + POScurrency() + items[i].unit + '</td><td>' + (taxval != null ? taxval : "") + '</td><td>' + POScurrency() + items[i].price + '</td>');
         }
     }
 
@@ -149,7 +149,7 @@ function WPOSCustomerTransactions() {
         var paytable = $("#transpaymenttable");
         $(paytable).html('');
         for (var i = 0; i < payments.length; i++) {
-            $(paytable).append('<tr><td>' + payments[i].method + (payments[i].hasOwnProperty('extid')?'  (ID:'+payments[i].extid+')':'') + '</td><td>' + WPOS.currency() + payments[i].amount + '</td><td>' + WPOS.util.getShortDate(payments[i].processdt) + '</td><td>');
+            $(paytable).append('<tr><td>' + payments[i].method + (payments[i].hasOwnProperty('extid')?'  (ID:'+payments[i].extid+')':'') + '</td><td>' + POScurrency() + payments[i].amount + '</td><td>' + POSutil.getShortDate(payments[i].processdt) + '</td><td>');
         }
     }
 
@@ -160,19 +160,19 @@ function WPOSCustomerTransactions() {
             var tempdata;
             for (var i = 0; i < record.refunddata.length; i++) {
                 tempdata = record.refunddata[i];
-                $(refundtable).append('<tr><td><span class="label label-warning arrowed">Refund</span></td><td>' + WPOS.util.getDateFromTimestamp(tempdata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="showRefundDialog(' + i + ');">View</button></td><td><button onclick="removeVoid(' + curid + ', ' + tempdata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
+                $(refundtable).append('<tr><td><span class="label label-warning arrowed">Refund</span></td><td>' + POSutil.getDateFromTimestamp(tempdata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="showRefundDialog(' + i + ');">View</button></td><td><button onclick="removeVoid(' + curid + ', ' + tempdata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
             }
         }
         if (record.voiddata !== undefined && record.voiddata !== null) {
-            $(refundtable).append('<tr>><td><span class="label label-danger arrowed">Void</span></td><td>' + WPOS.util.getDateFromTimestamp(record.voiddata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="showVoidDialog();">View</button></td><td><button onclick="removeVoid(' + curid + ', ' + record.voiddata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
+            $(refundtable).append('<tr>><td><span class="label label-danger arrowed">Void</span></td><td>' + POSutil.getDateFromTimestamp(record.voiddata.processdt) + '</td><td><button class="btn btn-sm btn-primary" onclick="showVoidDialog();">View</button></td><td><button onclick="removeVoid(' + curid + ', ' + record.voiddata.processdt + ');" class="btn btn-sm btn-danger">X</button></td></tr>');
         }
     }
 
     function populateSharedVoidData(record) {
-        $("#reftime").text(WPOS.util.getDateFromTimestamp(record.processdt));
-        $("#refuser").text(WPOS.users[record.userid].username);
-        $("#refdev").text(WPOS.devices[record.deviceid].name);
-        $("#refloc").text(WPOS.locations[record.locationid].name);
+        $("#reftime").text(POSutil.getDateFromTimestamp(record.processdt));
+        $("#refuser").text(POSusers[record.userid].username);
+        $("#refdev").text(POSdevices[record.deviceid].name);
+        $("#refloc").text(POSlocations[record.locationid].name);
         $("#refreason").text(record.reason);
     }
 
@@ -192,7 +192,7 @@ function WPOSCustomerTransactions() {
         record = record[refundindex]; // get the right refund record from the array
         populateSharedVoidData(record);
         $("#refmethod").text(record.method);
-        $("#refamount").text(WPOS.currency() + record.amount);
+        $("#refamount").text(POScurrency() + record.amount);
         // populate refunded items
         var refitemtbl = $("#refitemtable");
         refitemtbl.html("");

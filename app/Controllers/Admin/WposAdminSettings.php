@@ -1,35 +1,19 @@
 <?php
 
+/**
+ *
+ * AdminSettings is used to retrieve and update the system configuration sets
+ *
+ */
+
 namespace App\Controllers\Admin;
 
-use App\Communication\WposSocketIO;
+use App\Communication\SocketIO;
 use App\Database\ConfigModel;
 use App\Integration\GoogleIntegration;
 use App\Utility\Logger;
 
-/**
- * WposAdminSettings is part of Wallace Point of Sale system (WPOS) API
- *
- * WposAdminSettings is used to retrieve and update the system configuration sets
- *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @link       https://wallacepos.com
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      File available since 12/04/14 3:44 PM
- */
-class WposAdminSettings
+class AdminSettings
 {
     /**
      * @var stdClass provided data (updated config)
@@ -252,7 +236,7 @@ class WposAdminSettings
                     }
 
                     // send config update to POS terminals
-                    $socket = new WposSocketIO();
+                    $socket = new SocketIO();
                     $socket->sendConfigUpdate($conf, $this->name);
 
                     // Success; log data
@@ -288,12 +272,12 @@ class WposAdminSettings
     public static function getConfigFileValues($includeServerside = false)
     {
         $config = new \stdClass();
-        
+
         // Use Laravel-style config
         $config->timezone = config('app.timezone', 'UTC');
         $config->feedserver_host = config('app.feedserver_host', '127.0.0.1');
         $config->feedserver_port = config('app.feedserver_port', 3000);
-        
+
         if ($includeServerside) {
             $config->email_host = config('app.email.host', '');
             $config->email_port = config('app.email.port', 587);
@@ -316,13 +300,13 @@ class WposAdminSettings
     {
         // Store in runtime config for this request
         // Configuration should be managed through .env variables and config files
-        
+
         $configKey = "app.{$key}";
         if (class_exists('\App\Core\Config')) {
             \App\Core\Config::set($configKey, $value);
             return true;
         }
-        
+
         return false;
     }
 

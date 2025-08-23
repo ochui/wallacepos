@@ -75,37 +75,37 @@
     // ADD/EDIT DIALOG FUNCTIONS
     function showInvoiceForm(){
         $("#ninvprocessdt").datepicker('setDate', new Date());
-        var increment = WPOS.util.parseDateString(WPOS.getConfigTable().invoice.defaultduedt);
+        var increment = POSutil.parseDateString(POSgetConfigTable().invoice.defaultduedt);
         $("#ninvduedt").datepicker('setDate', new Date((new Date()).getTime()+increment));
         $('#addinvoicedialog').dialog('open');
     }
     // DATA FUNCTIONS
     function addInvoice(){
-        WPOS.util.showLoader();
+        POSutil.showLoader();
         var ref = (new Date()).getTime()+"-0-"+Math.floor((Math.random() * 10000) + 1);
-        var result = WPOS.sendJsonData("invoices/add", JSON.stringify({ref:ref, channel:"manual", discount:0, custid:$("#ninvcustid").val(), processdt:$("#ninvprocessdt").datepicker("getDate").getTime(), duedt:$("#ninvduedt").datepicker("getDate").getTime(), notes:$('#ninvnotes').val()}));
+        var result = POSsendJsonData("invoices/add", JSON.stringify({ref:ref, channel:"manual", discount:0, custid:$("#ninvcustid").val(), processdt:$("#ninvprocessdt").datepicker("getDate").getTime(), duedt:$("#ninvduedt").datepicker("getDate").getTime(), notes:$('#ninvnotes').val()}));
         if (result!==false){
             // add result to invoice data, reload table
-            WPOS.transactions.setTransaction(result);
+            POStransactions.setTransaction(result);
             reloadInvoicesTable();
             $('#addinvoicedialog').dialog('close');
             $('#addinvoiceform')[0].reset();
-            WPOS.transactions.openTransactionDialog(ref);
+            POStransactions.openTransactionDialog(ref);
         }
-        WPOS.util.hideLoader();
+        POSutil.hideLoader();
     }
 
     function reloadInvoiceData(){
         resetSearchBox();
-        var result = WPOS.sendJsonData("invoices/get", JSON.stringify({"stime":stime, "etime":etime}));
+        var result = POSsendJsonData("invoices/get", JSON.stringify({"stime":stime, "etime":etime}));
         if (result!==false){
-            WPOS.transactions.setTransactions(result);
+            POStransactions.setTransactions(result);
             reloadInvoicesTable();
         }
     }
 
     function reloadInvoicesTable(){
-        var invoices = WPOS.transactions.getTransactions();
+        var invoices = POStransactions.getTransactions();
         var itemarray = [];
         for (var key in invoices){
             itemarray.push(invoices[key]);
@@ -120,18 +120,18 @@
     function doSearch(){
         var ref = $("#refsearch").val();
         if (ref==""){
-            WPOS.notifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
+            POSnotifications.warning("Please enter a full or partial transaction reference.", "Search Input Required");
             return;
         }
         var data = {ref: ref};
-        WPOS.sendJsonDataAsync("invoices/search", JSON.stringify(data), function(sales){
+        POSsendJsonDataAsync("invoices/search", JSON.stringify(data), function(sales){
             var itemarray = [];
             if (sales !== false){
-                WPOS.transactions.setTransactions(sales);
+                POStransactions.setTransactions(sales);
                 var tempitem;
                 for (var key in sales){
                     tempitem = sales[key];
-                    tempitem.devlocname = (WPOS.devices.hasOwnProperty(tempitem.devid)?WPOS.devices[tempitem.devid].name:'NA')+" / "+(WPOS.locations.hasOwnProperty(tempitem.locid)?WPOS.locations[tempitem.locid].name:'NA');
+                    tempitem.devlocname = (POSdevices.hasOwnProperty(tempitem.devid)?POSdevices[tempitem.devid].name:'NA')+" / "+(POSlocations.hasOwnProperty(tempitem.locid)?POSlocations[tempitem.locid].name:'NA');
                     itemarray.push(tempitem);
                 }
                 datatable.fnClearTable(false);
@@ -191,8 +191,8 @@
     }
 
     function exportCurrentInvoices(){
-        var invoices = WPOS.transactions.getTransactions();
-        var customers = WPOS.customers.getCustomers();
+        var invoices = POStransactions.getTransactions();
+        var customers = POScustomers.getCustomers();
 
         var data = {};
         var refs = datatable.api().rows('.selected').data().map(function(row){ return row.ref }).join(',').split(',');
@@ -207,18 +207,18 @@
             data = invoices;
         }
 
-        var csv = WPOS.data2CSV(
+        var csv = POSdata2CSV(
             ['ID', 'Reference', 'User', 'Device', 'Location', 'Customer ID', 'Customer Email', 'Items', '# Items', 'Payments', 'Subtotal', 'Discount', 'Total', 'Balance', 'Invoice DT', 'Due DT', 'Created DT', 'Status', 'JSON Data'],
             [
                 'id', 'ref',
                 {key:'userid', func: function(value){
-                    return WPOS.users.hasOwnProperty(value) ? WPOS.users[value].username : 'Unknown';
+                    return POSusers.hasOwnProperty(value) ? POSusers[value].username : 'Unknown';
                 }},
                 {key:'devid', func: function(value){
-                    return WPOS.devices.hasOwnProperty(value) ? WPOS.devices[value].name : 'Unknown';
+                    return POSdevices.hasOwnProperty(value) ? POSdevices[value].name : 'Unknown';
                 }},
                 {key:'locid', func: function(value){
-                    return WPOS.locations.hasOwnProperty(value) ? WPOS.locations[value].name : 'Unknown';
+                    return POSlocations.hasOwnProperty(value) ? POSlocations[value].name : 'Unknown';
                 }},
                 'custid',
                 {key:'custid', func: function(value){
@@ -227,7 +227,7 @@
                 {key:'items', func: function(value){
                     var itemstr = '';
                     for (var i in value){
-                        itemstr += value[i].qty+"x "+value[i].name+"-"+value[i].desc+" @ "+WPOS.util.currencyFormat(value[i].unit)+(value[i].tax.inclusive?" tax incl. ":" tax excl. ")+WPOS.util.currencyFormat(value[i].tax.total)+" = "+WPOS.util.currencyFormat(value[i].price)+" \n";
+                        itemstr += value[i].qty+"x "+value[i].name+"-"+value[i].desc+" @ "+POSutil.currencyFormat(value[i].unit)+(value[i].tax.inclusive?" tax incl. ":" tax excl. ")+POSutil.currencyFormat(value[i].tax.total)+" = "+POSutil.currencyFormat(value[i].price)+" \n";
                     }
                     return itemstr;
                 }},
@@ -235,16 +235,16 @@
                 {key:'payments', func: function(value){
                     var paystr = '';
                     for (var i in value){
-                        paystr += value[i].method+" "+WPOS.util.currencyFormat(value[i].amount)+" ";
+                        paystr += value[i].method+" "+POSutil.currencyFormat(value[i].amount)+" ";
                     }
                     return paystr;
                 }},
                 'subtotal', 'discount', 'total', 'balance',
                 {key:'processdt', func: function(value){
-                    return WPOS.util.getDateFromTimestamp(value, 'Y-m-d');
+                    return POSutil.getDateFromTimestamp(value, 'Y-m-d');
                 }},
                 {key:'duedt', func: function(value){
-                    return WPOS.util.getDateFromTimestamp(value, 'Y-m-d');
+                    return POSutil.getDateFromTimestamp(value, 'Y-m-d');
                 }},
                 'dt',
                 {key:'status', func: function(value){
@@ -265,13 +265,13 @@
             data
         );
 
-        WPOS.initSave("invoices-"+WPOS.util.getDateFromTimestamp(stime)+"-"+WPOS.util.getDateFromTimestamp(etime), csv);
+        POSinitSave("invoices-"+POSutil.getDateFromTimestamp(stime)+"-"+POSutil.getDateFromTimestamp(etime), csv);
     }
 
     $(function() {
         // get default data using parallel requests
         var customersPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("customers/get", JSON.stringify(""), function(data) {
+            POSsendJsonDataAsync("customers/get", JSON.stringify(""), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch customers"));
                 } else {
@@ -281,7 +281,7 @@
         });
         
         var invoicesPromise = new Promise(function(resolve, reject) {
-            WPOS.sendJsonDataAsync("invoices/get", JSON.stringify({"stime":stime, "etime":etime}), function(data) {
+            POSsendJsonDataAsync("invoices/get", JSON.stringify({"stime":stime, "etime":etime}), function(data) {
                 if (data === false) {
                     reject(new Error("Failed to fetch invoices"));
                 } else {
@@ -294,9 +294,9 @@
             var customers_data = results[0];
             var invoices_data = results[1];
             
-            WPOS.customers.setCustomers(customers_data);
-            WPOS.transactions.setTransactions(invoices_data);
-            var customers = WPOS.customers.getCustomers();
+            POScustomers.setCustomers(customers_data);
+            POStransactions.setTransactions(invoices_data);
+            var customers = POScustomers.getCustomers();
         $('select#ninvcustid.select2-offscreen').find('option').remove().end();
         // below not needed
         //$('select#ninvcustid').find('option').remove().end();
@@ -305,7 +305,7 @@
             //$("select#ninvcustid.select2-offscreen").append('<option data-value="'+c+'" value="'+c+'">'+customers[c].name+'</option>');
             $("select#ninvcustid").append('<option data-value="'+c+'" value="'+c+'">'+customers[c].name+'</option>');
         }
-        var invoices = WPOS.transactions.getTransactions();
+        var invoices = POStransactions.getTransactions();
         var itemarray = [];
         for (var key in invoices){
             itemarray.push(invoices[key]);
@@ -319,13 +319,13 @@
                 { "sType": "numeric", "mData":"id" },
                 { "sType": "string", "mData":function(data, type, val){ return '<a class="reflabel" title="'+data.ref+'" href="">'+data.ref.split("-")[2]+'</a>'; } },
                 { "sType": "string", "mData":function(data, type, val){ return (customers.hasOwnProperty(data.custid)?customers[data.custid].name:"N/A");} },
-                { "sType": "string", "mData":function(data, type, val){ var users = WPOS.getConfigTable().users; if (users.hasOwnProperty(data.userid)){ return users[data.userid].username; } return 'N/A'; } },
-                { "sType": "timestamp", "mData":function(data, type, val){return datatableTimestampRender(type, data.processdt, WPOS.util.getShortDate);} },
-                { "sType": "timestamp", "mData":function(data, type, val){return datatableTimestampRender(type, data.duedt, WPOS.util.getShortDate);} },
-                { "sType": "currency", "mData":function(data,type,val){return WPOS.util.currencyFormat(data["total"]);} },
-                { "sType": "currency", "mData":function(data,type,val){return WPOS.util.currencyFormat(data["balance"]);} },
+                { "sType": "string", "mData":function(data, type, val){ var users = POSgetConfigTable().users; if (users.hasOwnProperty(data.userid)){ return users[data.userid].username; } return 'N/A'; } },
+                { "sType": "timestamp", "mData":function(data, type, val){return datatableTimestampRender(type, data.processdt, POSutil.getShortDate);} },
+                { "sType": "timestamp", "mData":function(data, type, val){return datatableTimestampRender(type, data.duedt, POSutil.getShortDate);} },
+                { "sType": "currency", "mData":function(data,type,val){return POSutil.currencyFormat(data["total"]);} },
+                { "sType": "currency", "mData":function(data,type,val){return POSutil.currencyFormat(data["balance"]);} },
                 { "sType": "html", "mData":function(data,type,val){return getStatusHtml(getTransactionStatus(data));} },
-                { "sType": "html", mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="WPOS.transactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="WPOS.transactions.deleteTransaction($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'))"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
+                { "sType": "html", mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="POStransactions.openTransactionDialog($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'));"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="POStransactions.deleteTransaction($(this).closest(\'tr\').find(\'.reflabel\').attr(\'title\'))"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
             ],
             "columns": [
                 {},
@@ -439,11 +439,11 @@
         $("#ninvcustid").select2();
 
             // hide loader
-            WPOS.util.hideLoader();
+            POSutil.hideLoader();
         }).catch(function(error) {
             console.error("Error loading data:", error);
-            WPOS.notifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
-            WPOS.util.hideLoader();
+            POSnotifications.error("Failed to load data: " + error.message, "Data Load Error", {delay: 0});
+            POSutil.hideLoader();
         });
     });
 
