@@ -59,4 +59,14 @@ class ViewController
     {
         $this->serveTemplate('customer', $template);
     }
+
+    /**
+     * Handle installer view requests
+     * 
+     * @return void
+     */
+    public function installerView(): void
+    {
+        $this->serveTemplate('installer', 'main');
+    }
 }

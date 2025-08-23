@@ -239,6 +239,20 @@ class InstallController
             }
         }
 
+        // Check composer packages are installed
+        $vendorPath = $this->basePath('vendor');
+        $composerInstalled = is_dir($vendorPath) && file_exists($vendorPath . '/autoload.php');
+        $result['requirements'][] = [
+            'name' => 'Composer Dependencies',
+            'status' => $composerInstalled,
+            'current' => $composerInstalled ? 'Installed' : 'Not installed',
+            'required' => 'Run: composer install',
+            'type' => 'dependency'
+        ];
+        if (!$composerInstalled) {
+            $result['all'] = false;
+        }
+
         // Check .env file exists (instead of old .dbconfig.json)
         $envPath = $this->basePath('.env');
         $envExists = file_exists($envPath);

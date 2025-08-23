@@ -38,6 +38,9 @@ RewriteEngine On
 </IfModule>
 
 # Routing Rules
+# Installer route - route to API with special handling
+RewriteRule ^installer/?$ api/index.php [L,QSA]
+
 # Main POS application
 RewriteRule ^$ index.html [L]
 RewriteRule ^pos/?$ index.html [L]

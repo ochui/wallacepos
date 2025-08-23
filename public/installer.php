@@ -1,45 +1,30 @@
 <?php
-
 /**
- * Main API Entry Point
+ * Installer Entry Point
  * 
+ * This file serves as the installer entry point and routes to the appropriate handler
  */
 
-// Check if this is an installer request
-$requestUri = $_SERVER['REQUEST_URI'];
-$isInstallerRequest = strpos($requestUri, '/installer') === 0;
-
 // Check if composer dependencies are installed
-$vendorAutoload = __DIR__ . '/../../vendor/autoload.php';
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
 $composerInstalled = file_exists($vendorAutoload);
 
 if (!$composerInstalled) {
-    if ($isInstallerRequest) {
-        // Serve basic installer page with composer installation instructions
-        serveBasicInstaller();
-        exit;
-    } elseif (strpos($requestUri, '/api/install') !== false) {
-        // Handle install API requests without composer
-        header('Content-Type: application/json');
-        echo json_encode([
-            'errorCode' => 'dependency',
-            'error' => 'Composer dependencies not installed. Please run "composer install" first.',
-            'data' => null
-        ]);
-        exit;
-    } else {
-        // Redirect other requests to installer
-        header('Location: /installer');
-        exit;
-    }
+    // Serve basic installer page with composer installation instructions
+    serveBasicInstaller();
+    exit;
 }
 
 // Register the Composer autoloader...
 require $vendorAutoload;
 
-// Bootstrap and handle the request...
+// Bootstrap and handle the installer request...
 /** @var \App\Core\Application $app */
-$app = require_once __DIR__ . '/../../bootstrap/app.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// Manually set REQUEST_URI for installer
+$_SERVER['REQUEST_URI'] = '/installer';
+$_SERVER['REQUEST_METHOD'] = 'GET';
 
 $app->handleRequest();
 
@@ -86,7 +71,7 @@ function serveBasicInstaller() {
 sudo mv composer.phar /usr/local/bin/composer</pre>
                 </li>
                 <li><strong>Install FreePOS dependencies</strong>:
-                    <pre>cd <?php echo htmlspecialchars(dirname(dirname(__DIR__))); ?>
+                    <pre>cd <?php echo htmlspecialchars(dirname(__DIR__)); ?>
 composer install --no-dev</pre>
                 </li>
                 <li><strong>Refresh this page</strong> to continue with the installation.</li>
@@ -97,7 +82,7 @@ composer install --no-dev</pre>
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-                <a href="/installer" class="btn">Refresh Installer</a>
+                <a href="installer.php" class="btn">Refresh Installer</a>
             </div>
         </div>
     </body>
