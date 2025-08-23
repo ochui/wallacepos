@@ -46,7 +46,7 @@ class DbUpdater
             return "Database detected, skipping full installation.";
         }
         // Install database
-        $schemapath = base_path("library/installer/schemas/install.sql");
+        $schemapath = base_path("database/schemas/install.sql");
         if (!file_exists($schemapath)) {
             return "Schema does not exist";
         }
@@ -85,12 +85,12 @@ class DbUpdater
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             if (file_exists($storagePath . '/logs') == false) {
-                exec('ROBOCOPY "' . $basePath . '/storage-template/." "' . $storagePath . '" /E');
+                exec('ROBOCOPY "' . $basePath . '/resources/default/." "' . $storagePath . '" /E');
             }
         } else { //  Assume Linux
             // copy storage template if it doesn't exist
             if (file_exists($storagePath . '/logs') == false) {
-                exec('cp -arn "' . $basePath . '/storage-template/." "' . $storagePath . '"');
+                exec('cp -arn "' . $basePath . '/resources/default/." "' . $storagePath . '"');
             }
             exec('chmod -R 774 ' . $storagePath);
             $socket = new SocketIO();
@@ -184,7 +184,7 @@ class DbUpdater
         try {
             if ($versionInfo['db']) {
                 echo ("Updating database...\n");
-                $path = base_path("library/installer/schemas/update" . $versionInfo['name'] . ".sql");
+                $path = base_path("database/schemas/update" . $versionInfo['name'] . ".sql");
                 if (!file_exists($path)) {
                     return "Schema does not exist";
                 }
@@ -257,9 +257,9 @@ class DbUpdater
         $basePath = base_path();
         $storagePath = storage_path();
 
-        copy($basePath . '/storage-template/templates/receipt.mustache', $storagePath . '/receipt.mustache');
-        copy($basePath . '/storage-template/templates/receipt_alt.mustache', $storagePath . '/receipt_alt.mustache');
-        copy($basePath . '/storage-template/templates/receipt_mixed.mustache', $storagePath . '/receipt_mixed.mustache');
+        copy($basePath . '/resources/default/templates/receipt.mustache', $storagePath . '/receipt.mustache');
+        copy($basePath . '/resources/default/templates/receipt_alt.mustache', $storagePath . '/receipt_alt.mustache');
+        copy($basePath . '/resources/default/templates/receipt_mixed.mustache', $storagePath . '/receipt_mixed.mustache');
         // extract data for new sale_items fields
         $itemsMdl = new SaleItemsModel();
         $items = $itemsMdl->get();
@@ -280,7 +280,7 @@ class DbUpdater
         $storagePath = storage_path();
 
         if (!file_exists($storagePath . '/.htaccess')) {
-            copy($basePath . '/storage-template/.htaccess', $storagePath . '/.htaccess');
+            copy($basePath . '/resources/default/.htaccess', $storagePath . '/.htaccess');
         }
         $socket = new SocketIO();
         $socket->generateHashKey();
@@ -448,7 +448,7 @@ class DbUpdater
         // copy new templates
         $basePath = base_path();
         $storagePath = storage_path();
-        copy($basePath . '/storage-template/templates', $storagePath);
+        copy($basePath . '/resources/default/templates', $storagePath);
 
         return true;
     }

@@ -116,6 +116,120 @@ class InstallController
     }
 
     /**
+     * Check system requirements
+     */
+    public function requirements()
+    {
+        try {
+            $requirements = $this->checkRequirements();
+            $this->result['data'] = $requirements;
+        } catch (\Exception $e) {
+            $this->result['errorCode'] = "exception";
+            $this->result['error'] = "Requirements check failed: " . $e->getMessage();
+        }
+
+        return $this->returnResult();
+    }
+
+    /**
+     * Check all system requirements
+     */
+    private function checkRequirements()
+    {
+        $result = [
+            "webserver" => true,
+            "php" => true,
+            "all" => true,
+            "requirements" => []
+        ];
+
+        // Check PHP version
+        $phpVersion = PHP_VERSION;
+        $phpOk = version_compare($phpVersion, "8.0.0") >= 0;
+        $result['requirements'][] = [
+            'name' => 'PHP Version',
+            'status' => $phpOk,
+            'current' => $phpVersion,
+            'required' => '8.0.0+',
+            'type' => 'php'
+        ];
+        if (!$phpOk) {
+            $result['php'] = false;
+            $result['all'] = false;
+        }
+
+        // Check web server
+        $webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
+        $result['requirements'][] = [
+            'name' => 'Web Server',
+            'status' => true,
+            'current' => $webServer,
+            'required' => 'Any (Apache, Nginx, etc.)',
+            'type' => 'webserver'
+        ];
+
+        // Check required PHP extensions
+        $extensions = [
+            'pdo' => 'PDO',
+            'pdo_mysql' => 'PDO MySQL',
+            'json' => 'JSON',
+            'curl' => 'cURL',
+            'mbstring' => 'Multibyte String',
+            'openssl' => 'OpenSSL',
+            'xml' => 'XML',
+            'zip' => 'ZIP'
+        ];
+
+        foreach ($extensions as $ext => $name) {
+            $loaded = extension_loaded($ext);
+            $result['requirements'][] = [
+                'name' => "PHP Extension: $name",
+                'status' => $loaded,
+                'current' => $loaded ? 'Installed' : 'Not installed',
+                'required' => 'Required',
+                'type' => 'php_extension'
+            ];
+            if (!$loaded) {
+                $result['all'] = false;
+            }
+        }
+
+        // Check file permissions
+        $paths = [
+            storage_path() => 'Storage directory',
+            storage_path('logs') => 'Logs directory', 
+            base_path('bootstrap/cache') => 'Bootstrap cache directory'
+        ];
+
+        foreach ($paths as $path => $name) {
+            $writable = is_dir($path) && is_writable($path);
+            $result['requirements'][] = [
+                'name' => "Write Permission: $name",
+                'status' => $writable,
+                'current' => $writable ? 'Writable' : 'Not writable',
+                'required' => 'Must be writable',
+                'type' => 'permission'
+            ];
+            if (!$writable) {
+                $result['all'] = false;
+            }
+        }
+
+        // Check database configuration file
+        $dbConfigPath = base_path('library/wpos/.dbconfig.json');
+        $dbConfigExists = file_exists($dbConfigPath);
+        $result['requirements'][] = [
+            'name' => 'Database Configuration',
+            'status' => $dbConfigExists,
+            'current' => $dbConfigExists ? 'Configured' : 'Not configured',
+            'required' => 'Database connection must be configured',
+            'type' => 'database'
+        ];
+
+        return $result;
+    }
+
+    /**
      * Encodes and returns the json result object
      */
     private function returnResult()
