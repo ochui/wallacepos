@@ -1,69 +1,15 @@
 <?php
 
 /**
- * Main API Entry Point for FreePOS
+ * Main API Entry Point
  * 
- * Simplified entry point that manually loads required classes
  */
 
-// Define base paths
-define('APP_BASE_PATH', realpath(__DIR__ . '/../..'));
+// Register the Composer autoloader...
+require __DIR__ . '/../../vendor/autoload.php';
 
-// Simple autoloader for FreePOS classes
-spl_autoload_register(function ($class) {
-    // Convert namespace to file path
-    $file = str_replace(['App\\', '\\'], ['', '/'], $class);
-    $path = APP_BASE_PATH . '/app/' . $file . '.php';
-    
-    if (file_exists($path)) {
-        require_once $path;
-        return true;
-    }
-    
-    return false;
-});
+// Bootstrap and handle the request...
+/** @var \App\Core\Application $app */
+$app = require_once __DIR__ . '/../../bootstrap/app.php';
 
-// Helper function for base path
-if (!function_exists('base_path')) {
-    function base_path($path = '')
-    {
-        return APP_BASE_PATH . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
-    }
-}
-
-// Helper function for storage path
-if (!function_exists('storage_path')) {
-    function storage_path($path = '')
-    {
-        return base_path('storage' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : ''));
-    }
-}
-
-// Basic environment variable loader (fallback for .env if no Composer)
-if (file_exists(base_path('.env'))) {
-    $lines = file(base_path('.env'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value, " \t\n\r\0\x0B\"'");
-            $_ENV[$name] = $value;
-            putenv("$name=$value");
-        }
-    }
-}
-
-try {
-    // Create and handle the request with Application
-    $app = new App\Core\Application();
-    $app->handleRequest();
-} catch (Exception $e) {
-    // Handle errors gracefully
-    header('Content-Type: application/json');
-    http_response_code(500);
-    echo json_encode([
-        'errorCode' => 'exception',
-        'error' => 'Application error: ' . $e->getMessage()
-    ]);
-}
+$app->handleRequest();
