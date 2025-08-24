@@ -1,12 +1,11 @@
 /**
- * notifications.js is part of Wallace Point of Sale system (WPOS)
  *
  * notifications.js provides centralized notification management using iGrowl
  * to replace legacy browser alert() calls.
  *
  */
 
-function WPOSNotifications() {
+function POSNotifications() {
   // Global iGrowl configuration as specified in requirements
   this.defaultConfig = {
     delay: 2500, // Auto-dismiss after 2.5 seconds

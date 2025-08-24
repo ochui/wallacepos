@@ -1,27 +1,11 @@
 /**
- * utilities.js is part of Wallace Point of Sale system (WPOS)
  *
  * utilities.js Provides a global set of general functions.
  * These functions are used accross the POS.system including the admin and client login areas.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/14 12:01 PM
  */
 
-function WPOSUtil() {
+function POSUtil() {
     // DATE
     this.getDateFromTimestamp = function (timestamp, format) {
         // get the config if available
@@ -129,7 +113,7 @@ function WPOSUtil() {
     var ordercount = null;
     this.getSequencialOrderNumber = function(){
         if (!ordercount){
-            ordercount = localStorage.getItem("wpos_ordercount");
+            ordercount = localStorage.getItem("pos_ordercount");
             if (ordercount<0)
                 ordercount = 0;
         }
@@ -137,7 +121,7 @@ function WPOSUtil() {
         if (ordercount<99){
             ordercount++;
         }
-        localStorage.setItem("wpos_ordercount", ordercount);
+        localStorage.setItem("pos_ordercount", ordercount);
         // pad order number, include deviceid
         var orderStr = POS.getConfigTable().deviceid.toString();
         if (ordercount<10)
@@ -467,12 +451,12 @@ function WPOSUtil() {
         // Initialize dialog if not already done
         if (!confirmDialogInit) {
             // Check if dialog container exists, if not create it
-            if ($("#wpos-confirm-dialog").length === 0) {
-                $("body").append('<div id="wpos-confirm-dialog" style="display: none;"><p id="wpos-confirm-message"></p></div>');
+            if ($("#pos-confirm-dialog").length === 0) {
+                $("body").append('<div id="pos-confirm-dialog" style="display: none;"><p id="pos-confirm-message"></p></div>');
             }
             
             // Initialize the dialog
-            $("#wpos-confirm-dialog").dialog({
+            $("#pos-confirm-dialog").dialog({
                 autoOpen: false,
                 modal: true,
                 resizable: false,
@@ -497,11 +481,11 @@ function WPOSUtil() {
         }
         
         // Set message and title
-        $("#wpos-confirm-message").text(message);
-        $("#wpos-confirm-dialog").dialog("option", "title", title);
+        $("#pos-confirm-message").text(message);
+        $("#pos-confirm-dialog").dialog("option", "title", title);
         
         // Open the dialog
-        $("#wpos-confirm-dialog").dialog("open");
+        $("#pos-confirm-dialog").dialog("open");
     };
 
     this.mobile = false;

@@ -1,6 +1,6 @@
 /**
  *
- * wpos.js Provides core functions for the admin dashboard.
+ * pos.js Provides core functions for the admin dashboard.
  *
  */
 
@@ -24,11 +24,11 @@ var POS;
 //On load page, init the timer which check if the there are anchor changes
 $(function () {
   // initiate POS.object
-  POS = new WPOSAdmin();
+  POS = new POSAdmin();
   // init
   POS.isLogged();
 });
-function WPOSAdmin() {
+function POSAdmin() {
   // AJAX PAGE LOADER FUNCTIONS
   var currentAnchor = "0";
   var currentsec = "";
@@ -756,8 +756,8 @@ function WPOSAdmin() {
   }
 
   // Load globally accessible objects
-  this.util = new WPOSUtil();
-  this.transactions = new WPOSTransactions();
-  this.customers = new WPOSCustomers();
-  this.notifications = new WPOSNotifications();
+  this.util = new POSUtil();
+  this.transactions = new POSTransactions();
+  this.customers = new POSCustomers();
+  this.notifications = new POSNotifications();
 }

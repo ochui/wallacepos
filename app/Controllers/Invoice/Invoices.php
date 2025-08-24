@@ -215,10 +215,10 @@ class Invoices
             // decrement stock
             if (!$this->import) {
                 if (sizeof($this->invoice->items) > 0) {
-                    $wposStock = new AdminStock();
+                    $posStock = new AdminStock();
                     foreach ($this->invoice->items as $item) {
                         if ($item->sitemid > 0) {
-                            $wposStock->incrementStockLevel($item->sitemid, 0, $item->qty, true);
+                            $posStock->incrementStockLevel($item->sitemid, 0, $item->qty, true);
                         }
                     }
                 }
@@ -383,8 +383,8 @@ class Invoices
         } else {
             // decrement stock
             if ($this->data->sitemid > 0) {
-                $wposStock = new AdminStock();
-                $wposStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, true);
+                $posStock = new AdminStock();
+                $posStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, true);
             }
             // Create transaction history record
             Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Added");
@@ -437,9 +437,9 @@ class Invoices
             if ($this->data->sitemid > 0) {
                 // skip if no change in qty
                 if ($qtydifval > 0) {
-                    $wposStock = new AdminStock();
+                    $posStock = new AdminStock();
                     // increment/decrement stock depending on difference calced above
-                    $wposStock->incrementStockLevel($this->data->sitemid, 0, $qtydifval, $qtydifdec);
+                    $posStock->incrementStockLevel($this->data->sitemid, 0, $qtydifval, $qtydifdec);
                 }
             }
             // Create transaction history record
@@ -484,8 +484,8 @@ class Invoices
         } else {
             // increment stock
             if ($this->data->sitemid > 0) {
-                $wposStock = new AdminStock();
-                $wposStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, false);
+                $posStock = new AdminStock();
+                $posStock->incrementStockLevel($this->data->sitemid, 0, $this->data->qty, false);
             }
             // Create transaction history record
             Transactions::addTransactionHistory($this->id, $_SESSION['userId'], "Modified", "Item Removed");

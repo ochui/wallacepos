@@ -1,4 +1,3 @@
-<!-- WallacePOS: Copyright (c) 2014 WallaceIT <micwallace@gmx.com> <https://www.gnu.org/licenses/lgpl.html> -->
 <div class="page-header">
     <h1 style="display: inline-block;">
         POS Sales
@@ -22,7 +21,7 @@
                     View & search POS transactions
                 </div>
 
-                <div class="wpostable">
+                <div class="postable">
                     <table id="salestable" class="table table-striped table-bordered table-hover dt-responsive" style="width:100%;">
                         <thead>
                             <tr>

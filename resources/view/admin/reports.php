@@ -1,4 +1,3 @@
-<!-- WallacePOS: Copyright (c) 2014 WallaceIT <micwallace@gmx.com> <https://www.gnu.org/licenses/lgpl.html> -->
 <div class="page-header">
     <h1 class="inline">
         Reports
@@ -201,7 +200,7 @@
     }
 
     function browserPrintHtml(html){
-        var printw = window.open('', 'wpos report', 'height=800,width=650');
+        var printw = window.open('', 'pos report', 'height=800,width=650');
         printw.document.write('<html><head><title> Report</title>');
         printw.document.write('<link media="all" href="/assets/css/bootstrap.min.css" rel="stylesheet"/><link media="all" rel="stylesheet" href="/assets/css/font-awesome.min.css"/><link media="all" rel="stylesheet" href="/assets/css/ace-fonts.css"/><link media="all" rel="stylesheet" href="/assets/css/ace.min.css"/>');
         printw.document.write('</head><body style="background-color: #FFFFFF;">');

@@ -1,11 +1,11 @@
 /**
  *
  * sales.js Provides functions for processing sales, including the storage and upload of offline sales,
- * It also includes WPOSItems object for adding items to the sale.
+ * It also includes POSItems object for adding items to the sale.
  *
  */
 
-function WPOSItems() {
+function POSItems() {
   // public members for modifying the current sales items
   /**
    * Adds a blank item row for the user to fill in
@@ -619,7 +619,7 @@ $(function () {
   $("#total").text(POS.util.currencyFormat(0));
 });
 
-function WPOSSales() {
+function POSSales() {
   var paymentMethods = ["eftpos", "credit", "cash", "cheque", "deposit"];
   var cursubtotal = 0.0;
   var curtaxtotal = 0.0;
@@ -1776,25 +1776,25 @@ function WPOSSales() {
     POS.updateSalesTable(jsonobj.ref, jsonobj);
     // save to local storage
     var jsonsales;
-    if (localStorage.getItem("wpos_csales") !== null) {
-      jsonsales = $.parseJSON(localStorage.getItem("wpos_csales"));
+    if (localStorage.getItem("pos_csales") !== null) {
+      jsonsales = $.parseJSON(localStorage.getItem("pos_csales"));
       jsonsales[jsonobj.ref] = jsonobj;
     } else {
       jsonsales = {};
       jsonsales[jsonobj.ref] = jsonobj;
     }
-    localStorage.setItem("wpos_csales", JSON.stringify(jsonsales));
+    localStorage.setItem("pos_csales", JSON.stringify(jsonsales));
     return true;
   }
 
   function removeSalesRecord(ref) {
     // remove from local storage
     var jsonsales;
-    if (localStorage.getItem("wpos_csales") !== null) {
-      jsonsales = $.parseJSON(localStorage.getItem("wpos_csales"));
+    if (localStorage.getItem("pos_csales") !== null) {
+      jsonsales = $.parseJSON(localStorage.getItem("pos_csales"));
       delete jsonsales[ref];
     }
-    localStorage.setItem("wpos_csales", JSON.stringify(jsonsales));
+    localStorage.setItem("pos_csales", JSON.stringify(jsonsales));
     return true;
   }
 
@@ -1803,16 +1803,16 @@ function WPOSSales() {
    * @returns {*}
    */
   this.getOfflineSalesNum = function () {
-    if (localStorage.getItem("wpos_osales") !== null) {
-      var jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      var jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
       return Object.keys(jsonosales).length;
     } else {
       return 0;
     }
   };
   this.getOfflineSales = function () {
-    if (localStorage.getItem("wpos_osales") !== null) {
-      var jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      var jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
       // strip the action variable so the data is returned in the same format as normal sales table'
       for (var i in jsonosales) {
         jsonosales[i] = jsonosales[i].data;
@@ -1832,8 +1832,8 @@ function WPOSSales() {
   };
   function addOfflineSale(jsonobj, action) {
     var jsonosales;
-    if (localStorage.getItem("wpos_osales") !== null) {
-      jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
     } else {
       jsonosales = {};
     }
@@ -1841,7 +1841,7 @@ function WPOSSales() {
     jsonosales[jsonobj.ref] = {};
     jsonosales[jsonobj.ref].a = action;
     jsonosales[jsonobj.ref].data = jsonobj;
-    localStorage.setItem("wpos_osales", JSON.stringify(jsonosales));
+    localStorage.setItem("pos_osales", JSON.stringify(jsonosales));
     return true;
   }
 
@@ -1851,8 +1851,8 @@ function WPOSSales() {
 
   function isSaleOffline(ref) {
     var jsonosales;
-    if (localStorage.getItem("wpos_osales") !== null) {
-      jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
       if (jsonosales.hasOwnProperty(ref)) {
         return true;
       }
@@ -1866,10 +1866,10 @@ function WPOSSales() {
    * @returns {boolean}
    */
   function removeOfflineSale(ref) {
-    if (localStorage.getItem("wpos_osales") !== null) {
-      var jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      var jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
       delete jsonosales[ref];
-      localStorage.setItem("wpos_osales", JSON.stringify(jsonosales));
+      localStorage.setItem("pos_osales", JSON.stringify(jsonosales));
       return true;
     } else {
       return false;
@@ -1883,8 +1883,8 @@ function WPOSSales() {
     return uploadOfflineRecords();
   };
   function uploadOfflineRecords() {
-    if (localStorage.getItem("wpos_osales") !== null) {
-      var jsonosales = $.parseJSON(localStorage.getItem("wpos_osales"));
+    if (localStorage.getItem("pos_osales") !== null) {
+      var jsonosales = $.parseJSON(localStorage.getItem("pos_osales"));
       var jsonresponse;
       var uploadcount = 1;
       var totalcount = Object.keys(jsonosales).length;

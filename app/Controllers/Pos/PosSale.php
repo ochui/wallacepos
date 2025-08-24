@@ -485,10 +485,10 @@ class PosSale
                 } else {
                     // return stock to original sale location
                     if (sizeof($this->jsonobj->items) > 0) {
-                        $wposStock = new AdminStock();
+                        $posStock = new AdminStock();
                         foreach ($this->jsonobj->items as $item) {
                             if ($item->sitemid > 0) {
-                                $wposStock->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, false);
+                                $posStock->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, false);
                             }
                         }
                     }
@@ -511,7 +511,7 @@ class PosSale
     {
         $itemsMdl = new SaleItemsModel();
         //$stockMdl = new StockModel();
-        $wposStock = new AdminStock();
+        $posStock = new AdminStock();
         foreach ($this->jsonobj->items as $key => $item) {
             // fix for offline sales not containing cost field and getting stuck
             if (!isset($item->cost)) $item->cost = 0.00;
@@ -523,7 +523,7 @@ class PosSale
             // decrement stock level
             if ($item->sitemid > 0) {
                 /*$stockMdl->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, true);*/
-                $wposStock->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, true);
+                $posStock->incrementStockLevel($item->sitemid, $this->jsonobj->locid, $item->qty, true);
             }
             $this->jsonobj->items[$key]->id = $res;
         }
@@ -611,8 +611,8 @@ class PosSale
     private function broadcastSale($curdeviceid, $updatedsaleflag = false, $delete = false)
     {
         $socket = new SocketIO();
-        $wposConfig = new AdminSettings();
-        $config = $wposConfig->getSettingsObject("pos");
+        $posConfig = new AdminSettings();
+        $config = $posConfig->getSettingsObject("pos");
         $devices = [];
 
         switch ($config->saledevice) {
@@ -674,9 +674,9 @@ class PosSale
         $data = new TemplateData($this->jsonobj, ['general' => $genval, 'pos' => $recval]);
         $html = $tempMdl->renderTemplate($recval->rectemplate, $data);
 
-        $wposMail = new Mail($genval);
+        $posMail = new Mail($genval);
 
-        if (($mresult = $wposMail->sendHtmlEmail($email, 'Your ' . $genval->bizname . ' receipt', $html)) !== true) {
+        if (($mresult = $posMail->sendHtmlEmail($email, 'Your ' . $genval->bizname . ' receipt', $html)) !== true) {
             return 'Failed to email receipt: ' . $mresult;
         } else {
             return true;

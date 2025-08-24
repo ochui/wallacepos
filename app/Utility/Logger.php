@@ -40,7 +40,7 @@ class Logger
                 $user = $auth->isLoggedIn() ? $auth->getUserId() . ":" . $auth->getUsername() : ($auth->isCustomerLoggedIn() ? $auth->getCustomerId() . ":" . $auth->getCustomerUsername() : 'system');
             }
         }
-        $fd = fopen($logDir . DIRECTORY_SEPARATOR . "wpos_log_" . date("y-m-d") . ".txt", "a");
+        $fd = fopen($logDir . DIRECTORY_SEPARATOR . "pos_log_" . date("y-m-d") . ".txt", "a");
         if ($fd === false) {
             return;
         }

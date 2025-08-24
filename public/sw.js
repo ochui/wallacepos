@@ -1,9 +1,9 @@
 /**
- * WallacePOS Service Worker
+ * Pos Service Worker
  * Replaces deprecated applicationCache with modern Service Worker + Cache API
  */
 
-const CACHE_NAME = 'wpos-cache-v1';
+const CACHE_NAME = 'pos-cache-v1';
 
 // Core assets that should always be cached
 const CORE_ASSETS = [
@@ -16,7 +16,7 @@ const CORE_ASSETS = [
 // Assets that should be excluded from caching (dynamic/API endpoints)
 const EXCLUDE_PATTERNS = [
     /\/api\//,
-    /\/wpos\.appcache/,
+    /\/pos\.appcache/,
     /\.(php|asp|aspx|jsp)(\?.*)?$/
 ];
 

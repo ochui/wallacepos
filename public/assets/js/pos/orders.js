@@ -1,4 +1,4 @@
-function WPOSOrders(){
+function POSOrders(){
     var ordercontain = $("#ordercontainer");
     var orderhistcontain = $("#orderhistcontainer");
 

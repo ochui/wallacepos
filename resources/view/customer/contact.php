@@ -11,7 +11,7 @@
 <div class="row">
     <div class="col-xs-12">
         <!-- PAGE CONTENT BEGINS -->
-        <p style="text-align: center;">To contact WallacePOS staff, use the contact form below. <br/>
+        <p style="text-align: center;">To contact Pos staff, use the contact form below. <br/>
             Alternatively, you can call Michael on 0410 844 700<br /><br/>
             <i>Please note the security code below is case sensitive.</i></p>
 

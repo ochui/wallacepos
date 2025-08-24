@@ -4,7 +4,7 @@
  *
  */
 var datatable;
-function WPOSTransactions() {
+function POSTransactions() {
   var transdialog = $("#transactiondiv");
 
   this.showTransactionView = function () {

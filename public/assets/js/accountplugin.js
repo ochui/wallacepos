@@ -1,34 +1,18 @@
 /**
- * accountplugin.js is part of Wallace Point of Sale system (WPOS)
  *
- * accountplugin.js Provides an external library for WallacePOS customer registration, login and password reset.
+ * accountplugin.js Provides an external library for Pos customer registration, login and password reset.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/13 12:01 PM
  */
 var WOMS;
 function WOMSPluginBase(){
     this.init = function(){
         // load utils
-        //if (typeof WPOSUtil !=='undefined')
-        $.getScript('assets/js/wpos/utilities.js', function(){
-            WOMS.util = new WPOSUtil();
+        //if (typeof POSUtil !=='undefined')
+        $.getScript('assets/js/pos/utilities.js', function(){
+            WOMS.util = new POSUtil();
         });
         // Initialize notifications
-        this.notifications = new WPOSNotifications();
+        this.notifications = new POSNotifications();
         if ($.fancybox)
             $.fancybox.init();
     };

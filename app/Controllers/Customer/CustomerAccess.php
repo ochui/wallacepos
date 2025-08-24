@@ -50,8 +50,8 @@ class CustomerAccess
             return $result;
         }
         // create customer, check for error ( this does email check)
-        $wposCust = new AdminCustomers();
-        $res = $wposCust->addCustomerData($this->data);
+        $posCust = new AdminCustomers();
+        $res = $posCust->addCustomerData($this->data);
         if (!is_numeric($res)) {
             $result['error'] = $res;
             return $result;

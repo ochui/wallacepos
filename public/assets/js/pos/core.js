@@ -1,6 +1,6 @@
 /**
  *
- * core.js is the main object that provides base functionality to the WallacePOS terminal.
+ * core.js is the main object that provides base functionality to the Pos terminal.
  * It loads other needed modules and provides authentication, storage and data functions.
  *
  */
@@ -303,8 +303,8 @@ function POS() {
     }
 
     function offlineAuth(username, hashpass) {
-        if (localStorage.getItem("wpos_auth") !== null) {
-            var jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
+        if (localStorage.getItem("pos_auth") !== null) {
+            var jsonauth = $.parseJSON(localStorage.getItem("pos_auth"));
             if (jsonauth[username] === null || jsonauth[username] === undefined) {
                 POS.notifications.error("Sorry, your credentials are currently not available offline.", "Offline Authentication Error");
                 return false;
@@ -342,9 +342,9 @@ function POS() {
     this.deviceSetup = function () {
         POS.util.showLoader();
         var devid = $("#posdevices option:selected").val();
-        var devname = $("#newposdevice").val();
+        var devname = $("#neposdevice").val();
         var locid = $("#poslocations option:selected").val();
-        var locname = $("#newposlocation").val();
+        var locname = $("#neposlocation").val();
         // check input
         if ((devid == null && devname == null) || (locid == null && locname == null)) {
             POS.notifications.warning("Please select a item from the dropdowns or specify a new name.", "Device Setup");
@@ -509,7 +509,7 @@ function POS() {
     function initDataSuccess(loginloader){
         if (loginloader){
             setLoadingBar(100, "Massaging the data...");
-            $("title").text("WallacePOS - Your POS in the cloud");
+            $("title").text("Pos - Your POS in the cloud");
             POS.initPlugins();
             populateDeviceInfo();
             setTimeout(hideLogin, 500);
@@ -539,7 +539,7 @@ function POS() {
     this.resetLocalConfig = function(){
         if (isUserAdmin()){
             POS.util.confirm("Are you sure you want to restore local settings to their defaults?\n", function() {
-                localStorage.removeItem("wpos_lconfig");
+                localStorage.removeItem("pos_lconfig");
                 POS.print.loadPrintSettings();
                 setKeypad(true);
             });
@@ -552,13 +552,13 @@ function POS() {
         var self = this;
         if (isUserAdmin()){
             POS.util.confirm("Are you sure you want to clear all local data?\nThis removes all locally stored data except device registration key.\nOffline Sales will be deleted.", function() {
-                localStorage.removeItem("wpos_auth");
-                localStorage.removeItem("wpos_config");
-                localStorage.removeItem("wpos_csales");
-                localStorage.removeItem("wpos_osales");
-                localStorage.removeItem("wpos_items");
-                localStorage.removeItem("wpos_customers");
-                localStorage.removeItem("wpos_lconfig");
+                localStorage.removeItem("pos_auth");
+                localStorage.removeItem("pos_config");
+                localStorage.removeItem("pos_csales");
+                localStorage.removeItem("pos_osales");
+                localStorage.removeItem("pos_items");
+                localStorage.removeItem("pos_customers");
+                localStorage.removeItem("pos_lconfig");
                 // Also clear Service Worker cache
                 self.clearServiceWorkerCache();
             });
@@ -588,7 +588,7 @@ function POS() {
     };
 
     this.backupOfflineSales = function(){
-        var offline_sales = localStorage.getItem('wpos_osales');
+        var offline_sales = localStorage.getItem('pos_osales');
 
         var a = document.createElement('a');
         var blob = new Blob([offline_sales], {'type':"application/octet-stream"});
@@ -597,7 +597,7 @@ function POS() {
         var date = new Date();
         var day = date.getDate();
         if (day.length==1) day = '0' + day;
-        a.download = "wpos_offline_sales_"+date.getFullYear()+"-"+(date.getMonth()+1)+"-"+day+"_"+date.getHours()+"-"+date.getMinutes()+".json";
+        a.download = "pos_offline_sales_"+date.getFullYear()+"-"+(date.getMonth()+1)+"-"+day+"_"+date.getHours()+"-"+date.getMinutes()+".json";
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -649,8 +649,8 @@ function POS() {
             clearTimeout(statusTimer);
         }
 
-        var staticon = $("#wposstaticon");
-        var statimg = $("#wposstaticon i");
+        var staticon = $("#posstaticon");
+        var statimg = $("#posstaticon i");
         switch (statusType){
             // Online icon
             case 1: $(staticon).attr("class", "badge badge-success");
@@ -672,8 +672,8 @@ function POS() {
             case 5: $(staticon).attr("class", "badge badge-warning");
                 $(statimg).attr("class", "icon-ok");
         }
-        $("#wposstattxt").text(text);
-        $("#wposstat").attr("title", tooltip);
+        $("#posstattxt").text(text);
+        $("#posstat").attr("title", tooltip);
 
         if (timeout > 0){
             statusTimer = setTimeout(resetStatusBar, timeout);
@@ -714,14 +714,14 @@ function POS() {
     function canDoOffline() {
         if (getDeviceUUID()!==null) { // can't go offline if device hasn't been setup
             // check for auth table
-            if (localStorage.getItem("wpos_auth") == null) {
+            if (localStorage.getItem("pos_auth") == null) {
                 return false;
             }
             // check for machine settings etc.
-            if (localStorage.getItem("wpos_config") == null) {
+            if (localStorage.getItem("pos_config") == null) {
                 return false;
             }
-            return localStorage.getItem("wpos_items") != null;
+            return localStorage.getItem("pos_items") != null;
         }
         return false;
     }
@@ -923,14 +923,14 @@ function POS() {
      */
     function updateAuthTable(jsonobj) {
         var jsonauth;
-        if (localStorage.getItem("wpos_auth") !== null) {
-            jsonauth = $.parseJSON(localStorage.getItem("wpos_auth"));
+        if (localStorage.getItem("pos_auth") !== null) {
+            jsonauth = $.parseJSON(localStorage.getItem("pos_auth"));
             jsonauth[jsonobj.username.toString()] = jsonobj;
         } else {
             jsonauth = { };
             jsonauth[jsonobj.username.toString()] = jsonobj;
         }
-        localStorage.setItem("wpos_auth", JSON.stringify(jsonauth));
+        localStorage.setItem("pos_auth", JSON.stringify(jsonauth));
     }
 
     // DEVICE SETTINGS AND INFO
@@ -972,7 +972,7 @@ function POS() {
                     }
                 } else {
                     configtable = data;
-                    localStorage.setItem("wpos_config", JSON.stringify(data));
+                    localStorage.setItem("pos_config", JSON.stringify(data));
                     setAppCustomization();
                 }
             }
@@ -982,7 +982,7 @@ function POS() {
     }
 
     function loadConfigTable() {
-        var data = localStorage.getItem("wpos_config");
+        var data = localStorage.getItem("pos_config");
         if (data != null) {
             configtable = JSON.parse(data);
             return true;
@@ -1025,7 +1025,7 @@ function POS() {
         }
 
         configtable[key] = data; // write to current data
-        localStorage.setItem("wpos_config", JSON.stringify(configtable));
+        localStorage.setItem("pos_config", JSON.stringify(configtable));
         setAppCustomization();
     }
 
@@ -1043,7 +1043,7 @@ function POS() {
             }
         }
         POS.items.generateItemGridCategories();
-        localStorage.setItem("wpos_config", JSON.stringify(configtable));
+        localStorage.setItem("pos_config", JSON.stringify(configtable));
     }
 
     function setAppCustomization(){
@@ -1077,7 +1077,7 @@ function POS() {
     };
 
     function getLocalConfig(){
-        var lconfig = localStorage.getItem("wpos_lconfig");
+        var lconfig = localStorage.getItem("pos_lconfig");
         if (lconfig==null || lconfig==undefined){
             // put default config here.
             var defcon = {
@@ -1097,7 +1097,7 @@ function POS() {
     }
 
     function setLocalConfigValue(key, value){
-        var data = localStorage.getItem("wpos_lconfig");
+        var data = localStorage.getItem("pos_lconfig");
         if (data==null){
             data = {};
         } else {
@@ -1111,7 +1111,7 @@ function POS() {
     }
 
     function updateLocalConfig(configobj){
-        localStorage.setItem("wpos_lconfig", JSON.stringify(configobj));
+        localStorage.setItem("pos_lconfig", JSON.stringify(configobj));
     }
 
     /**
@@ -1137,7 +1137,7 @@ function POS() {
         }
         POS.sendJsonDataAsync("devices/setup", JSON.stringify(data), function(configobj){
             if (configobj !== false) {
-                localStorage.setItem("wpos_config", JSON.stringify(configobj));
+                localStorage.setItem("pos_config", JSON.stringify(configobj));
                 configtable = configobj;
             } else {
                 removeDeviceUUID(true);
@@ -1153,12 +1153,12 @@ function POS() {
      */
     function getDeviceUUID() {
         // return the devices uuid; if null, the device has not been setup or local storage was cleared
-        return localStorage.getItem("wpos_devuuid");
+        return localStorage.getItem("pos_devuuid");
     }
 
     function removeDeviceUUID() {
         initialsetup = true;
-        localStorage.removeItem("wpos_devuuid");
+        localStorage.removeItem("pos_devuuid");
     }
 
     /**
@@ -1169,7 +1169,7 @@ function POS() {
         // generate a SHA UUID using datestamp and rand for entropy and return the result
         var date = new Date().getTime();
         var uuid = POS.util.SHA256((date * Math.random()).toString());
-        localStorage.setItem("wpos_devuuid", uuid);
+        localStorage.setItem("pos_devuuid", uuid);
         return uuid;
     }
 
@@ -1195,7 +1195,7 @@ function POS() {
         return POS.sendJsonDataAsync("sales/get", JSON.stringify({deviceid: configtable.deviceid}), function(data){
             if (data) {
                 salestable = data;
-                localStorage.setItem("wpos_csales", JSON.stringify(data));
+                localStorage.setItem("pos_csales", JSON.stringify(data));
             }
             if (callback)
                 callback(data);
@@ -1204,7 +1204,7 @@ function POS() {
 
     // loads from local storage
     function loadSalesTable() {
-        var data = localStorage.getItem("wpos_csales");
+        var data = localStorage.getItem("pos_csales");
         if (data !== null) {
             salestable = JSON.parse(data);
             return true;
@@ -1220,7 +1220,7 @@ function POS() {
         } else {
             delete salestable[saleobject];
         }
-        localStorage.setItem("wpos_csales", JSON.stringify(salestable));
+        localStorage.setItem("pos_csales", JSON.stringify(salestable));
     }
 
     // STORED ITEMS
@@ -1262,7 +1262,7 @@ function POS() {
         return POS.getJsonDataAsync("items/get", function(data){
             if (data) {
                 itemtable = data;
-                localStorage.setItem("wpos_items", JSON.stringify(data));
+                localStorage.setItem("pos_items", JSON.stringify(data));
                 generateItemIndex();
                 POS.items.generateItemGridCategories();
             }
@@ -1288,7 +1288,7 @@ function POS() {
 
     // loads from local storage
     function loadItemsTable() {
-        var data = localStorage.getItem("wpos_items");
+        var data = localStorage.getItem("pos_items");
         if (data != null) {
             itemtable = JSON.parse(data);
             // generate the stock index as well.
@@ -1314,7 +1314,7 @@ function POS() {
                 delete itemtable[itemobject];
             }
         }
-        localStorage.setItem("wpos_items", JSON.stringify(itemtable));
+        localStorage.setItem("pos_items", JSON.stringify(itemtable));
         generateItemIndex();
         POS.items.generateItemGridCategories();
     }
@@ -1339,7 +1339,7 @@ function POS() {
         return POS.getJsonDataAsync("customers/get", function(data){
             if (data) {
                 custtable = data;
-                localStorage.setItem("wpos_customers", JSON.stringify(data));
+                localStorage.setItem("pos_customers", JSON.stringify(data));
                 generateCustomerIndex();
             }
             if (callback)
@@ -1349,7 +1349,7 @@ function POS() {
 
     // loads from local storage
     function loadCustTable() {
-        var data = localStorage.getItem("wpos_customers");
+        var data = localStorage.getItem("pos_customers");
         if (data != null) {
             custtable = JSON.parse(data);
             generateCustomerIndex();
@@ -1382,7 +1382,7 @@ function POS() {
             }
         }
         // save to local store
-        localStorage.setItem("wpos_customers", JSON.stringify(custtable));
+        localStorage.setItem("pos_customers", JSON.stringify(custtable));
     }
     // Websocket updates & commands
     var socket = null;
@@ -1527,17 +1527,17 @@ function POS() {
 
     // Contructor code
     // load POSObjects
-    this.items = new WPOSItems();
-    this.sales = new WPOSSales();
-    this.trans = new WPOSTransactions();
-    this.reports = new WPOSReports();
-    this.print = new WPOSPrint();
-    this.orders = new WPOSOrders();
-    this.util = new WPOSUtil();
-    this.notifications = new WPOSNotifications();
+    this.items = new POSItems();
+    this.sales = new POSSales();
+    this.trans = new POSTransactions();
+    this.reports = new POSReports();
+    this.print = new POSPrint();
+    this.orders = new POSOrders();
+    this.util = new POSUtil();
+    this.notifications = new POSNotifications();
 
-    if (typeof(WPOSEftpos) === 'function')
-        this.eftpos = new WPOSEftpos();
+    if (typeof(POSEftpos) === 'function')
+        this.eftpos = new POSEftpos();
 }
 // UI widget functions & initialization
 var toggleItemBox;

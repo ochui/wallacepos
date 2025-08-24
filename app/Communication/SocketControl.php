@@ -32,7 +32,7 @@ class SocketControl
         $serverScript = $basePath . 'api/server.js';
 
         if ($this->isWindows) {
-            pclose(popen('START "WPOS" node ' . $serverScript, 'r'));
+            pclose(popen('START "POS" node ' . $serverScript, 'r'));
         } else {
             $args = $serverScript . " > /dev/null &";
             exec("nodejs " . $args, $output, $res);

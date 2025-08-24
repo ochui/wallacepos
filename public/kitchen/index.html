@@ -4,14 +4,14 @@
     <meta name="copyright" content="Copyright (c) 2014 WallaceIT <micwallace@gmx.com> <https://www.gnu.org/licenses/lgpl.html>" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WallacePOS - Kitchen (Alpha Version)</title>
+    <title>Pos - Kitchen (Alpha Version)</title>
 
     <link rel="shortcut icon" href="../assets/images/favicon.ico">
     <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="72x72" href="../assets/images/apple-touch-icon-72x72.png">
     <link rel="apple-touch-icon" sizes="114x114" href="../assets/images/apple-touch-icon-114x114.png">
     <!-- UI FRAMEWORK STYLES -->
-    <link type="text/css" rel="stylesheet" href="../assets/css/wpos.css"/>
+    <link type="text/css" rel="stylesheet" href="../assets/css/pos.css"/>
     <link rel="stylesheet" href="../assets/css/jquery-ui-1.10.3.full.min.css"/>
     <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="../assets/css/font-awesome.min.css"/>
@@ -52,12 +52,12 @@
     <script src="../assets/js/jquery-ui-1.10.3.full.min.js"></script>
 
     <!--  Libraries -->
-    <script type="text/javascript" src="../assets/js/wpos/sw-manager.js"></script>
-    <script type="text/javascript" src="../assets/js/wpos/notifications.js"></script>
-    <script type="text/javascript" src="../assets/js/wpos/kitchen.js"></script>
-    <script type="text/javascript" src="../assets/js/wpos/transactions.js"></script>
-    <script type="text/javascript" src="../assets/js/wpos/print.js"></script>
-    <script type="text/javascript" src="../assets/js/wpos/utilities.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/sw-manager.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/notifications.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/kitchen.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/transactions.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/print.js"></script>
+    <script type="text/javascript" src="../assets/js/pos/utilities.js"></script>
     <!-- Websocket library -->
     <script type="text/javascript" src="../assets/libs/socketio/socket.io-4.8.1.js"></script>
     <!-- web-print -->
@@ -236,15 +236,15 @@
     <div id="printstat" style="float:left; height: 40px; vertical-align: middle; margin-left: 5px; margin-right: 5px;">
         <i class="icon-print icon-large white"></i>&nbsp;<span id="printstattxt" class="white">Initializing...</span>
     </div>
-    <div id="wposstat" style="float:right; height: 40px; vertical-align: middle;"><span id="wposstattxt" class="white">POS is Online</span>
-        <span id="wposstaticon" class="badge badge-success" style="margin-left: 5px; margin-right: 5px;"><i class="icon-ok"></i></span></div>
+    <div id="posstat" style="float:right; height: 40px; vertical-align: middle;"><span id="posstattxt" class="white">POS is Online</span>
+        <span id="posstaticon" class="badge badge-success" style="margin-left: 5px; margin-right: 5px;"><i class="icon-ok"></i></span></div>
 </div>
 </div>
 <div id="modaldiv" class="login-layout" style="background-color:#000000; z-index: 1000;">
     <div id="loginbox" class="login-box widget-box visible no-border">
         <div class="widget-main">
             <h2 class="header blue lighter bigger">
-                <img style="height: 40px; margin-top: -5px;" src="../assets/images/apple-touch-icon-72x72.png">&nbsp;WallacePOS Kitchen<br/><small>Alpha Version</small>
+                <img style="height: 40px; margin-top: -5px;" src="../assets/images/apple-touch-icon-72x72.png">&nbsp;Pos Kitchen<br/><small>Alpha Version</small>
             </h2>
             <div class="space-6"></div>
             <div class="space-6"></div>
@@ -401,21 +401,21 @@
     <div style="display: inline-block; margin-bottom: 10px;">
         Select a device to merge with or enter a new device name<br/>
         <label>Existing device:</label><br/>
-        <select id="posdevices" onchange="$('#newposdevice').val('');">
+        <select id="posdevices" onchange="$('#neposdevice').val('');">
             <option value="" selected></option>
         </select><br/><br/>
 
         <label>New device name:</label><br/>
-        <input id="newposdevice" type="text" onchange="$('#posdevices>option:eq(0)').prop('selected', true);"/>
+        <input id="neposdevice" type="text" onchange="$('#posdevices>option:eq(0)').prop('selected', true);"/>
     </div>
     <div style="display: inline-block;">
         Select an existing location for the device or enter a new location<br/>
         <label>Existing location:</label><br/>
-        <select id="poslocations" onchange="$('#newposlocation').val('');">
+        <select id="poslocations" onchange="$('#neposlocation').val('');">
             <option value="" selected></option>
         </select><br/><br/>
         <label>New location name:</label><br/>
-        <input id="newposlocation" type="text" onchange="$('#poslocations>option:eq(0)').prop('selected', true);"/>
+        <input id="neposlocation" type="text" onchange="$('#poslocations>option:eq(0)').prop('selected', true);"/>
     </div>
     <div style="text-align: center; margin-top: 10px;">
         <button class="btn btn-primary btn-sm" onclick="POS.deviceSetup();">Register</button>

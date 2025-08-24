@@ -7,9 +7,9 @@
 var POS;
 $(function () {
   // initiate POS.object
-  POS = new WPOSInstaller();
+  POS = new POSInstaller();
 });
-function WPOSInstaller() {
+function POSInstaller() {
   // AJAX PAGE LOADER FUNCTIONS
   var currentStep = "requirements";
   var currentsec = "";
@@ -235,8 +235,8 @@ function WPOSInstaller() {
   };
 
   // Load globally accessible objects
-  this.util = new WPOSUtil();
-  this.notifications = new WPOSNotifications();
+  this.util = new POSUtil();
+  this.notifications = new POSNotifications();
 
   // Initialize installer - check status first, then load appropriate step
   this.init = function () {

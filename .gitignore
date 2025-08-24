@@ -1,7 +1,6 @@
 .idea/
 .jshintrc
 nbproject
-library/wpos/.dbconfig.json
 storage/backup/
 storage/logs/
 storage/templates/
@@ -22,10 +21,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
-
-# Node modules (if added)
-node_modules/
-
 # Logs
 *.log
 npm-debug.log*

@@ -1,23 +1,7 @@
 /**
- * clientaccess.js is part of Wallace Point of Sale system (WPOS)
  *
  * clientaccess.js Provides base functionality for the customer login area.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/13 12:01 PM
  */
 
 function changehash(hash){
@@ -40,18 +24,18 @@ var POS;
 //On load page, init the timer which check if the there are anchor changes
 $(function(){
     // initiate POS.object
-    POS= new WPOSClientDash();
+    POS= new POSClientDash();
     // init
     POS.isLogged();
 });
-function WPOSClientDash(){
+function POSClientDash(){
     // AJAX PAGE LOADER FUNCTIONS
     var currentAnchor = '0';
     var currentsec = '';
     var lastAnchor = null;
     
     // Initialize notifications
-    this.notifications = new WPOSNotifications();
+    this.notifications = new POSNotifications();
     
     // Are there anchor changes, if there are, calculate request and send
     this.checkAnchor = function(){
@@ -287,6 +271,6 @@ function WPOSClientDash(){
     }
 
     // Load globally accessable objects
-    this.util = new WPOSUtil();
-    this.transactions = new WPOSCustomerTransactions();
+    this.util = new POSUtil();
+    this.transactions = new POSCustomerTransactions();
 }

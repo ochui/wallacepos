@@ -4,7 +4,7 @@
  *
  */
 
-function WPOSTransactions() {
+function POSTransactions() {
     var transactions = {};
     var items = null;
     // functions for opening info dialogs and populating data

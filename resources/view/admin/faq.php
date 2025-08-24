@@ -1,4 +1,3 @@
-<!-- WallacePOS: Copyright (c) 2014 WallaceIT <micwallace@gmx.com> <https://www.gnu.org/licenses/lgpl.html> -->
 <div class="page-header">
     <h1>
         FAQ
@@ -66,11 +65,11 @@
 
             <div class="panel-collapse collapse" id="faq-1-1">
                 <div class="panel-body">
-                    <p>WallacePOS uses some pretty new & clever technology to enable offline processing of sales, refunds & voids.<br/>
+                    <p>Pos uses some pretty new & clever technology to enable offline processing of sales, refunds & voids.<br/>
                     Offline mode is available to users once they have signed into a device for the first time.<br/>
                     When in offline mode, new transactions and updates get saved into hmtl5 local storage, which is retained when closing the web browser. When the system detects a connection is available, it will attempt to synchronise these records with the server & other POS terminals.<br/>
                     You can take sales & orders in offline mode, as well as processing refunds, voids & updating sales notes for records that are locally available.<br/>
-                    WallacePOS also allows you to perform all these actions for sales & orders that are still offline.</p>
+                    Pos also allows you to perform all these actions for sales & orders that are still offline.</p>
                     <p>
                         Note: For security purposes, admin users must login in online mode before offline functionality becomes available. Locally available records can be adjusted via the admin dashboard, POS settings section.
                     </p>
@@ -93,7 +92,7 @@
             <div class="panel-collapse collapse" id="faq-1-3">
                 <div class="panel-body">
                     <p>
-                    By storing data offline to be readily available, and by receiving real time updates of that data, WallacePOS is able keep its most used operations lightning fast.<br/>
+                    By storing data offline to be readily available, and by receiving real time updates of that data, Pos is able keep its most used operations lightning fast.<br/>
                     On the terminal side, this means that staff can look up & add items very quickly. In fact, the terminal doesn't use the internet connection at all until the sale is processed.<br/>
                     The transfer of sale data is asynchronous, meaning that you can continue with another sale while the last one is transfering.</p>
                 </div>
@@ -113,9 +112,9 @@
             <div class="panel-collapse collapse" id="faq-1-4">
                 <div class="panel-body">
                     <p>
-                    Whether your business is interested seeing a new feature implemented or would like to modify WallacePOS to your own needs, we're here to guide you through the process.
+                    Whether your business is interested seeing a new feature implemented or would like to modify Pos to your own needs, we're here to guide you through the process.
                     <br/>Please let us know how we can help by using the "contact us" button in the menu. <br/>
-                    Because WallacePOS is based on open-source technologies, there are millions of developers with the skills to extend your WallacePOS system, including our skilled in-house staff.</p>
+                    Because Pos is based on open-source technologies, there are millions of developers with the skills to extend your Pos system, including our skilled in-house staff.</p>
                 </div>
             </div>
         </div>
@@ -216,9 +215,9 @@
 
                             <div class="panel-collapse collapse" id="faq-list-1-sub-3">
                                 <div class="panel-body">
-                                    <p>To keep track of past users, devices & location, WallacePOS provides functionality for disabling these items when they are no longer current.
+                                    <p>To keep track of past users, devices & location, Pos provides functionality for disabling these items when they are no longer current.
                                     <br/>Once disabled, you may delete these items, but it is highly recommended to leave them in the system as past sales records may rely on these values.
-                                    <br/>WallacePOS will include an archive function in the next release so you can safely archive old data and restore it if necessary.</p>
+                                    <br/>Pos will include an archive function in the next release so you can safely archive old data and restore it if necessary.</p>
                                     <p>Note: Managing these items requires you to be an admin user.</p>
                                 </div>
                             </div>
@@ -253,7 +252,7 @@
                     <p>Tyro integrated eftpos allows seemless integration between POS and your eftpos terminal to save time and avoid operator mistakes.</p>
                     <strong>To set up integrated Eftpos:</strong>
                     <ol>
-                        <li>Login to the <a href="/">WPOS terminal</a> and click on the settings tab.</li>
+                        <li>Login to the <a href="/">POS terminal</a> and click on the settings tab.</li>
                         <li>Under Integrated Eftpos, click on the enabled checkbox and select Tyro from providers.<br/>
                             <img style="padding-top: 5px;" src="../assets/images/faq/faq-eftpos-settings.png">
                         </li>
@@ -268,7 +267,7 @@
                     <ol>
                         <li>Create a sale as normal and click proceed.</li>
                         <li>If the customer is using multiple payment methods, add the additional payments (Not the tyro payment) to the sale before proceeding. The remaining balance will be calculated for you.</li>
-                        <li>Click on the green "Tyro Eftpos" button. This will initialize the card payment on the Eftpos machine and show you payment progress through the wpos terminal. Once the customer makes a successful payment, the sale will be automatically processed.</li>
+                        <li>Click on the green "Tyro Eftpos" button. This will initialize the card payment on the Eftpos machine and show you payment progress through the pos terminal. Once the customer makes a successful payment, the sale will be automatically processed.</li>
                         <li>Depending on your preferences, you will be asked if you would like a merchant receipt printed. If you decline, you can always view and reprint it from the Transaction details dialog.<br/>
                             <img style="padding-top: 5px;" src="../assets/images/faq/faq-eftpos-receipts.png">
                         </li>
@@ -298,16 +297,16 @@
                     </p>
 
                     <h3>Direct Printing</h3>
-                    <p>WallacePOS is able to directly communicate with thermal receipt printers that support the standard ESC/POS printer language (most have support).
+                    <p>Pos is able to directly communicate with thermal receipt printers that support the standard ESC/POS printer language (most have support).
                         <br/>Communicating directly with the printer allows the control of a standard cash draw that is connected through the printer,
                         as well as advanced printing features such as image printing, feed and cutter control.
                     </p>
 
                     <h4>Installing the print Applet</h4>
                         <p>To start using direct printing, you must first install WebPrint on your computer or HttpSocketAdapter on Android.</p>
-                        <p>These applications act as a messenger and provide an interface for WallacePOS to communicate directly with your printer.</p>
+                        <p>These applications act as a messenger and provide an interface for Pos to communicate directly with your printer.</p>
                         <ol>
-                            <li>Log into your WallacePOS <a target="_blank" href="/">terminal</a></li>
+                            <li>Log into your Pos <a target="_blank" href="/">terminal</a></li>
                             <li>Click on the settings tab in the top of the terminal, and then click Printing</li>
                             <li>Click on connection to display connection setting and change the Method to "Web Print ESCP" or "Android HTTP ESCP" if using Android</li>
                             <li>After a few seconds, you will be prompted to install the Applet, click OK</li>
@@ -315,7 +314,7 @@
                                 <br/>On Android, you will be redirected to the Android Play store to install HttpSocketAdapter.<br/>
                                 Click the green install button. Once installed, open HttpSocketAdapter, enter the IP address and port for your printer and click the start relay button.
                             </li>
-                            <li>Once the Applet is installed and running, go back to the WallacePOS terminal, refresh the page and log back in.</li>
+                            <li>Once the Applet is installed and running, go back to the Pos terminal, refresh the page and log back in.</li>
                             <li>You may be prompted by the print applet to allow access to your printers, click Yes/OK.</li>
                             <li>Once completed you should see "Print-App Connected" status in the bottom left corner of the terminal</li>
                         </ol>
@@ -339,7 +338,7 @@
                                 The configuration page should list IP address and port. If not, consult the printer manual on how to obtain these details for your specific printer.
                             </li>
                             <li>If using Android, these details are set in the HttpSocketAdapter application. Restart the relay to apply settings.<br/>
-                                <br/>If using a computer, go to the WallacePOS terminal, Click on the settings tab in the top of the terminal, and then click Printing.
+                                <br/>If using a computer, go to the Pos terminal, Click on the settings tab in the top of the terminal, and then click Printing.
                                 <br/>Click connection and change Type to "Raw TCP" (Method should already be set to Web Print). Enter the IP address and port number for your printer.
                             </li>
                             <li>Test the connection by using the Test or PrintQR button next to the Printer connection settings.</li>
@@ -385,7 +384,7 @@
             <div class="panel-collapse collapse" id="faq-2-4">
                 <div class="panel-body">
                     Firstly make sure all connections are secure between the printer and the computer/network. If using a network printer double check that the device is connected to the network.<br/>
-                    Secondly, close your web browser (along with WallacePOS), re-open it and log back in. Make sure the "Print-App Connected" status is showing in the bottom right hand corner of WallaecPOS.<br/>
+                    Secondly, close your web browser (along with Pos), re-open it and log back in. Make sure the "Print-App Connected" status is showing in the bottom right hand corner of WallaecPOS.<br/>
                     Try printing by using the test button in the settings window.
                     If the printer still fails, power off the printer, computer and if using a network printer any network equipment such as routers and switches. Power the devices back on and wait a few minutes before testing the printer.
                     If it's still not working, please <a href="#!contact">contact us</a> and we'll work through it together
@@ -405,7 +404,7 @@
             <div class="panel-collapse collapse" id="faq-2-5">
                 <div class="panel-body">
                     <p>
-                    WallacePOS supports standard POS hardware.<br/>
+                    Pos supports standard POS hardware.<br/>
                     Barcode scanning requires an android mobile phone with a camera (Android) or a USB barcode scanner (Windows,Mac,Linux).<br/>
                     Receipt printing requires an 80mm thermal receipt printer with ESC/P or ESC/POS (Epson standard code for printers). If you need 40mm support, contact us.<p/>
                     <p>Cash draw just needs to be a standard POS/electronic cash draw. This plugs into the printer using a phone-type plug.<br/>
@@ -477,7 +476,7 @@
 
             <div class="panel-collapse collapse" id="faq-3-3">
                 <div class="panel-body">
-                    <p>WallacePOS order feature is perfect for most cafes & restaurants.</p>
+                    <p>Pos order feature is perfect for most cafes & restaurants.</p>
                     <strong>To use the order feature:</strong>
                     <ol>
                         <li>Simply fill out a sale in the normal way by adding requested items and clicking the process button.</li>
@@ -538,17 +537,17 @@
 
             <div class="panel-collapse collapse" id="faq-4-2">
                 <div class="panel-body">
-                    WallacePOS provides a few ways to export your data, making it easy to use it the way you want.
+                    Pos provides a few ways to export your data, making it easy to use it the way you want.
 
                     CSV format is by far the easiest to work with. It's a human-readable text file that most spreadsheet applications open it.
                     You'll mostly find that you can open CSV with you current software but if not you can download a spreadsheet application by
                     heading to <a target="_blank" rel="noopener noreferrer" href="http://www.libreoffice.org/">LibreOffice.com</a> (Windows,Mac,Linux) or <a target="_blank" rel="noopener noreferrer" href="https://play.google.com/store/apps/details?id=com.google.android.apps.docs.editors.sheets&hl=en">Google Sheets</a> (Android).
                     Spreadsheet applications are very powerful and easy to use with a little experience. They allow fine-control your data and most have some nice graphing functionality.
 
-                    WallacePOS also allows you to export your data in SQL database format, using the database backup function in the utilities section.
+                    Pos also allows you to export your data in SQL database format, using the database backup function in the utilities section.
                     SQL is a widely used format that can we converted and adapted for other systems.
 
-                    Additionally you may like to use the WallacePOS API to access JSON data. An API guide will be coming soon.
+                    Additionally you may like to use the Pos API to access JSON data. An API guide will be coming soon.
                 </div>
             </div>
         </div>

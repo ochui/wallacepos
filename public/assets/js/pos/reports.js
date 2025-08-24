@@ -4,7 +4,7 @@
  *
  */
 
-function WPOSReports() {
+function POSReports() {
   // Overview
   this.populateOverview = function () {
     var stats = getOverviewStats();

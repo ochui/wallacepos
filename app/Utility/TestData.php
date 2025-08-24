@@ -28,7 +28,7 @@ class TestData
     private $users;
     private $devices;
     private $paymentMethods = ['eftpos', 'credit', 'cheque', 'deposit', 'cash'];
-    private $wposSales;
+    private $posSales;
 
     public function generateTestData($purge = false)
     {
@@ -218,10 +218,10 @@ class TestData
             }
             // process the sale
             if ($type == 'sale') {
-                $this->wposSales = new PosSale($saleobj);
-                $this->wposSales->setNoBroadcast();
+                $this->posSales = new PosSale($saleobj);
+                $this->posSales->setNoBroadcast();
                 $saleobj->custid = 0;
-                $result = $this->wposSales->insertTransaction(["errorCode" => "OK", "error" => "OK", "data" => ""]);
+                $result = $this->posSales->insertTransaction(["errorCode" => "OK", "error" => "OK", "data" => ""]);
                 if ($result['error'] != "OK")
                     die("Failed to add devices: " . $result['error']);
             } else {
@@ -230,8 +230,8 @@ class TestData
                 $saleobj->custid = rand(1, 2);
                 $saleobj->channel = "manual";
 
-                $this->wposSales = new Invoices($saleobj, null, true);
-                $result = $this->wposSales->createInvoice(["errorCode" => "OK", "error" => "OK", "data" => ""]);
+                $this->posSales = new Invoices($saleobj, null, true);
+                $result = $this->posSales->createInvoice(["errorCode" => "OK", "error" => "OK", "data" => ""]);
                 if ($result['error'] != "OK")
                     die("Failed to add devices: " . $result['error']);
             }

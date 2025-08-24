@@ -1,26 +1,10 @@
 /**
- * clienttrans.js is part of Wallace Point of Sale system (WPOS)
  *
  * clienttrans.js Provides functionality for loading and viewing data/UI for customer transactions, across all customer dashboard pages.
  *
- * WallacePOS is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * WallacePOS is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details:
- * <https://www.gnu.org/licenses/lgpl.html>
- *
- * @package    wpos
- * @copyright  Copyright (c) 2014 WallaceIT. (https://wallaceit.com.au)
- * @author     Michael B Wallace <micwallace@gmx.com>
- * @since      Class created 15/1/13 12:01 PM
  */
 
-function WPOSCustomerTransactions() {
+function POSCustomerTransactions() {
     var transactions = {};
     var items = null;
     // functions for opening info dialogs and populating data

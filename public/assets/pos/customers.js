@@ -4,7 +4,7 @@
  *
  */
 
-function WPOSCustomers() {
+function POSCustomers() {
     var customers = {};
     var curcustid = 0;
     this.openAddCustomerDialog = function(){

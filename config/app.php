@@ -6,7 +6,7 @@ return [
     | Application Configuration
     |--------------------------------------------------------------------------
     |
-    | This file contains the core configuration for the WallacePOS application.
+    | This file contains the core configuration for the Pos application.
     | Values can be overridden using environment variables.
     |
     */

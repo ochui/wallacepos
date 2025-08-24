@@ -15,7 +15,7 @@
                     View & Search your Purchases
                 </div>
 
-                <div class="wpostable">
+                <div class="postable">
                     <table id="transtable" class="table table-striped table-bordered table-hover table-responsive">
                         <thead>
                         <tr>

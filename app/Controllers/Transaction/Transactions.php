@@ -258,10 +258,10 @@ class Transactions
                     $result['data'] = $data;
                     // return stock to original sale location
                     if (sizeof($data->items) > 0) {
-                        $wposStock = new AdminStock();
+                        $posStock = new AdminStock();
                         foreach ($data->items as $item) {
                             if ($item->sitemid > 0) {
-                                $wposStock->incrementStockLevel($item->sitemid, $data->locid, $item->qty, false);
+                                $posStock->incrementStockLevel($item->sitemid, $data->locid, $item->qty, false);
                             }
                         }
                     }
@@ -351,10 +351,10 @@ class Transactions
                         $result['data'] = $jsondata;
                         // if sale has been unvoided, remove item stock from the location where created
                         if (($foundtype == 'void' && $status != 3) && sizeof($jsondata->items) > 0) {
-                            $wposStock = new AdminStock();
+                            $posStock = new AdminStock();
                             foreach ($jsondata->items as $item) {
                                 if ($item->sitemid > 0) {
-                                    $wposStock->incrementStockLevel($item->sitemid, $jsondata->locid, $item->qty, true);
+                                    $posStock->incrementStockLevel($item->sitemid, $jsondata->locid, $item->qty, true);
                                 }
                             }
                         }

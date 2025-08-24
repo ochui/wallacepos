@@ -1,4 +1,3 @@
-<!-- WallacePOS: Copyright (c) 2014 WallaceIT <micwallace@gmx.com> <https://www.gnu.org/licenses/lgpl.html> -->
 <div class="page-header">
     <h1>
         Utilities
@@ -213,7 +212,7 @@
     }
 
     function exportDB(){
-        $("#dlframe").attr('src', 'https://'+document.location.host+'/api/wpos.php?a=db%2Fbackup');
+        $("#dlframe").attr('src', 'https://'+document.location.host+'/api/pos.php?a=db%2Fbackup');
     }
 
     function restoreTemplates(){

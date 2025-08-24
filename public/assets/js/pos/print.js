@@ -5,7 +5,7 @@
  *
  */
 
-function WPOSPrint(kitchenMode) {
+function POSPrint(kitchenMode) {
     var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
     var wpdeployed = false;
     var webprint;
@@ -362,7 +362,7 @@ function WPOSPrint(kitchenMode) {
         var printer = getPrintSetting('reports', 'printer');
         switch (getPrintSetting('reports', 'method')) {
             case "br":
-                browserPrintHtml($("#reportcontain").html(), 'WallacePOS Report', 600, 800);
+                browserPrintHtml($("#reportcontain").html(), 'Pos Report', 600, 800);
                 break;
             case "qz":
                 POS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
@@ -415,7 +415,7 @@ function WPOSPrint(kitchenMode) {
         var method = getPrintSetting(printer, 'method');
         switch (method) {
             case "br":
-                browserPrintHtml("<pre style='text-align: center; background-color: white;'>" + text + "</pre>", 'WallacePOS Receipt', 310, 600);
+                browserPrintHtml("<pre style='text-align: center; background-color: white;'>" + text + "</pre>", 'Pos Receipt', 310, 600);
                 return true;
             case "qz":
                 POS.notifications.warning("QZ-Print integration is no longer available, switch to the new webprint applet", "Print Method Deprecated", {delay: 0});
@@ -439,9 +439,9 @@ function WPOSPrint(kitchenMode) {
         switch (method) {
             case "br":
                 if (curset.printinv) {
-                    browserPrintHtml(getHtmlReceipt(record, false, true), 'WallacePOS Invoice', 600, 800);
+                    browserPrintHtml(getHtmlReceipt(record, false, true), 'Pos Invoice', 600, 800);
                 } else {
-                    browserPrintHtml(getHtmlReceipt(record, false), 'WallacePOS Receipt', 310, 600);
+                    browserPrintHtml(getHtmlReceipt(record, false), 'Pos Receipt', 310, 600);
                 }
                 return true;
             case "qz":
