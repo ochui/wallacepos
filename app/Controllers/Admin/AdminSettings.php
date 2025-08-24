@@ -207,10 +207,9 @@ class AdminSettings
                     $this->curconfig->{"negative_items"} = false;
                 }
 
-                foreach ($this->curconfig as $key => $value) {
-                    if (isset($this->data->{$key})) { // update the config value if specified in the data
-                        $this->curconfig->{$key} = $this->data->{$key};
-                    }
+                // Update existing config values and add new ones from the data
+                foreach ($this->data as $key => $value) {
+                    $this->curconfig->{$key} = $value;
                 }
 
                 if ($this->configMdl->edit($this->name, json_encode($this->curconfig)) === false) {
