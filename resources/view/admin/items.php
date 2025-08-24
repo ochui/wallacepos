@@ -316,7 +316,7 @@
             } else {
                 row.addClass('selected');
             }
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
             e.stopPropagation();
         });
 
@@ -333,7 +333,7 @@
                         $(this).prop('checked', false);
                     }
                 });
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
         });
 
         $('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
@@ -612,7 +612,7 @@
         }
         datatable.fnClearTable(false);
         datatable.fnAddData(itemarray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
     function exportItems(){
 

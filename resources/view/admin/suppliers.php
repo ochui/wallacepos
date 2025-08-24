@@ -106,7 +106,7 @@
             } else {
                 row.addClass('selected');
             }
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
             e.stopPropagation();
         });
 
@@ -123,7 +123,7 @@
                         $(this).prop('checked', false);
                     }
                 });
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
         });
 
         // dialogs
@@ -268,7 +268,7 @@
         }
         datatable.fnClearTable(false);
         datatable.fnAddData(suparray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
 </script>
 <style type="text/css">
