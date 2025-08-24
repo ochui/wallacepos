@@ -7,217 +7,267 @@
         </small>
     </h1>
 </div><!-- /.page-header -->
-<div class="row">
-    <div class="col-sm-6">
-        <div class="widget-box transparent">
-            <div class="widget-header widget-header-flat">
-                <h4 class="lighter">Receipt</h4>
-            </div>
 
-            <div class="widget-body" style="padding-top: 10px;">
-                <form class="form-horizontal">
-                    <div class="form-group">
-                        <div class="col-sm-5"><label>Default Template:</label></div>
-                        <div class="col-sm-5">
-                            <select id="rectemplate"></select><br/>
-                            <small>not used for ESCP text-mode receipts</small>
+<div class="tabbable">
+    <ul class="nav nav-tabs tab-size-bigger" id="posSettingsTabs">
+        <li class="active">
+            <a data-toggle="tab" href="#pos-receipt-tab">
+                <i class="blue icon-print bigger-120"></i>
+                Receipt
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#pos-records-tab">
+                <i class="green icon-list bigger-120"></i>
+                Records
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#pos-sales-tab">
+                <i class="orange icon-shopping-cart bigger-120"></i>
+                Sale Options
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#pos-cash-tab">
+                <i class="purple icon-money bigger-120"></i>
+                Cash Reconciliation
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content no-border">
+        <div id="pos-receipt-tab" class="tab-pane fade in active">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="widget-box transparent">
+                        <div class="widget-header widget-header-flat">
+                            <h4 class="lighter">Receipt</h4>
+                        </div>
+
+                        <div class="widget-body" style="padding-top: 10px;">
+                            <form class="form-horizontal">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <div class="col-sm-5"><label>Default Template:</label></div>
+                                            <div class="col-sm-6">
+                                                <select id="rectemplate"></select><br/>
+                                                <small>not used for ESCP text-mode receipts</small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-5"><label>Header Line 2:</label></div>
+                                            <div class="col-sm-6"><input type="text" id="recline2" /></div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <div class="col-sm-5"><label>Header Line 3:</label></div>
+                                            <div class="col-sm-6"><input type="text" id="recline3" /></div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Print Sale ID:</label>
+                                            <div class="col-sm-6">
+                                                <input type="checkbox" id="recprintid" /><br/>
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Print Item Description:</label>
+                                            <div class="col-sm-6">
+                                                <input type="checkbox" id="recprintdesc" /><br/>
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Print Receipt Logo:</label>
+                                            <div class="col-sm-6">
+                                                <input type="checkbox" id="recprintlogo" value="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Receipt Printer Logo:</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" id="reclogo" /><br/>
+                                                <img id="reclogoprev" width="128" height="64" src="" />
+                                                <input type="file" id="reclogofile" name="file" />
+                                                <small>Must be a monochromatic 1-bit png (256*128)</small>
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Browser/Email Logo:</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" id="recemaillogo" /><br/>
+                                                <img id="emaillogoprev" width="128" height="64" src="" />
+                                                <input type="file" id="emaillogofile" name="file" />
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Receipt Currency Characters:</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" id="reccurrency" /><br/>
+                                                <small>Used for ESC/P text-mode printing.</small>
+                                                <small>Supply alternate decimal character codes separated by a comma or leave blank to disable.</small>
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Receipt Currency Codepage:</label>
+                                            <div class="col-sm-6">
+                                                <input type="number" id="reccurrency_codepage" /><br/>
+                                                <small>Alternate codepage used to print the currency characters above.</small>
+                                            </div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Receipt Footer Text:</label>
+                                            <div class="col-sm-6"><input type="text" id="recfooter" /></div>
+                                        </div>
+                                        <div class="space-4"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5">Promo QR code:</label>
+                                            <div class="col-sm-6"><input type="text" id="recqrcode" /><br/><small>Leave blank to disable</small>
+                                                <br/><img id="qrpreview" width="150" src="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-sm-5"><label>Header Line 2:</label></div>
-                        <div class="col-sm-5"><input type="text" id="recline2" /></div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <div class="col-sm-5"><label>Header Line 3:</label></div>
-                        <div class="col-sm-5"><input type="text" id="recline3" /></div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Print Sale ID:</label>
-                        <div class="col-sm-5">
-                            <input type="checkbox" id="recprintid" /><br/>
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Print Item Description:</label>
-                        <div class="col-sm-5">
-                            <input type="checkbox" id="recprintdesc" /><br/>
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Receipt Printer Logo:</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="reclogo" /><br/>
-                            <img id="reclogoprev" width="128" height="64" src="" />
-                            <input type="file" id="reclogofile" name="file" />
-                            <small>Must be a monochromatic 1-bit png (256*128)</small>
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Print Receipt Logo:</label>
-                        <div class="col-sm-5">
-                            <input type="checkbox" id="recprintlogo" value="true" />
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Receipt Currency Characters:</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="reccurrency" /><br/>
-                            <small>Used for ESC/P text-mode printing.</small>
-                            <small>Supply alternate decimal character codes separated by a comma or leave blank to disable.</small>
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Receipt Currency Codepage:</label>
-                        <div class="col-sm-5">
-                            <input type="number" id="reccurrency_codepage" /><br/>
-                            <small>Alternate codepage used to print the currency characters above.</small>
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Browser/Email Logo:</label>
-                        <div class="col-sm-5">
-                            <input type="text" id="recemaillogo" /><br/>
-                            <img id="emaillogoprev" width="128" height="64" src="" />
-                            <input type="file" id="emaillogofile" name="file" />
-                        </div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Receipt Footer Text:</label>
-                        <div class="col-sm-5"><input type="text" id="recfooter" /></div>
-                    </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <label class="col-sm-5">Promo QR code:</label>
-                        <div class="col-sm-5"><input type="text" id="recqrcode" /><br/><small>Leave blank to disable</small>
-                            <br/><img id="qrpreview" width="150" src="">
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-6">
-        <div class="widget-box transparent">
-            <div class="widget-header widget-header-flat">
-                <h4 class="lighter">POS Records: Load sale records...</h4>
-            </div>
+        <div id="pos-records-tab" class="tab-pane fade">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="widget-box transparent">
+                        <div class="widget-header widget-header-flat">
+                            <h4 class="lighter">POS Records: Load sale records...</h4>
+                        </div>
 
-            <div class="widget-body" style="padding-top: 10px;">
-                <form class="form-horizontal">
-                    <div class="form-group">
-                        <div class="col-sm-5"><label>for the last:</label></div>
-                        <div class="col-sm-5">
-                            <select id="salerange">
-                                <option value="week">1 week</option>
-                                <option value="day">1 day</option>
-                                <option value="month">1 month</option>
-                            </select>
+                        <div class="widget-body" style="padding-top: 10px;">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <div class="col-sm-5"><label>for the last:</label></div>
+                                    <div class="col-sm-5">
+                                        <select id="salerange">
+                                            <option value="week">1 week</option>
+                                            <option value="day">1 day</option>
+                                            <option value="month">1 month</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="space-4"></div>
+                                <div class="form-group">
+                                    <div class="col-sm-5"><label>Include:</label></div>
+                                    <div class="col-sm-5">
+                                        <select id="saledevice">
+                                            <option value="device">Devices sales</option>
+                                            <option value="location">Locations sales</option>
+                                            <option value="all">All sales</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <div class="space-4"></div>
-                    <div class="form-group">
-                        <div class="col-sm-5"><label>Include:</label></div>
-                        <div class="col-sm-5">
-                            <select id="saledevice">
-                                <option value="device">Devices sales</option>
-                                <option value="location">Locations sales</option>
-                                <option value="all">All sales</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-6">
-        <div class="widget-box transparent">
-            <div class="widget-header widget-header-flat">
-                <h4 class="lighter">Sale Options</h4>
-            </div>
-            <div class="widget-body" style="padding-top: 10px;">
-                <form class="form-horizontal">
-                    <div>
-                        <div class="form-group">
-                            <div class="col-sm-5"><label>Allow Changing Stored Item Prices:</label></div>
-                            <div class="col-sm-5">
-                                <select id="priceedit">
-                                    <option value="blank">When Price is Blank</option>
-                                    <option value="always">Always</option>
-                                </select>
-                            </div>
+        <div id="pos-sales-tab" class="tab-pane fade">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="widget-box transparent">
+                        <div class="widget-header widget-header-flat">
+                            <h4 class="lighter">Sale Options</h4>
                         </div>
-                        <div class="space-4"></div>
-                        <div class="form-group">
-                            <div class="col-sm-5"><label>Allow Changing Stored Item Tax:</label></div>
-                            <div class="col-sm-5">
-                                <select id="taxedit">
-                                    <option value="no">No</option>
-                                    <option value="always">Yes</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="space-4"></div>
-                        <div class="form-group">
-                            <div class="col-sm-5"><label>Cash rounding:</label></div>
-                            <div class="col-sm-5">
-                                <select id="cashrounding">
-                                    <option value="0">None</option>
-                                    <option value="5">5¢</option>
-                                    <option value="10">10¢</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="space-4"></div>
-                        <div class="form-group">
-                            <div class="col-sm-5"><label>Allow negative item prices:</label></div>
-                            <div class="col-sm-5">
-                                <input id="negative_items" type="checkbox" />
-                            </div>
+                        <div class="widget-body" style="padding-top: 10px;">
+                            <form class="form-horizontal">
+                                <div>
+                                    <div class="form-group">
+                                        <div class="col-sm-5"><label>Allow Changing Stored Item Prices:</label></div>
+                                        <div class="col-sm-5">
+                                            <select id="priceedit">
+                                                <option value="blank">When Price is Blank</option>
+                                                <option value="always">Always</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="space-4"></div>
+                                    <div class="form-group">
+                                        <div class="col-sm-5"><label>Allow Changing Stored Item Tax:</label></div>
+                                        <div class="col-sm-5">
+                                            <select id="taxedit">
+                                                <option value="no">No</option>
+                                                <option value="always">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="space-4"></div>
+                                    <div class="form-group">
+                                        <div class="col-sm-5"><label>Cash rounding:</label></div>
+                                        <div class="col-sm-5">
+                                            <select id="cashrounding">
+                                                <option value="0">None</option>
+                                                <option value="5">5¢</option>
+                                                <option value="10">10¢</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="space-4"></div>
+                                    <div class="form-group">
+                                        <div class="col-sm-5"><label>Allow negative item prices:</label></div>
+                                        <div class="col-sm-5">
+                                            <input id="negative_items" type="checkbox" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </form>
+                </div>
+            </div>
+        </div>
+        <div id="pos-cash-tab" class="tab-pane fade">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="widget-box transparent">
+                        <div class="widget-header widget-header-flat">
+                            <h4 class="lighter">Cash Reconciliation Denominations</h4>
+                        </div>
+                        <div class="widget-body" style="padding-top: 10px;">
+                            <div class="table-header">
+                                Configure cash denominations for reconciliation calculations
+                            </div>
+                            <div class="table-responsive">
+                                <table id="cash-denominations-table" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Label</th>
+                                        <th>Value</th>
+                                        <th>Currency Symbol</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="denominations-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-primary" type="button" onclick="addDenomination();"><i class="icon-plus"></i> Add Denomination</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-sm-12">
-        <div class="widget-box transparent">
-            <div class="widget-header widget-header-flat">
-                <h4 class="lighter">Cash Reconciliation Denominations</h4>
-            </div>
-            <div class="widget-body" style="padding-top: 10px;">
-                <div class="table-header">
-                    Configure cash denominations for reconciliation calculations
-                </div>
-                <div class="table-responsive">
-                    <table id="cash-denominations-table" class="table table-striped table-bordered table-hover">
-                        <thead>
-                        <tr>
-                            <th>Label</th>
-                            <th>Value</th>
-                            <th>Currency Symbol</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody id="denominations-tbody">
-                        </tbody>
-                    </table>
-                </div>
-                <button class="btn btn-sm btn-primary" type="button" onclick="addDenomination();"><i class="icon-plus"></i> Add Denomination</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div class="row">
     <div class="col-sm-12 align-center form-actions">
         <button class="btn btn-success" type="button" onclick="saveSettings();"><i class="icon-save align-top bigger-125"></i>Save</button>
