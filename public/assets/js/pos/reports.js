@@ -20,6 +20,8 @@ function POSReports() {
     showAdditionalReports();
     // generate takings report
     this.generateTakingsReport();
+    // populate reconciliation table with configured denominations
+    this.populateReconciliationTable();
   };
 
   function showAdditionalReports() {
@@ -31,31 +33,104 @@ function POSReports() {
     }
   }
 
+  this.populateReconciliationTable = function () {
+    var config = POS.getConfigTable();
+    var denominations;
+    
+    // Get denominations from config, fall back to defaults
+    if (config.pos && config.pos.cash_denominations) {
+      try {
+        denominations = JSON.parse(config.pos.cash_denominations);
+      } catch(e) {
+        denominations = getDefaultDenominations();
+      }
+    } else {
+      denominations = getDefaultDenominations();
+    }
+    
+    var tbody = $("#cash-reconciliation-tbody");
+    tbody.empty();
+    
+    // Add denomination rows (2 per table row)
+    for (var i = 0; i < denominations.length; i += 2) {
+      var row = $('<tr></tr>');
+      
+      // First denomination
+      var denom1 = denominations[i];
+      var id1 = 'recdenom' + denom1.label.replace(/[^a-zA-Z0-9]/g, '');
+      row.append('<td style="text-align: right;">' + denom1.symbol + denom1.label + ':</td>');
+      row.append('<td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="' + id1 + '" value="0" data-value="' + denom1.value + '"/></td>');
+      
+      // Second denomination (if exists)
+      if (i + 1 < denominations.length) {
+        var denom2 = denominations[i + 1];
+        var id2 = 'recdenom' + denom2.label.replace(/[^a-zA-Z0-9]/g, '');
+        row.append('<td style="text-align: right;">' + denom2.symbol + denom2.label + ':</td>');
+        row.append('<td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="' + id2 + '" value="0" data-value="' + denom2.value + '"/></td>');
+      } else {
+        row.append('<td></td><td></td>');
+      }
+      
+      tbody.append(row);
+    }
+    
+    // Add float row
+    var floatRow = $('<tr></tr>');
+    floatRow.append('<td style="text-align: right;">Float:</td>');
+    floatRow.append('<td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recfloat" value="0"/></td>');
+    floatRow.append('<td></td><td></td>');
+    tbody.append(floatRow);
+    
+    // Add totals rows
+    var takingsRow = $('<tr></tr>');
+    takingsRow.append('<td colspan="2" style="text-align: right;">Takings - Float:</td>');
+    takingsRow.append('<td colspan="2"><span id="rectakings"></span></td>');
+    tbody.append(takingsRow);
+    
+    var balanceRow = $('<tr></tr>');
+    balanceRow.append('<td colspan="2" style="text-align: right;">Balance:</td>');
+    balanceRow.append('<td colspan="2"><span id="recbalance"></span></td>');
+    tbody.append(balanceRow);
+  };
+
+  function getDefaultDenominations() {
+    return [
+      {label: "100", value: 100, symbol: "$"},
+      {label: "50", value: 50, symbol: "$"},
+      {label: "20", value: 20, symbol: "$"},
+      {label: "10", value: 10, symbol: "$"},
+      {label: "5", value: 5, symbol: "$"},
+      {label: "2", value: 2, symbol: "$"},
+      {label: "1", value: 1, symbol: "$"},
+      {label: "50c", value: 0.5, symbol: ""},
+      {label: "20c", value: 0.2, symbol: ""},
+      {label: "10c", value: 0.1, symbol: ""},
+      {label: "5c", value: 0.05, symbol: ""}
+    ];
+  }
+
   this.calcReconcil = function () {
-    var calcedtakings;
+    var calcedtakings = 0;
     var balance;
-    var recdom100 = parseFloat($("#recdenom100").val()) * 100;
-    var recdom50 = parseFloat($("#recdenom50").val()) * 50;
-    var recdom20 = parseFloat($("#recdenom20").val()) * 20;
-    var recdom10 = parseFloat($("#recdenom10").val()) * 10;
-    var recdom5 = parseFloat($("#recdenom5").val()) * 5;
-    var recdom2 = parseFloat($("#recdenom2").val()) * 2;
-    var recdom1 = parseFloat($("#recdenom1").val());
-    var recdom50c = $("#recdenom50c").val() * 0.5;
-    var recdom20c = $("#recdenom20c").val() * 0.2;
-    var recdom10c = $("#recdenom10c").val() * 0.1;
-    var recdom5c = $("#recdenom5c").val() * 0.05;
-    var recfloat = parseFloat($("#recfloat").val());
+    var recfloat = parseFloat($("#recfloat").val()) || 0;
+    
+    // Sum all denomination inputs
+    $("#cash-reconciliation-tbody input[data-value]").each(function() {
+      var count = parseFloat($(this).val()) || 0;
+      var value = parseFloat($(this).attr('data-value'));
+      calcedtakings += count * value;
+    });
+    
     var rectakings = $("#rectakings");
     var recbalance = $("#recbalance");
 
-    calcedtakings = recdom100 + recdom50 + recdom20 + recdom10 + recdom5 + recdom2 + recdom1 + recdom50c + recdom20c + recdom10c + recdom5c - recfloat;
+    calcedtakings = calcedtakings - recfloat;
     calcedtakings = calcedtakings.toFixed(2);
     balance = (calcedtakings - curcashtakings).toFixed(2);
     $(rectakings).text(POS.util.currencyFormat(calcedtakings));
     $(recbalance).text(POS.util.currencyFormat(balance));
-    if (recbalance === -0.0) {
-      recbalance += 0.0;
+    if (balance === -0.0) {
+      balance = 0.0;
     }
     // set status
     if (balance < 0.0) {

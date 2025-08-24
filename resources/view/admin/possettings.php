@@ -190,6 +190,35 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-sm-12">
+        <div class="widget-box transparent">
+            <div class="widget-header widget-header-flat">
+                <h4 class="lighter">Cash Reconciliation Denominations</h4>
+            </div>
+            <div class="widget-body" style="padding-top: 10px;">
+                <div class="table-header">
+                    Configure cash denominations for reconciliation calculations
+                </div>
+                <div class="table-responsive">
+                    <table id="cash-denominations-table" class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>Label</th>
+                            <th>Value</th>
+                            <th>Currency Symbol</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="denominations-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-sm btn-primary" type="button" onclick="addDenomination();"><i class="icon-plus"></i> Add Denomination</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
     <div class="col-sm-12 align-center form-actions">
         <button class="btn btn-success" type="button" onclick="saveSettings();"><i class="icon-save align-top bigger-125"></i>Save</button>
     </div>
@@ -208,6 +237,24 @@
                     data[$(this).prop('id')] = $(this).val();
                 }
             });
+            
+            // Collect cash denominations
+            var denominations = [];
+            $("#denominations-tbody tr").each(function(){
+                var row = $(this);
+                var label = row.find(".denom-label").val();
+                var value = parseFloat(row.find(".denom-value").val());
+                var symbol = row.find(".denom-symbol").val();
+                if (label && !isNaN(value)) {
+                    denominations.push({
+                        label: label,
+                        value: value,
+                        symbol: symbol || "$"
+                    });
+                }
+            });
+            data['cash_denominations'] = JSON.stringify(denominations);
+            
             var result = POS.sendJsonData("settings/pos/set", JSON.stringify(data));
             if (result !== false){
                 POS.setConfigSet('pos', result);
@@ -234,6 +281,7 @@
             }*/
             refreshTemplateList(options['rectemplate']);
             refreshPreviewImages();
+            loadDenominations();
         }
 
         function refreshPreviewImages(){
@@ -277,6 +325,64 @@
                 $("#emaillogoprev").prop("src", data.path);
                 saveSettings();
             }); // Start file upload, passing a callback to fire if it completes successfully
+        }
+
+        function getDefaultDenominations() {
+            return [
+                {label: "100", value: 100, symbol: "$"},
+                {label: "50", value: 50, symbol: "$"},
+                {label: "20", value: 20, symbol: "$"},
+                {label: "10", value: 10, symbol: "$"},
+                {label: "5", value: 5, symbol: "$"},
+                {label: "2", value: 2, symbol: "$"},
+                {label: "1", value: 1, symbol: "$"},
+                {label: "50c", value: 0.5, symbol: ""},
+                {label: "20c", value: 0.2, symbol: ""},
+                {label: "10c", value: 0.1, symbol: ""},
+                {label: "5c", value: 0.05, symbol: ""}
+            ];
+        }
+
+        function loadDenominations() {
+            var denominations;
+            if (options.cash_denominations) {
+                try {
+                    denominations = JSON.parse(options.cash_denominations);
+                } catch(e) {
+                    denominations = getDefaultDenominations();
+                }
+            } else {
+                denominations = getDefaultDenominations();
+            }
+            
+            var tbody = $("#denominations-tbody");
+            tbody.empty();
+            
+            for (var i = 0; i < denominations.length; i++) {
+                addDenominationRow(denominations[i]);
+            }
+        }
+
+        function addDenomination() {
+            addDenominationRow({label: "", value: 0, symbol: "$"});
+        }
+
+        function addDenominationRow(denom) {
+            var tbody = $("#denominations-tbody");
+            var row = $('<tr></tr>');
+            
+            row.html(
+                '<td><input type="text" class="denom-label form-control" value="' + denom.label + '" placeholder="e.g. 20 or 50c"></td>' +
+                '<td><input type="number" step="0.01" class="denom-value form-control" value="' + denom.value + '" placeholder="0.00"></td>' +
+                '<td><input type="text" class="denom-symbol form-control" value="' + denom.symbol + '" placeholder="$"></td>' +
+                '<td><button type="button" class="btn btn-xs btn-danger" onclick="removeDenomination(this)"><i class="icon-trash"></i></button></td>'
+            );
+            
+            tbody.append(row);
+        }
+
+        function removeDenomination(button) {
+            $(button).closest('tr').remove();
         }
 
         $(function(){

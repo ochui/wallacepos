@@ -340,51 +340,8 @@
             </div>
             <div class="widget-body" style="padding-top: 10px; text-align: center;">
                 <table class="table">
-                    <tbody>
-                    <tr>
-                        <td style="text-align: right;">$100:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom100" value="0"/></td>
-                        <td style="text-align: right;">$50:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom50" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right;">$20:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom20" value="0"/></td>
-                        <td style="text-align: right;">$10:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom10" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right;">$5:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom5" value="0"/></td>
-                        <td style="text-align: right;">$2:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom2" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right;">$1:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom1" value="0"/></td>
-                        <td style="text-align: right;">50c:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom50c" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right;">20c:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom20c" value="0"/></td>
-                        <td style="text-align: right;">10c:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom10c" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right;">5c:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recdenom5c" value="0"/></td>
-                        <td style="text-align: right;">Float:</td>
-                        <td><input onchange="POS.reports.calcReconcil();" type="text" size="4" id="recfloat" value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: right;">Takings - Float:</td>
-                        <td colspan="2"><span id="rectakings"></span></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: right;">Balance:</td>
-                        <td colspan="2"><span id="recbalance"></span></td>
-                    </tr>
+                    <tbody id="cash-reconciliation-tbody">
+                    <!-- Denomination rows will be populated dynamically -->
                     </tbody>
                 </table>
             </div>
