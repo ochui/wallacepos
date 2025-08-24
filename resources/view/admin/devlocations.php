@@ -369,7 +369,8 @@
         POS.util.confirm("Are you sure you want to delete this location?", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("locations/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("locations/delete", '{"id":'+id+'}');
+            if (result !== false){
                 delete locations[id];
                 refreshLocTable();
             }
@@ -401,7 +402,8 @@
         POS.util.confirm("Are you sure you want to delete this registration?\nThe device affected will need to be re-registered.", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("devices/registrations/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("devices/registrations/delete", '{"id":'+id+'}');
+            if (result !== false){
                 $('#devreg-'+id).remove();
             }
             // hide loader
@@ -474,7 +476,8 @@
         POS.util.confirm("Are you sure you want to delete this device?", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("devices/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("devices/delete", '{"id":'+id+'}');
+            if (result !== false){
                 delete devices[id];
                 refreshDevTable();
                 populateKitchenTerminalSelect();

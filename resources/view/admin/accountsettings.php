@@ -630,7 +630,8 @@
         }
         POS.util.confirm("Are you sure you want to delete this tax item?", function() {
             POS.util.showLoader();
-            if (POS.sendJsonData("tax/items/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("tax/items/delete", '{"id":'+id+'}');
+            if (result !== false){
                 delete taxtable.items[id];
                 POS.putTaxTable(taxtable);
                 reloadTaxItemTable();
@@ -708,7 +709,8 @@
     function deleteTaxRule(id){
         POS.util.confirm("Are you sure you want to delete this tax rule?\nIf the rule is applied to stored items, this tax will no longer apply.", function() {
             POS.util.showLoader();
-            if (POS.sendJsonData("tax/rules/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("tax/rules/delete", '{"id":'+id+'}');
+            if (result !== false){
                 delete taxtable.rules[id];
                 POS.putTaxTable(taxtable);
                 reloadTaxRuleTable();

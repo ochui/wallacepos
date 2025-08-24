@@ -572,7 +572,8 @@
         POS.util.confirm("Are you sure you want to delete this item?", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("items/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("items/delete", '{"id":'+id+'}');
+            if (result !== false){
                 delete stock[id];
                 reloadTable();
             }
@@ -587,7 +588,8 @@
         POS.util.confirm("Are you sure you want to delete "+ids.length+" selected items?", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("items/delete", '{"id":"'+ids.join(",")+'"}')){
+            var result = POS.sendJsonData("items/delete", '{"id":"'+ids.join(",")+'"'}');
+            if (result !== false){
                 for (var i=0; i<ids.length; i++){
                     delete stock[ids[i]];
                 }

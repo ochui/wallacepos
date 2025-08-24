@@ -436,7 +436,8 @@
         POS.util.confirm("Are you sure you want to delete this item? It's recommended to either back up first or disable the user instead.", function() {
             // show loader
             POS.util.showLoader();
-            if (POS.sendJsonData("users/delete", '{"id":'+id+'}')){
+            var result = POS.sendJsonData("users/delete", '{"id":'+id+'}');
+            if (result !== false){
                 reloadTable();
             }
             // hide loader
