@@ -141,7 +141,7 @@ class AdminCustomers
             $SocketIO = new SocketIO();
             $SocketIO->sendCustomerUpdate($_data);
             // log data
-            Logger::write("Customer updated with id:" . $_data->id, "CUSTOMER", json_encode($_data));
+            Logger::write("Customer updated with id:" . $_data[0]['id'], "CUSTOMER", json_encode($_data));
 
             return $_data;
         }
@@ -180,11 +180,16 @@ class AdminCustomers
     public static function getCustomerData($id)
     {
         $custMdl = new CustomerModel();
-        $customer = $custMdl->get($id)[0];
+        $customer = $custMdl->get($id);
+        if (!is_array($customer) || count($customer) == 0) {
+            return null;
+        }
         $customer['contacts'] = [];
         $contacts = $custMdl->getContacts($id);
-        foreach ($contacts as $contact) {
-            $customer['contacts'][$contact['id']] = $contact;
+        if (is_array($contacts)) {
+            foreach ($contacts as $contact) {
+                $customer['contacts'][$contact['id']] = $contact;
+            }
         }
         return $customer;
     }

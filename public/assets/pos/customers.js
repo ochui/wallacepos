@@ -96,7 +96,24 @@ function POSCustomers() {
             customer.country = $("#newcustcountry").val();
             result = POS.sendJsonData("customers/add", JSON.stringify(customer));
             if (result !== false) {
-                customers[result.id] = result;
+                if (Array.isArray(result)) {
+                    result.forEach(function(item) {
+                        customers[item.id] = item;
+                    });
+                } else if (typeof result === "object" && result !== null) {
+                    // Handle object with numeric keys and possibly a 'contacts' key
+                    Object.keys(result).forEach(function(key) {
+                        if (!isNaN(key)) {
+                            customers[result[key].id] = result[key];
+                        }
+                    });
+                    // If result has an 'id' property, treat as single customer object
+                    if (result.id) {
+                        customers[result.id] = result;
+                    }
+                } else {
+                    customers[result.id] = result;
+                }
                 reloadCustomerTables();
                 $("#addcustdialog").dialog("close");
             }
@@ -115,7 +132,24 @@ function POSCustomers() {
             customer.notes = $("#custnotes").val();
             result = POS.sendJsonData("customers/edit", JSON.stringify(customer));
             if (result !== false) {
-                customers[result.id] = result;
+                if (Array.isArray(result)) {
+                    result.forEach(function(item) {
+                        customers[item.id] = item;
+                    });
+                } else if (typeof result === "object" && result !== null) {
+                    // Handle object with numeric keys and possibly a 'contacts' key
+                    Object.keys(result).forEach(function(key) {
+                        if (!isNaN(key)) {
+                            customers[result[key].id] = result[key];
+                        }
+                    });
+                    // If result has an 'id' property, treat as single customer object
+                    if (result.id) {
+                        customers[result.id] = result;
+                    }
+                } else {
+                    customers[result.id] = result;
+                }
                 reloadCustomerTables();
                 $("#editcustdialog").dialog("close");
             }

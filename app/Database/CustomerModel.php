@@ -74,21 +74,19 @@ class CustomerModel extends DbConfig
      */
     public function get($customerId = null, $email = null, $limit = 0, $offset = 0)
     {
-        $sql          = 'SELECT * FROM customers';
+        $sql = 'SELECT * FROM customers';
+        $conditions = [];
         $placeholders = [];
         if ($customerId !== null) {
-            if (empty($placeholders)) {
-                $sql .= ' WHERE';
-            }
-            $sql .= ' id = ' . $customerId;
-            $placeholders[] = $customerId;
+            $conditions[] = 'id = :id';
+            $placeholders[':id'] = $customerId;
         }
         if ($email !== null) {
-            if (empty($placeholders)) {
-                $sql .= ' WHERE';
-            }
-            $sql .= ' email = ' . $email;
-            $placeholders[] = $email;
+            $conditions[] = 'email = :email';
+            $placeholders[':email'] = $email;
+        }
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
         if ($limit !== 0 && is_int($limit)) {
             $sql .= ' LIMIT :limit';
@@ -98,7 +96,6 @@ class CustomerModel extends DbConfig
             $sql .= ' OFFSET :offset';
             $placeholders[':offset'] = $offset;
         }
-
         return $this->select($sql, $placeholders);
     }
 
