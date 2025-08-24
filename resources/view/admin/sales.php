@@ -82,7 +82,7 @@
         datatable.fnClearTable(false);
         if (itemarray.length>0)
             datatable.fnAddData(itemarray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
 
     function doSearch(){
@@ -106,7 +106,7 @@
                 console.log(itemarray);
                 if (itemarray.length>0)
                     datatable.fnAddData(itemarray, false);
-                datatable.api().draw(false);
+                datatable.fnDraw(false);
                 $("#refsearch_clearbtn").show();
             }
         });
@@ -279,7 +279,7 @@
             } else {
                 row.addClass('selected');
             }
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
             e.stopPropagation();
         });
 
@@ -296,7 +296,7 @@
                         $(this).prop('checked', false);
                     }
                 });
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
         });
 
         // add controls

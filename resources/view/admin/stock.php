@@ -154,7 +154,7 @@
             } else {
                 row.addClass('selected');
             }
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
             e.stopPropagation();
         });
 
@@ -171,7 +171,7 @@
                         $(this).prop('checked', false);
                     }
                 });
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
         });
 
         // dialogs
@@ -391,7 +391,7 @@
         }
         datatable.fnClearTable(false);
         datatable.fnAddData(stockarray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
     function exportStock(){
         //var data  = POS.table2CSV($("#stocktable"));

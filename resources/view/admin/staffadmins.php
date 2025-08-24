@@ -462,7 +462,7 @@
         }
         datatable.fnClearTable(false);
         datatable.fnAddData(itemarray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
 </script>
 <style type="text/css">

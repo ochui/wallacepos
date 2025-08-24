@@ -100,7 +100,7 @@
             } else {
                 row.addClass('selected');
             }
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
             e.stopPropagation();
         });
 
@@ -117,7 +117,7 @@
                         $(this).prop('checked', false);
                     }
                 });
-            datatable.api().draw(false);
+            datatable.fnDraw(false);
         });
 
         // hide loader
@@ -135,7 +135,7 @@
         }
         datatable.fnClearTable(false);
         datatable.fnAddData(itemarray, false);
-        datatable.api().draw(false);
+        datatable.fnDraw(false);
     }
     function exportCustomers(){
 

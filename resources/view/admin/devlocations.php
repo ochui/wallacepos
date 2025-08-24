@@ -522,7 +522,7 @@
         }
         devtable.fnClearTable(false);
         devtable.fnAddData(itemarray, false);
-        devtable.api().draw(false);
+        devtable.fnDraw(false);
     }
 
     function refreshLocTable(){
@@ -532,7 +532,7 @@
         }
         loctable.fnClearTable(false);
         loctable.fnAddData(itemarray, false);
-        loctable.api().draw(false);
+        loctable.fnDraw(false);
         // redraw the dev table, location names have changed
         refreshDevTable();
         // repopulate the select boxes
