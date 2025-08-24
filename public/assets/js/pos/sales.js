@@ -1280,7 +1280,7 @@ function POSSales() {
         POS.updateCustTable(jsonresponse.custdata);
       }
       // reset status Icon
-      POS.setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+      POS.setStatusBar(1, "POS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
     } else {
       // ERROR
       if (POS.switchToOffline()) {
@@ -1697,7 +1697,7 @@ function POSSales() {
       // add json response to sales records
       addSalesRecord(jsonresponse);
       // reset status Icon
-      POS.setStatusBar(1, "POS.is Online");
+      POS.setStatusBar(1, "POS is Online");
     } else {
       // ERROR
       if (POS.switchToOffline()) {

@@ -480,13 +480,13 @@ function POS() {
                     }
                     // start websocket connection
                     startSocket();
-                    setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+                    setStatusBar(1, "POS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
                     initDataSuccess(loginloader);
                     var offline_num = POS.sales.getOfflineSalesNum();
                     if (offline_num>0){
                         $("#backup_btn").show();
                         // check for offline sales on login
-                        setTimeout('if (POS.sales.uploadOfflineRecords()){ POS.setStatusBar(1, "POS.is online"); }', 2000);
+                        setTimeout('if (POS.sales.uploadOfflineRecords()){ POS.setStatusBar(1, "POS is Online"); }', 2000);
                     } else {
                         $("#backup_btn").hide();
                     }
@@ -766,7 +766,7 @@ function POS() {
             // load fresh data
             initData(false);
             // initData();
-            setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+            setStatusBar(1, "POS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
@@ -1464,7 +1464,7 @@ function POS() {
     function onSocketConnect(){
         socketon = true;
         if (POS.isOnline() && defaultStatus.type != 1){
-            setStatusBar(1, "POS.is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
+            setStatusBar(1, "POS is Online", "The POS is running in online mode.\nThe feed server is connected and receiving realtime updates.", 0);
         }
     }
 
