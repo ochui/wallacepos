@@ -444,48 +444,38 @@ function POSUtil() {
     };
 
     // Confirmation Dialog
-    var confirmDialogInit = false;
     this.confirm = function (message, onConfirm, onCancel, title) {
         title = title || "Confirmation";
-        
-        // Initialize dialog if not already done
-        if (!confirmDialogInit) {
-            // Check if dialog container exists, if not create it
-            if ($("#pos-confirm-dialog").length === 0) {
-                $("body").append('<div id="pos-confirm-dialog" style="display: none;"><p id="pos-confirm-message"></p></div>');
-            }
-            
-            // Initialize the dialog
-            $("#pos-confirm-dialog").dialog({
-                autoOpen: false,
-                modal: true,
-                resizable: false,
-                width: 400,
-                title: "Confirmation",
-                buttons: {
-                    "Yes": function() {
-                        $(this).dialog("close");
-                        if (onConfirm && typeof onConfirm === 'function') {
-                            onConfirm();
-                        }
-                    },
-                    "No": function() {
-                        $(this).dialog("close");
-                        if (onCancel && typeof onCancel === 'function') {
-                            onCancel();
-                        }
-                    }
-                }
-            });
-            confirmDialogInit = true;
+
+        if ($("#pos-confirm-dialog").length === 0) {
+            $("body").append('<div id="pos-confirm-dialog" style="display: none;"><p id="pos-confirm-message"></p></div>');
         }
-        
-        // Set message and title
+
         $("#pos-confirm-message").text(message);
-        $("#pos-confirm-dialog").dialog("option", "title", title);
-        
-        // Open the dialog
-        $("#pos-confirm-dialog").dialog("open");
+
+        // Destroy any previous dialog instance to reset buttons/callbacks
+        if ($("#pos-confirm-dialog").hasClass("ui-dialog-content")) {
+            $("#pos-confirm-dialog").dialog("destroy");
+        }
+
+        // Create dialog with fresh buttons/callbacks
+        $("#pos-confirm-dialog").dialog({
+            autoOpen: true,
+            modal: true,
+            resizable: false,
+            width: 400,
+            title: title,
+            buttons: {
+                "Yes": function() {
+                    $(this).dialog("close");
+                    if (typeof onConfirm === 'function') onConfirm();
+                },
+                "No": function() {
+                    $(this).dialog("close");
+                    if (typeof onCancel === 'function') onCancel();
+                }
+            }
+        });
     };
 
     this.mobile = false;
