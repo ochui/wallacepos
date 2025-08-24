@@ -12,7 +12,7 @@ require __DIR__ . '/../../../vendor/autoload.php';
 /** @var \App\Core\Application $app */
 $app = require_once __DIR__ . '/../../../bootstrap/app.php';
 
-ini_set('date.timezone', 'Australia/Sydney');
+ini_set('date.timezone', 'Africa/Lagos');
 // check input
 if (!isset($_REQUEST['ref'])){
     $error = "Did not receive a valid order reference";

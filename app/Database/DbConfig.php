@@ -76,7 +76,7 @@ class DbConfig
                 throw new \Exception('Failed to connect to database');
             }
 
-            $this->_db->query("SET time_zone = '+00:00'"); //Set timezone to GMT, previous statement didnt work (Australia/Sydney), and GMT preserved daylight savings.
+            $this->_db->query("SET time_zone = '+00:00'"); //Set timezone to GMT, previous statement didn't work (Africa/Lagos), and GMT preserved daylight savings.
             //var_dump($this->_db->query("SELECT now()")->fetchAll());exit;
             //var_dump($this->_db->query("SELECT @@session.time_zone, @@global.time_zone")->fetchAll(PDO::FETCH_ASSOC));exit;
             $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

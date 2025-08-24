@@ -407,8 +407,8 @@ class TestData
             echo ("Inserted Devices.<br/>");
         }
 
-        $customers = json_decode('[{"id":1,"name":"Jo Doe", "email":"jdoe@domainname.com", "address":"10 Fake St", "phone":"99999999", "mobile":"111111111", "suburb":"Faketown", "state":"NSW", "postcode":"2000", "country":"Australia", "notes":"", "dt":"1970-01-01 00:00:00"},
-                        {"id": 2, "name":"Jane Doe", "email":"jdoe@domainname.com", "address":"10 Fake St", "phone":"99999999", "mobile":"111111111", "suburb":"Faketown", "state":"NSW", "postcode":"2000", "country":"Australia", "notes":"", "dt":"1970-01-01 00:00:00"}]');
+        $customers = json_decode('[{"id":1,"name":"Jo Doe", "email":"jdoe@domainname.com", "address":"10 Fake St", "phone":"99999999", "mobile":"111111111", "suburb":"Faketown", "state":"NSW", "postcode":"2000", "country":"Nigeria", "notes":"", "dt":"1970-01-01 00:00:00"},
+                        {"id": 2, "name":"Jane Doe", "email":"jdoe@domainname.com", "address":"10 Fake St", "phone":"99999999", "mobile":"111111111", "suburb":"Faketown", "state":"NSW", "postcode":"2000", "country":"Nigeria", "notes":"", "dt":"1970-01-01 00:00:00"}]');
 
         if ($customers === false) {
             die("Failed to add customers");
