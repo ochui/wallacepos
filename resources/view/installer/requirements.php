@@ -57,18 +57,6 @@
                 PHP cURL extension
             </li>
             <li>
-                <i class="icon icon-large icon-check <?php echo($deps['node']?"green":"red"); ?>"></i>
-                Node.js installed
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['node_socketio']?"green":"red"); ?>"></i>
-                Node.js Socket.IO library installed
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['node_redirect']?"green":"red"); ?>"></i>
-                Web Server Configuration: Node.js (Proxy Web Socket Tunnel)
-            </li>
-            <li>
                 <i class="icon icon-large icon-check <?php echo($https=(isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off")?"green":"red"); ?>"></i>
                 Web Server Configuration: HTTPS <?php echo($https?"Active":"is recommended") ?>
             </li>
@@ -81,12 +69,12 @@
                 File Permissions: Application files <?php echo($deps['permissions_files']?"are not writable":"must not be writable") ?>
             </li>
             <li>
-                <i class="icon icon-large icon-check <?php echo($deps['permissions_docs']?"green":"red"); ?>"></i>
-                File Permissions: Documents (/docs/) <?php echo($deps['permissions_docs']?" are writable":"files must be writable") ?>
+                <i class="icon icon-large icon-check <?php echo($deps['permissions_storage']?"green":"red"); ?>"></i>
+                File Permissions: Storage (/storage/) <?php echo($deps['permissions_storage']?" are writable":"files must be writable") ?>
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['permissions_config']?"green":"red"); ?>"></i>
-                File Permissions: Config files <?php echo($deps['permissions_config']?" are writable":" .config.json && .dbconfig.json (/library/wpos/) must be writable") ?>
+                File Permissions: Config files <?php echo($deps['permissions_config']?" are writable":" .env must be writable") ?>
             </li>
             <li>
                 <i class="icon icon-large icon-check <?php echo($deps['all']?"green":"red"); ?>"></i>

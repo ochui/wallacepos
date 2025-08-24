@@ -15,7 +15,7 @@ class ViewController
      * @param string $template The template name
      * @return void
      */
-    public function serveTemplate(string $section, string $template): void
+    public function serveTemplate(string $section, string $template, array $data = []): void
     {
         // Sanitize inputs
         $section = preg_replace('/[^a-z]/', '', strtolower($section));
@@ -65,8 +65,9 @@ class ViewController
      * 
      * @return void
      */
-    public function installerView(): void
+    public function installerView(string $template): void
     {
-        $this->serveTemplate('installer', 'main');
+        $data = []; // data to be pass to the installer views
+        $this->serveTemplate('installer', $template, $data);
     }
 }

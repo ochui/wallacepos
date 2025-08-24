@@ -755,10 +755,9 @@ function WPOSAdmin() {
     return '"' + output + '"';
   }
 
-  // Load globally accessable objects
+  // Load globally accessible objects
   this.util = new WPOSUtil();
   this.transactions = new WPOSTransactions();
   this.customers = new WPOSCustomers();
   this.notifications = new WPOSNotifications();
-  this.installer = new WPOS_Installer() || undefined;
 }
