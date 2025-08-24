@@ -63,7 +63,7 @@
         </div>
         <hr/>
         <div style="height: 40px;">
-            <button type="button" class="pull-left btn btn-primary" onclick="document.location.href='/installer?screen=1';">Back</button>
+            <button type="button" class="pull-left btn btn-primary" onclick="">Back</button>
             <button type="submit" class="pull-right btn btn-primary">Next</button>
         </div>
     </form>

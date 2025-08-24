@@ -105,7 +105,7 @@
         </ul>
         <hr/>
         <div style="height: 40px;">
-            <button class="pull-left btn btn-primary" onclick="document.location.reload();">Refresh</button>
+            <button class="pull-left btn btn-primary" onclick="">Refresh</button>
             <form method="post">
                 <input type="hidden" name="<?php echo($curversion>0?"doupgrade":"screen"); ?>" value="2">
                 <button id="next-button" type="submit" class="pull-right btn btn-primary" <?php echo($deps['all']?"":"disabled='disabled'"); ?> ><?php echo($curversion>0?"Upgrade":"Next"); ?></button>

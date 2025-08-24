@@ -61,25 +61,49 @@
                 </h2>
                 <div class="space-6"></div>
                 <div class="space-6"></div>
-                <div id="content">
-                    <div class="text-center">
-                        <i class="fa fa-spinner fa-spin fa-2x"></i>
-                        <p style="margin-top: 20px;">Loading FreePOS Installer...</p>
-                        <p><small>If this page doesn't redirect automatically, <a href="/installer">click here</a></small></p>
-                    </div>
+                <div id="maincontent">
+                    <!-- load content via loadInstallerStep -->
                 </div>
             </div>
         </div>
     </div>
     
-    <script>
-        // Redirect to the modern installer
-        $(document).ready(function() {
-            setTimeout(function() {
-                window.location.href = '/installer';
-            }, 1000);
-        });
-    </script>
+            <!--[if !IE]> -->
+        <script type="text/javascript">
+            window.jQuery || document.write("<script src='../assets/js/jquery-2.0.3.min.js'>"+"<"+"/script>");
+        </script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+        <script type="text/javascript">
+            window.jQuery || document.write("<script src='../assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+        </script>
+        <![endif]-->
+
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='../assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+        </script>
+        <script src="../assets/js/bootstrap.min.js"></script>
+        <!--<script src="assets/js/typeahead"></script>!-->
+
+        <!-- page specific plugin scripts -->
+
+        <!--[if lte IE 8]>
+        <script src="../assets/js/excanvas.min.js"></script>
+        <![endif]-->
+
+        <!-- ace scripts -->
+        <script src="../assets/js/ace-elements.min.js"></script>
+        <script src="../assets/js/ace.min.js"></script>
+
+        <!-- Scripts included on many of the pages -->
+        <script src="../assets/js/wpos/utilities.js"></script>
+        <script src="../assets/js/wpos/notifications.js"></script>
+        <script src="../assets/wpos/installer.js"></script>
+        <script src="../assets/wpos/wpos.js"></script>
+        
+        <!-- Websocket library -->
+        <script type="text/javascript" src="../assets/libs/socketio/socket.io-4.8.1.js"></script>
 </body>
 
 </html>

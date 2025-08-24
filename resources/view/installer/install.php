@@ -28,15 +28,5 @@
         <h4>Installation Complete</h4>
         <h5>Check the below frame for errors. If successful <a href="/admin">click here</a> to login.</h5>
     </div>
-    <iframe id="installframe" style="width: 100%; height: 200px; overflow: auto;"></iframe>
+    
 </div>
-<script>
-    $(function(){
-        var frame = $("#installframe");
-        frame.load(function(){
-            $("#install_view").addClass('hide');
-            $("#complete_view").removeClass('hide');
-        });
-        frame.attr('src', "<?php echo("/installer?".(isset($_REQUEST['doupgrade'])?"upgrade":"install")); ?>");
-    });
-</script>
