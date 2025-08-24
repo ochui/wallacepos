@@ -460,8 +460,10 @@
         for (var key in users){
             itemarray.push(users[key]);
         }
-        datatable.fnClearTable(false);
-        datatable.fnAddData(itemarray, false);
+        datatable.fnClearTable();
+        if (itemarray.length > 0) {
+            datatable.fnAddData(itemarray, false);
+        }
         datatable.api().draw(false);
     }
 </script>

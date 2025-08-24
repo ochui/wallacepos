@@ -266,8 +266,10 @@
             tempsup = suppliers[key];
             suparray.push(tempsup);
         }
-        datatable.fnClearTable(false);
-        datatable.fnAddData(suparray, false);
+        datatable.fnClearTable();
+        if (suparray.length > 0) {
+            datatable.fnAddData(suparray, false);
+        }
         datatable.api().draw(false);
     }
 </script>

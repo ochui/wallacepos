@@ -262,12 +262,16 @@
     function reloadTable(){
         var suparray = [];
         var tempsup;
-        for (var key in categories){
-            tempsup = categories[key];
-            suparray.push(tempsup);
+        for (var key in categories) {
+            if (categories.hasOwnProperty(key)) {
+                tempsup = categories[key];
+                suparray.push(tempsup);
+            }
         }
-        datatable.fnClearTable(false);
-        datatable.fnAddData(suparray, false);
+        datatable.fnClearTable();
+        if (suparray.length > 0) {
+            datatable.fnAddData(suparray, false);
+        }
         datatable.api().draw(false);
     }
 </script>

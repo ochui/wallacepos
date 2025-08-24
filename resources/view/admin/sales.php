@@ -79,9 +79,10 @@
             tempitem.devlocname = (POS.devices.hasOwnProperty(tempitem.devid)?POS.devices[tempitem.devid].name:'NA')+" / "+(POS.locations.hasOwnProperty(tempitem.locid)?POS.locations[tempitem.locid].name:'NA');
             itemarray.push(tempitem);
         }
-        datatable.fnClearTable(false);
-        if (itemarray.length>0)
+        datatable.fnClearTable();
+        if (itemarray.length > 0) {
             datatable.fnAddData(itemarray, false);
+        }
         datatable.api().draw(false);
     }
 
@@ -102,10 +103,11 @@
                     tempitem.devlocname = (POS.devices.hasOwnProperty(tempitem.devid)?POS.devices[tempitem.devid].name:'NA')+" / "+(POS.locations.hasOwnProperty(tempitem.locid)?POS.locations[tempitem.locid].name:'NA');
                     itemarray.push(tempitem);
                 }
-                datatable.fnClearTable(false);
+                datatable.fnClearTable();
                 console.log(itemarray);
-                if (itemarray.length>0)
+                if (itemarray.length > 0) {
                     datatable.fnAddData(itemarray, false);
+                }
                 datatable.api().draw(false);
                 $("#refsearch_clearbtn").show();
             }

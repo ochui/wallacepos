@@ -610,8 +610,10 @@
             tempitem.taxname = POS.getTaxTable().rules[tempitem.taxid].name;
             itemarray.push(tempitem);
         }
-        datatable.fnClearTable(false);
-        datatable.fnAddData(itemarray, false);
+        datatable.fnClearTable();
+        if (itemarray.length > 0) {
+            datatable.fnAddData(itemarray, false);
+        }
         datatable.api().draw(false);
     }
     function exportItems(){

@@ -389,8 +389,10 @@
             tempstock = stock[key];
             stockarray.push(tempstock);
         }
-        datatable.fnClearTable(false);
-        datatable.fnAddData(stockarray, false);
+        datatable.fnClearTable();
+        if (stockarray.length > 0) {
+            datatable.fnAddData(stockarray, false);
+        }
         datatable.api().draw(false);
     }
     function exportStock(){
