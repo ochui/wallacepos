@@ -83,7 +83,7 @@
                 { "mData":"id" },
                 { "mData":"name" },
                 { "mData": "numitems"},
-                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="openeditcatdialog($(this).closest(\'tr\').find(\'td\').eq(1).text());"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="removeCategory($(this).closest(\'tr\').find(\'td\').eq(1).text())"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false, sClass: "noexport" }
+                { "mData":function(data,type,val){return '<div class="action-buttons"><a class="green" onclick="openeditcatdialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="removeCategory('+data.id+')"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false, sClass: "noexport" }
             ],
             "columns": [
                 {},

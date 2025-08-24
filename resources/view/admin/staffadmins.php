@@ -189,8 +189,8 @@
                 { mData:"id" },
                 { mData:"username" },
                 { mData:function(data, type, val){ return '<i class="'+(data.disabled==1?'red icon-arrow-down':'green icon-arrow-up')+'"></i>'; } },
-                { mData:function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openEditUserDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
-                    (data.id!=1?(data.disabled==1?'<a class="green" onclick="setUserDisabled($(this).closest(\'tr\').find(\'td\').eq(0).text(), false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeItem($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setUserDisabled($(this).closest(\'tr\').find(\'td\').eq(0).text(), true)"><i class="icon-arrow-down bigger-130"></i></a>'):'')+'</div>'; }, "bSortable": false }
+                { mData:function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openEditUserDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a>'+
+                    (data.id!=1?(data.disabled==1?'<a class="green" onclick="setUserDisabled('+data.id+', false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeItem('+data.id+')"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setUserDisabled('+data.id+', true)"><i class="icon-arrow-down bigger-130"></i></a>'):'')+'</div>'; }, "bSortable": false }
             ],
             "columns": [
                 {type: "numeric"},

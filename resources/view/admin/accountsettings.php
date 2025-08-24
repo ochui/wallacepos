@@ -455,8 +455,8 @@
                     { "mData":"id" }, { "mData":"name" },
                     { "mData":function(data, type, val){ return data.inclusive?'<i class="icon-cogs green"></i>&nbsp;Inclusive':'<i class="icon-cogs red"></i>&nbsp;Exclusive' } },
                     { "mData":function(data, type, val){ return data.hasOwnProperty('mode')?POS.util.capFirstLetter(data.mode):''; } },
-                    { "mData":function(data, type, val){ if (data.id==1) return ""; else return '<div class="action-buttons" style="width: 40px;"><a class="green" onclick="openTaxRuleDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
-                        '<a class="red" onclick="deleteTaxRule($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false }
+                    { "mData":function(data, type, val){ if (data.id==1) return ""; else return '<div class="action-buttons" style="width: 40px;"><a class="green" onclick="openTaxRuleDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a>'+
+                        '<a class="red" onclick="deleteTaxRule('+data.id+')"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false }
                 ] } );
         loadTaxItemData();
         taxitemtable = $('#tax-item-table').dataTable(
@@ -465,8 +465,8 @@
                 "aaData": itemarray,
                 "aoColumns": [
                     { "mData":"id" }, { "mData":"name" }, { "mData":"type" }, { "mData":function(data, type, val){return data.value+"%";} },
-                    { "mdata":null, "sDefaultContent":'<div class="action-buttons" style="width: 40px;"><a class="green" onclick="openTaxItemDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
-                        '<a class="red" onclick="deleteTaxItem($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
+                    { "mData":function(data, type, val){return '<div class="action-buttons" style="width: 40px;"><a class="green" onclick="openTaxItemDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a>'+
+                        '<a class="red" onclick="deleteTaxItem('+data.id+')"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false }
                 ] } );
         // insert table wrapper
         $(".dataTables_wrapper table").wrap("<div class='table_wrapper'></div>");

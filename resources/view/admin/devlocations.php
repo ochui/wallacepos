@@ -212,8 +212,8 @@
                 { "mData":"locationname" },
                 { "mData":function(data, type, val){ switch(data.type){case 'kitchen_terminal': return 'Kitchen/Bar Terminal'; case 'general_register': return 'General Register'; case 'order_register': return 'Order Register';} return ''; } },
                 { "mData":function(data, type, val){ return '<i class="'+(data.disabled==1?'red icon-arrow-down':'green icon-arrow-up')+'"></i>'; } },
-                { "mData":function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openDevDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
-                    (data.disabled==1?'<a class="green" onclick="setItemDisabled(0, $(this).closest(\'tr\').find(\'td\').eq(0).text(), false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeDevItem($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setItemDisabled(0, $(this).closest(\'tr\').find(\'td\').eq(0).text(), true)"><i class="icon-arrow-down bigger-130"></i></a>')+'</div>'; }, "bSortable": false }
+                { "mData":function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openDevDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a>'+
+                    (data.disabled==1?'<a class="green" onclick="setItemDisabled(0, '+data.id+', false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeDevItem('+data.id+')"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setItemDisabled(0, '+data.id+', true)"><i class="icon-arrow-down bigger-130"></i></a>')+'</div>'; }, "bSortable": false }
             ],
             "columns": [
                 {type: "numeric"},
@@ -236,8 +236,8 @@
                 { "mData":"id" },
                 { "mData":"name" },
                 { "mData":function(data, type, val){ return '<i class="'+(data.disabled==1?'red icon-arrow-down':'green icon-arrow-up')+'"></i>'; } },
-                { "mData":function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openLocDialog($(this).closest(\'tr\').find(\'td\').eq(0).text());"><i class="icon-pencil bigger-130"></i></a>'+
-                    (data.disabled==1?'<a class="green" onclick="setItemDisabled(1, $(this).closest(\'tr\').find(\'td\').eq(0).text(), false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeLocItem($(this).closest(\'tr\').find(\'td\').eq(0).text())"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setItemDisabled(1, $(this).closest(\'tr\').find(\'td\').eq(0).text(), true)"><i class="icon-arrow-down bigger-130"></i></a>')+'</div>'; }, "bSortable": false }
+                { "mData":function(data, type, val){ return data.id==0?'':'<div class="action-buttons"><a class="green" onclick="openLocDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a>'+
+                    (data.disabled==1?'<a class="green" onclick="setItemDisabled(1, '+data.id+', false)"><i class="icon-arrow-up bigger-130"></i></a><a class="red" onclick="removeLocItem('+data.id+')"><i class="icon-trash bigger-130"></i></a>':'<a class="red" onclick="setItemDisabled(1, '+data.id+', true)"><i class="icon-arrow-down bigger-130"></i></a>')+'</div>'; }, "bSortable": false }
             ],
             "columns": [
                 {type: "numeric"},
