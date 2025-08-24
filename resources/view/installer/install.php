@@ -13,12 +13,12 @@
         <p>The system is now ready to be installed. Click the button below to start the installation process.</p>
         <div class="space-4"></div>
         
-        <div id="install-progress" class="text-center">
-            <div id="install-status" class="space-4">
+        <div id="install-progress" class="text-center" style="padding: 20px 0; min-height: 120px;">
+            <div id="install-status" class="space-4" style="margin-bottom: 20px;">
                 Ready to install FreePOS system...
             </div>
-            <div class="space-4">
-                <button id="install-button" class="btn btn-success btn-lg" onclick="startInstallation()">
+            <div class="space-4" style="margin-top: 20px; margin-bottom: 20px;">
+                <button id="install-button" class="btn btn-success btn-lg" onclick="startInstallation()" style="padding: 12px 24px; font-size: 16px; display: inline-block !important; visibility: visible !important;">
                     <i class="icon-download"></i> Install FreePOS
                 </button>
             </div>
