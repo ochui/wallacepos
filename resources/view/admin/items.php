@@ -286,7 +286,7 @@
                 { "mData":"code" },
                 { "mData":function(data,type,val){return (categories.hasOwnProperty(data.categoryid)?categories[data.categoryid].name:'None'); } },
                 { "mData":function(data,type,val){return (suppliers.hasOwnProperty(data.supplierid)?suppliers[data.supplierid].name:'None'); } },
-                { mData:null, sDefaultContent:'<div class="action-buttons"><a class="green" onclick="openEditDialog($(this).closest(\'tr\').find(\'td\').eq(1).text());"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="removeItem($(this).closest(\'tr\').find(\'td\').eq(1).text())"><i class="icon-trash bigger-130"></i></a></div>', "bSortable": false }
+                { "mData":function(data,type,val){return '<div class="action-buttons"><a class="green" onclick="openEditDialog('+data.id+');"><i class="icon-pencil bigger-130"></i></a><a class="red" onclick="removeItem('+data.id+')"><i class="icon-trash bigger-130"></i></a></div>'; }, "bSortable": false }
             ],
             "columns": [
                 {},
