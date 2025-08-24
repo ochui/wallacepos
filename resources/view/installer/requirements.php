@@ -1,104 +1,91 @@
 <div style="text-align: center;">
-<?php
-  if ($curversion>0) {
-?>
-      <ul class="breadcrumb">
-          <li><strong>Check Requirements</strong></li>
-          <li>Upgrade</li>
-      </ul>
-<?php
-  } else {
-?>
-      <ul class="breadcrumb">
-          <li><strong>Check Requirements</strong></li>
-          <li>Configure Database</li>
-          <li>Initial Setup</li>
-          <li>Install System</li>
-      </ul>
-<?php
-  }
-?>
+    <ul class="breadcrumb">
+        <li class="active"><strong>1. Check Requirements</strong></li>
+        <li>2. Configure Database</li>
+        <li>3. Admin Setup</li>
+        <li>4. Install System</li>
+    </ul>
 </div>
+
 <div>
-    <h4>Requirements</h4>
+    <h4>System Requirements Check</h4>
+    <p>Please ensure your system meets all the requirements before proceeding with the installation.</p>
     <div class="space-4"></div>
-    <div>
-        <ul class="list-unstyled spaced">
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['app_root']?"green":"red"); ?>"></i>
-                <?php echo("Correct Application Root".($deps['app_root']?"":"<br/><small>WallacePOS must be installed in the root directory of it's own virtual host</small>")); ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['webserver']?"green":"red"); ?>"></i>
-                <?php echo("Web Server ".($deps['webserver']?"":"(Apache 2.4.7+ recommended) ").$deps['webserver_name']." detected"); ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['url_rewrite']?"green":"red"); ?>"></i>
-                URL Rewriting (mod_rewrite for Apache, equivalent for other servers)
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['websocket_proxy']?"green":"red"); ?>"></i>
-                WebSocket Proxy (mod_proxy_wstunnel for Apache, equivalent for other servers)
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['php']?"green":"red"); ?>"></i>
-                <?php echo("PHP ".($deps['php']?"":"5.4 required, ").$deps['php_version']." installed"); ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['php_pdomysql']?"green":"red"); ?>"></i>
-                PHP pdo_mysql extension
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['php_gd']?"green":"red"); ?>"></i>
-                PHP gd extension
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['php_curl']?"green":"red"); ?>"></i>
-                PHP cURL extension
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($https=(isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!="off")?"green":"red"); ?>"></i>
-                Web Server Configuration: HTTPS <?php echo($https?"Active":"is recommended") ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['permissions_root']?"green":"red"); ?>"></i>
-                Folder Permissions: App Root / <?php echo($deps['permissions_root']?"is writable":"must be writable") ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['permissions_files']?"green":"red"); ?>"></i>
-                File Permissions: Application files <?php echo($deps['permissions_files']?"are not writable":"must not be writable") ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['permissions_storage']?"green":"red"); ?>"></i>
-                File Permissions: Storage (/storage/) <?php echo($deps['permissions_storage']?" are writable":"files must be writable") ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['permissions_config']?"green":"red"); ?>"></i>
-                File Permissions: Config files <?php echo($deps['permissions_config']?" are writable":" .env must be writable") ?>
-            </li>
-            <li>
-                <i class="icon icon-large icon-check <?php echo($deps['all']?"green":"red"); ?>"></i>
-                <strong><?php echo($deps['all']?"All Requirements Met":"Not all requirements met, correct the above to proceed"); ?></strong>
-            </li>
-            <?php
-                if(!$deps['all']) {
-            ?>
-            <li>
-                <label><input type="checkbox" data-reqs-met="<?php echo($deps['all']); ?>" onchange="$('#next-button').prop('disabled', ($(this).is(':checked')?false:true))" />
-                &nbsp;Ignore requirements check</label>
-            </li>
-            <?php
-                }
-            ?>
-        </ul>
-        <hr/>
-        <div style="height: 40px;">
-            <button class="pull-left btn btn-primary" onclick="">Refresh</button>
-            <form method="post">
-                <input type="hidden" name="<?php echo($curversion>0?"doupgrade":"screen"); ?>" value="2">
-                <button id="next-button" type="submit" class="pull-right btn btn-primary" <?php echo($deps['all']?"":"disabled='disabled'"); ?> ><?php echo($curversion>0?"Upgrade":"Next"); ?></button>
-            </form>
+    
+    <div id="requirements-results">
+        <div class="text-center">
+            <i class="icon-spinner icon-spin icon-2x"></i><br/>
+            Checking system requirements...
         </div>
     </div>
+    
+    <hr/>
+    <div style="height: 40px;">
+        <button class="pull-left btn btn-info" onclick="checkRequirements()">
+            <i class="icon-refresh"></i> Refresh
+        </button>
+        <button id="next-button" type="button" class="pull-right btn btn-primary" disabled onclick="nextStep()">
+            Next <i class="icon-arrow-right"></i>
+        </button>
+    </div>
 </div>
+
+<script>
+function checkRequirements() {
+    $('#requirements-results').html('<div class="text-center"><i class="icon-spinner icon-spin icon-2x"></i><br/>Checking system requirements...</div>');
+    $('#next-button').prop('disabled', true);
+    
+    var result = POS.getJsonData('install/requirements');
+    if (result) {
+        displayRequirements(result);
+    } else {
+        $('#requirements-results').html('<div class="alert alert-danger">Failed to check requirements. Please try again.</div>');
+    }
+}
+
+function displayRequirements(data) {
+    var html = '<ul class="list-unstyled spaced">';
+    var allMet = data.all;
+    
+    for (var i = 0; i < data.requirements.length; i++) {
+        var req = data.requirements[i];
+        var iconClass = req.status ? 'icon-check green' : 'icon-remove red';
+        
+        html += '<li>';
+        html += '<i class="icon icon-large ' + iconClass + '"></i> ';
+        html += '<strong>' + req.name + '</strong><br/>';
+        html += '<small>Current: ' + req.current + ' | Required: ' + req.required + '</small>';
+        html += '</li>';
+    }
+    
+    if (!allMet) {
+        html += '<li class="space-6">';
+        html += '<label><input type="checkbox" id="ignore-requirements" onchange="toggleNext()" /> ';
+        html += '&nbsp;I understand the risks and want to proceed anyway</label>';
+        html += '</li>';
+    }
+    
+    html += '</ul>';
+    
+    $('#requirements-results').html(html);
+    
+    if (allMet) {
+        $('#next-button').prop('disabled', false);
+    }
+}
+
+function toggleNext() {
+    var checked = $('#ignore-requirements').is(':checked');
+    $('#next-button').prop('disabled', !checked);
+}
+
+function nextStep() {
+    POS.loadInstallerStep('database');
+}
+
+// Auto-check requirements on load
+$(document).ready(function() {
+    checkRequirements();
+});
+</script>
 

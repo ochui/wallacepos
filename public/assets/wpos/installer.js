@@ -11,18 +11,18 @@ $(function () {
 });
 function WPOSInstaller() {
   // AJAX PAGE LOADER FUNCTIONS
-  var currentStep = "0";
+  var currentStep = "requirements";
   var currentsec = "";
   var lastStep = null;
 
-  this.loadInstallerStep = function (query) {
+  this.loadInstallerStep = function (step, query) {
     var contenturl;
 
-    contenturl = "api/installer/content/" + sec + "";
+    contenturl = "/api/installer/content/" + step;
 
     $.get(
       contenturl,
-      query,
+      query || {},
       function (data) {
         $("#maincontent").html(data);
       },
@@ -184,7 +184,53 @@ function WPOSInstaller() {
       });
       return true;
     } catch (ex) {
-      if (typeof errorCallback == "function") return errorCallback(error.message);
+      if (typeof errorCallback == "function") return errorCallback(ex.message);
+
+      POS.notifications.error(ex.message, "Exception", { delay: 0 });
+      callback(false);
+      return false;
+    }
+  };
+
+  // Helper method for sending form data to installer APIs
+  this.sendFormDataAsync = function (action, formData, callback, errorCallback) {
+    try {
+      $.ajax({
+        url: "/api/" + action,
+        type: "POST",
+        data: formData,
+        dataType: "json",
+        timeout: 10000,
+        cache: false,
+        success: function (json) {
+          var errCode = json.errorCode;
+          var err = json.error;
+          if (err == "OK") {
+            // echo warning if set
+            if (json.hasOwnProperty("warning")) {
+              POS.notifications.warning(json.warning, "Warning", { delay: 0 });
+            }
+            callback(json.data);
+          } else {
+            if (errCode == "auth") {
+              POS.sessionExpired();
+            } else {
+              if (typeof errorCallback == "function") return errorCallback(json.error);
+              POS.notifications.error(err, "Error", { delay: 0 });
+            }
+            callback(false);
+          }
+        },
+        error: function (jqXHR, status, error) {
+          if (typeof errorCallback == "function") return errorCallback(error);
+
+          POS.notifications.error(error, "Request Error", { delay: 0 });
+          callback(false);
+        },
+      });
+      return true;
+    } catch (ex) {
+      if (typeof errorCallback == "function") return errorCallback(ex.message);
 
       POS.notifications.error(ex.message, "Exception", { delay: 0 });
       callback(false);
@@ -195,4 +241,14 @@ function WPOSInstaller() {
   // Load globally accessible objects
   this.util = new WPOSUtil();
   this.notifications = new WPOSNotifications();
+
+  // Initialize installer - load first step
+  this.init = function() {
+    this.loadInstallerStep('requirements');
+  };
+
+  // Auto-initialize on load
+  $(document).ready(() => {
+    this.init();
+  });
 }
