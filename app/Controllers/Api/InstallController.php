@@ -18,7 +18,7 @@ class InstallController
     public function __construct()
     {
         header("Content-Type: application/json");
-        
+
         // Start session for multi-step installer
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -51,9 +51,11 @@ class InstallController
         try {
             $dbUpdater = new DbUpdater();
             $result = $dbUpdater->install();
-            
-            if (strpos($result, 'Installation Completed!') !== false || 
-                strpos($result, 'Database detected, skipping full installation.') !== false) {
+
+            if (
+                strpos($result, 'Installation Completed!') !== false ||
+                strpos($result, 'Database detected, skipping full installation.') !== false
+            ) {
                 $this->result['data'] = $result;
             } else {
                 $this->result['errorCode'] = "install";
@@ -75,9 +77,11 @@ class InstallController
         try {
             $dbUpdater = new DbUpdater();
             $result = $dbUpdater->upgrade();
-            
-            if (strpos($result, 'Update completed') !== false || 
-                strpos($result, 'Already upgraded') !== false) {
+
+            if (
+                strpos($result, 'Update completed') !== false ||
+                strpos($result, 'Already upgraded') !== false
+            ) {
                 $this->result['data'] = $result;
             } else {
                 $this->result['errorCode'] = "upgrade";
@@ -102,14 +106,14 @@ class InstallController
             // and checking if we can query the auth table
             $isInstalled = false;
             $version = null;
-            
+
             try {
                 $dbConfig = new \App\Database\DbConfig();
                 $result = $dbConfig->_db->query("SELECT 1 FROM `auth` LIMIT 1");
                 if ($result !== false) {
                     $isInstalled = true;
                     $result->closeCursor();
-                    
+
                     // Try to get version
                     try {
                         if (class_exists('App\Controllers\Admin\AdminSettings')) {
@@ -125,7 +129,7 @@ class InstallController
             } catch (\Exception $e) {
                 $isInstalled = false;
             }
-            
+
             $this->result['data'] = [
                 'installed' => $isInstalled,
                 'version' => $version,
@@ -218,27 +222,6 @@ class InstallController
             }
         }
 
-        // Check file permissions
-        $paths = [
-            $this->storagePath() => 'Storage directory',
-            $this->storagePath('logs') => 'Logs directory', 
-            $this->basePath('bootstrap/cache') => 'Bootstrap cache directory'
-        ];
-
-        foreach ($paths as $path => $name) {
-            $writable = is_dir($path) && is_writable($path);
-            $result['requirements'][] = [
-                'name' => "Write Permission: $name",
-                'status' => $writable,
-                'current' => $writable ? 'Writable' : 'Not writable',
-                'required' => 'Must be writable',
-                'type' => 'permission'
-            ];
-            if (!$writable) {
-                $result['all'] = false;
-            }
-        }
-
         // Check composer packages are installed
         $vendorPath = $this->basePath('vendor');
         $composerInstalled = is_dir($vendorPath) && file_exists($vendorPath . '/autoload.php');
@@ -287,7 +270,7 @@ class InstallController
 
             // Test database connection
             $testResult = $this->testDatabaseConnection($host, $port, $database, $username, $password);
-            
+
             if ($testResult === true) {
                 $this->result['data'] = [
                     'status' => 'success',
@@ -333,7 +316,7 @@ class InstallController
 
             // Update .env file
             $envUpdated = $this->updateEnvFile($host, $port, $database, $username, $password);
-            
+
             if ($envUpdated) {
                 $this->result['data'] = [
                     'status' => 'success',
@@ -418,9 +401,11 @@ class InstallController
 
             $dbUpdater = new DbUpdater();
             $result = $dbUpdater->install();
-            
-            if (strpos($result, 'Installation Completed!') !== false || 
-                strpos($result, 'Database detected, skipping full installation.') !== false) {
+
+            if (
+                strpos($result, 'Installation Completed!') !== false ||
+                strpos($result, 'Database detected, skipping full installation.') !== false
+            ) {
                 $this->result['data'] = $result;
                 // Clear session data after successful installation
                 unset($_SESSION['admin_hash']);
@@ -448,11 +433,11 @@ class InstallController
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
                 \PDO::ATTR_TIMEOUT => 5
             ]);
-            
+
             // Test if we can execute a simple query
             $stmt = $pdo->query("SELECT 1");
             $stmt->closeCursor();
-            
+
             return true;
         } catch (\PDOException $e) {
             return "Database connection failed: " . $e->getMessage();
@@ -469,12 +454,12 @@ class InstallController
         try {
             $envPath = $this->basePath('.env');
             $envExamplePath = $this->basePath('.env.example');
-            
+
             // If .env doesn't exist, copy from .env.example
             if (!file_exists($envPath) && file_exists($envExamplePath)) {
                 copy($envExamplePath, $envPath);
             }
-            
+
             if (!file_exists($envPath)) {
                 // Create basic .env if it doesn't exist
                 $envContent = "APP_NAME=FreePOS\n";
@@ -488,12 +473,12 @@ class InstallController
                 $envContent .= "DB_DATABASE=$database\n";
                 $envContent .= "DB_USERNAME=$username\n";
                 $envContent .= "DB_PASSWORD=$password\n";
-                
+
                 return file_put_contents($envPath, $envContent) !== false;
             } else {
                 // Update existing .env file
                 $envContent = file_get_contents($envPath);
-                
+
                 $dbConfig = [
                     'DB_HOST' => $host,
                     'DB_PORT' => $port,
@@ -501,13 +486,13 @@ class InstallController
                     'DB_USERNAME' => $username,
                     'DB_PASSWORD' => $password
                 ];
-                
+
                 foreach ($dbConfig as $key => $value) {
                     // Escape special characters in password
                     if ($key === 'DB_PASSWORD' && (strpos($value, ' ') !== false || strpos($value, '#') !== false || strpos($value, '"') !== false)) {
                         $value = '"' . addslashes($value) . '"';
                     }
-                    
+
                     $pattern = "/^$key=.*$/m";
                     if (preg_match($pattern, $envContent)) {
                         $envContent = preg_replace($pattern, "$key=$value", $envContent);
@@ -515,7 +500,7 @@ class InstallController
                         $envContent .= "\n$key=$value";
                     }
                 }
-                
+
                 return file_put_contents($envPath, $envContent) !== false;
             }
         } catch (\Exception $e) {

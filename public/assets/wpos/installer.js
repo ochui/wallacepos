@@ -46,6 +46,7 @@ function WPOSInstaller() {
     });
     if (response.status == "200") {
       var json = JSON.parse(response.responseText);
+      console.log(json);
       var errCode = json.errorCode;
       var err = json.error;
       if (err == "OK") {
@@ -55,13 +56,8 @@ function WPOSInstaller() {
         }
         return json.data;
       } else {
-        if (errCode == "auth") {
-          POS.sessionExpired();
-          return false;
-        } else {
-          POS.notifications.error(err, "Error", { delay: 0 });
-          return false;
-        }
+        POS.notifications.error(err, "Error", { delay: 0 });
+        return false;
       }
     }
 
@@ -215,8 +211,8 @@ function WPOSInstaller() {
             if (errCode == "auth") {
               POS.sessionExpired();
             } else {
-              if (typeof errorCallback == "function") return errorCallback(json.error);
               POS.notifications.error(err, "Error", { delay: 0 });
+              if (typeof errorCallback == "function") return errorCallback(json.error);
             }
             callback(false);
           }
@@ -243,8 +239,8 @@ function WPOSInstaller() {
   this.notifications = new WPOSNotifications();
 
   // Initialize installer - load first step
-  this.init = function() {
-    this.loadInstallerStep('requirements');
+  this.init = function () {
+    this.loadInstallerStep("requirements");
   };
 
   // Auto-initialize on load
