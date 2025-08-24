@@ -462,17 +462,11 @@ class InstallController
 
             if (!file_exists($envPath)) {
                 // Create basic .env if it doesn't exist
-                $envContent = "APP_NAME=FreePOS\n";
-                $envContent .= "APP_ENV=production\n";
-                $envContent .= "APP_KEY=\n";
-                $envContent .= "APP_DEBUG=false\n";
-                $envContent .= "APP_URL=http://localhost\n\n";
-                $envContent .= "DB_CONNECTION=mysql\n";
-                $envContent .= "DB_HOST=$host\n";
-                $envContent .= "DB_PORT=$port\n";
-                $envContent .= "DB_DATABASE=$database\n";
-                $envContent .= "DB_USERNAME=$username\n";
-                $envContent .= "DB_PASSWORD=$password\n";
+                $envContent  = "DATABASE_HOST=$host\n";
+                $envContent .= "DATABASE_PORT=$port\n";
+                $envContent .= "DATABASE_NAME=$database\n";
+                $envContent .= "DATABASE_USER=$username\n";
+                $envContent .= "DATABASE_PASSWORD=$password\n";
 
                 return file_put_contents($envPath, $envContent) !== false;
             } else {
@@ -480,16 +474,16 @@ class InstallController
                 $envContent = file_get_contents($envPath);
 
                 $dbConfig = [
-                    'DB_HOST' => $host,
-                    'DB_PORT' => $port,
-                    'DB_DATABASE' => $database,
-                    'DB_USERNAME' => $username,
-                    'DB_PASSWORD' => $password
+                    'DATABASE_HOST' => $host,
+                    'DATABASE_PORT' => $port,
+                    'DATABASE_NAME' => $database,
+                    'DATABASE_USER' => $username,
+                    'DATABASE_PASSWORD' => $password
                 ];
 
                 foreach ($dbConfig as $key => $value) {
                     // Escape special characters in password
-                    if ($key === 'DB_PASSWORD' && (strpos($value, ' ') !== false || strpos($value, '#') !== false || strpos($value, '"') !== false)) {
+                    if ($key === 'DATABASE_PASSWORD' && (strpos($value, ' ') !== false || strpos($value, '#') !== false || strpos($value, '"') !== false)) {
                         $value = '"' . addslashes($value) . '"';
                     }
 

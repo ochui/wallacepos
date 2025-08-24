@@ -15,8 +15,9 @@ use App\Controllers\Invoice\Templates;
 use App\Communication\SocketIO;
 use App\Database\AuthModel;
 use App\Database\SaleItemsModel;
-use App\Auth;
 use App\Communication\SocketControl;
+use App\Auth;
+
 
 class DbUpdater
 {
@@ -61,8 +62,6 @@ class DbUpdater
                     $authMdl = new AuthModel();
                     $authMdl->setDisabled(2, true);
                     $authMdl->edit(1, null, $setupvars->adminhash);
-                    // Setup general info
-                    echo ("Setup variables processed.\n");
                 }
 
                 AdminSettings::putValue('general', 'version', $this->getLatestVersionName());
