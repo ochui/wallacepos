@@ -14,10 +14,10 @@
         <div class="space-4"></div>
         
         <div id="install-progress" class="text-center" style="padding: 20px 0; min-height: 120px;">
-            <div id="install-status" class="space-4" style="margin-bottom: 20px;">
+            <div id="install-status">
                 Ready to install FreePOS system...
             </div>
-            <div class="space-4" style="margin-top: 20px; margin-bottom: 20px;">
+            <div>
                 <button id="install-button" class="btn btn-success btn-lg" onclick="startInstallation()" style="padding: 12px 24px; font-size: 16px; display: inline-block !important; visibility: visible !important;">
                     <i class="icon-download"></i> Install FreePOS
                 </button>
