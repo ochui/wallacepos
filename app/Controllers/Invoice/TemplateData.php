@@ -60,41 +60,12 @@ class TemplateData
     public $Utils;
 
     /**
-     * Format currency for mustache template
-     * @return function
-     */
-    public function currency()
-    {
-        return function ($text, Mustache_LambdaHelper $helper) {
-            return $this->Utils->currencyFormat($helper->render($text));
-        };
-    }
-
-    private $taxitems;
-    private function getTaxArray($taxdata)
-    {
-        $taxArr = [];
-        if (!isset($this->taxitems))
-            $this->taxitems = AdminUtilities::getTaxTable()['items'];
-
-        foreach ($taxdata as $key => $value) {
-            $tax = $this->taxitems[$key];
-            $taxObj = new \stdClass();
-            $taxObj->label = $tax['name'] . ' (' . $tax['value'] . '%)';
-            $taxObj->altlabel = $tax['altname'] . ' (' . $tax['value'] . '%)';
-            $taxObj->value = $value;
-            $taxArr[] = $taxObj;
-        }
-        return $taxArr;
-    }
-
-    /**
      * Decode provided JSON and extract commonly used variables
      * @param $data
      * @param array $config
      * @param bool $invoice
      */
-    public function TemplateData($data, $config = [], $invoice = false)
+    public function __construct($data, $config = [], $invoice = false)
     {
         $this->Utils = new AdminUtilities();
         $this->Utils->setCurrencyFormat($config['general']->currencyformat);
@@ -110,7 +81,7 @@ class TemplateData
         $this->sale_total = $data->total;
         $this->sale_void = isset($data->voiddata);
         $this->sale_hasrefunds = isset($data->refunddata);
-        $this->show_subtotal  = (count($data->taxdata) > 0 || $data->discount > 0);
+        $this->show_subtotal = ((is_array($data->taxdata) ? count($data->taxdata) : count((array)$data->taxdata)) > 0 || $data->discount > 0);
 
         // format tax data
         $this->sale_tax = $this->getTaxArray($data->taxdata);
@@ -211,5 +182,34 @@ class TemplateData
                 }
             }
         }
+    }
+
+    /**
+     * Format currency for mustache template
+     * @return function
+     */
+    public function currency()
+    {
+        return function ($text, Mustache_LambdaHelper $helper) {
+            return $this->Utils->currencyFormat($helper->render($text));
+        };
+    }
+
+    private $taxitems;
+    private function getTaxArray($taxdata)
+    {
+        $taxArr = [];
+        if (!isset($this->taxitems))
+            $this->taxitems = AdminUtilities::getTaxTable()['items'];
+
+        foreach ($taxdata as $key => $value) {
+            $tax = $this->taxitems[$key];
+            $taxObj = new \stdClass();
+            $taxObj->label = $tax['name'] . ' (' . $tax['value'] . '%)';
+            $taxObj->altlabel = $tax['altname'] . ' (' . $tax['value'] . '%)';
+            $taxObj->value = $value;
+            $taxArr[] = $taxObj;
+        }
+        return $taxArr;
     }
 }
