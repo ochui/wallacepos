@@ -238,9 +238,33 @@ function WPOSInstaller() {
   this.util = new WPOSUtil();
   this.notifications = new WPOSNotifications();
 
-  // Initialize installer - load first step
+  // Initialize installer - check status first, then load appropriate step
   this.init = function () {
-    this.loadInstallerStep("requirements");
+    // Check installation status first
+    this.getJsonDataAsync("install/status", (statusData) => {
+      if (statusData && statusData.installed) {
+        // System is already installed
+        const currentVersion = statusData.version || "Unknown";
+        const latestVersion = statusData.latest_version || "Unknown";
+        
+        if (currentVersion !== latestVersion && latestVersion !== "Unknown") {
+          // Update is available
+          this.loadInstallerStep("update-available", {
+            current_version: currentVersion,
+            latest_version: latestVersion
+          });
+        } else {
+          // Already installed and up to date
+          this.loadInstallerStep("already-installed", {
+            current_version: currentVersion,
+            latest_version: latestVersion
+          });
+        }
+      } else {
+        // System not installed, proceed with normal installation
+        this.loadInstallerStep("requirements");
+      }
+    });
   };
 
   // Auto-initialize on load

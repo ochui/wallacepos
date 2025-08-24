@@ -76,7 +76,8 @@ class InstallController
     {
         try {
             $dbUpdater = new DbUpdater();
-            $result = $dbUpdater->upgrade();
+            // Allow upgrade without authentication from installer
+            $result = $dbUpdater->upgrade(null, false);
 
             if (
                 strpos($result, 'Update completed') !== false ||
@@ -101,7 +102,20 @@ class InstallController
     public function status()
     {
         try {
-            $dbUpdater = new DbUpdater();
+            // First check if .env file exists
+            $envPath = $this->basePath('.env');
+            if (!file_exists($envPath)) {
+                // No .env file means not installed
+                // Get latest version without DbUpdater to avoid database connection
+                $this->result['data'] = [
+                    'installed' => false,
+                    'version' => null,
+                    'latest_version' => DbUpdater::getLatestVersionName(),
+                    'message' => 'Environment file not found - FreePOS not installed'
+                ];
+                return $this->returnResult();
+            }
+
             // Try to check if database is installed by creating a new instance
             // and checking if we can query the auth table
             $isInstalled = false;
@@ -133,11 +147,16 @@ class InstallController
             $this->result['data'] = [
                 'installed' => $isInstalled,
                 'version' => $version,
-                'latest_version' => $dbUpdater->getLatestVersionName()
+                'latest_version' => DbUpdater::getLatestVersionName()
             ];
         } catch (\Exception $e) {
-            $this->result['errorCode'] = "exception";
-            $this->result['error'] = "Status check failed: " . $e->getMessage();
+            // If we can't check status, assume not installed
+            $this->result['data'] = [
+                'installed' => false,
+                'version' => null,
+                'latest_version' => DbUpdater::getLatestVersionName(),
+                'message' => 'Could not determine installation status - assuming not installed'
+            ];
         }
 
         return $this->returnResult();
