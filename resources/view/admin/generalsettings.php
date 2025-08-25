@@ -9,7 +9,7 @@
 </div><!-- /.page-header -->
 
 <div class="tabbable">
-    <ul class="nav nav-tabs tab-size-bigger" id="generalSettingsTabs">
+    <ul class="nav nav-tabs tab-size-bigger inline-block" id="generalSettingsTabs">
         <li class="active">
             <a data-toggle="tab" href="#general-formats-tab">
                 <i class="blue icon-cogs bigger-120"></i>

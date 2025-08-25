@@ -166,3 +166,7 @@ table.dataTable tbody > tr.selected, table.dataTable tbody > tr > .selected {
     }
 }
 
+.inline-block {
+    display: inline-block !important;
+}
+
