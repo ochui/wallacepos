@@ -32,3 +32,14 @@ npm-debug.log*
 
 public/assets/uploads/
 public/assets/qrcode.png
+
+# Test coverage reports
+/coverage/
+/.phpunit.cache/
+/node_modules/
+
+# Testing environment files
+.env.testing
+
+# IDE files
+.vscode/
