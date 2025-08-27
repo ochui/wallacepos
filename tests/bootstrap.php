@@ -9,7 +9,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Define testing constants
-define('BASE_PATH', dirname(__DIR__));
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__DIR__));
+}
 
 // Load environment variables if .env.testing exists
 $envTestingPath = BASE_PATH . '/.env.testing';

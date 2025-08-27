@@ -20,39 +20,48 @@ class InstallControllerTest extends TestCase
 
     public function testCheckRequirementsStructure()
     {
-        // Test the expected structure without mocking the complex controller
-        $expectedStructure = [
-            'webserver' => true,
-            'php' => true,
-            'all' => true,
-            'requirements' => []
-        ];
+        // Create an instance of the controller
+        $controller = new InstallController();
         
-        // Verify the expected keys exist in the structure
-        $this->assertArrayHasKey('webserver', $expectedStructure);
-        $this->assertArrayHasKey('php', $expectedStructure);
-        $this->assertArrayHasKey('all', $expectedStructure);
-        $this->assertArrayHasKey('requirements', $expectedStructure);
+        // Use reflection to access the private checkRequirements method
+        $reflection = new \ReflectionClass($controller);
+        $checkRequirementsMethod = $reflection->getMethod('checkRequirements');
+        $checkRequirementsMethod->setAccessible(true);
         
-        // Verify requirements array structure
-        $this->assertIsArray($expectedStructure['requirements']);
+        // Call the real method
+        $result = $checkRequirementsMethod->invoke($controller);
         
-        // Verify boolean values
-        $this->assertIsBool($expectedStructure['webserver']);
-        $this->assertIsBool($expectedStructure['php']);
-        $this->assertIsBool($expectedStructure['all']);
+        // Verify the structure matches expectations
+        $this->assertArrayHasKey('webserver', $result);
+        $this->assertArrayHasKey('php', $result);
+        $this->assertArrayHasKey('all', $result);
+        $this->assertArrayHasKey('requirements', $result);
+        
+        // Verify types
+        $this->assertIsBool($result['webserver']);
+        $this->assertIsBool($result['php']);
+        $this->assertIsBool($result['all']);
+        $this->assertIsArray($result['requirements']);
     }
 
     public function testRequirementItemStructure()
     {
-        // Test the expected structure of a requirement item
-        $requirementItem = [
-            'name' => 'PHP Version',
-            'status' => true,
-            'current' => '8.3.6',
-            'required' => '8.0.0+',
-            'type' => 'php'
-        ];
+        // Create an instance of the controller
+        $controller = new InstallController();
+        
+        // Use reflection to access the private checkRequirements method
+        $reflection = new \ReflectionClass($controller);
+        $checkRequirementsMethod = $reflection->getMethod('checkRequirements');
+        $checkRequirementsMethod->setAccessible(true);
+        
+        // Call the real method
+        $result = $checkRequirementsMethod->invoke($controller);
+        
+        // Verify that requirements array is not empty
+        $this->assertNotEmpty($result['requirements'], 'Requirements array should not be empty');
+        
+        // Get the first requirement item to test its structure
+        $requirementItem = $result['requirements'][0];
         
         $this->assertArrayHasKey('name', $requirementItem);
         $this->assertArrayHasKey('status', $requirementItem);
@@ -117,20 +126,65 @@ class InstallControllerTest extends TestCase
 
     public function testWebServerDetection()
     {
-        // Test web server detection logic
-        $mockServerSoftware = 'Apache/2.4.41 (Ubuntu)';
+        // Save original SERVER_SOFTWARE if it exists
+        $originalServerSoftware = $_SERVER['SERVER_SOFTWARE'] ?? null;
         
-        // Simulate $_SERVER['SERVER_SOFTWARE']
-        $_SERVER['SERVER_SOFTWARE'] = $mockServerSoftware;
+        try {
+            // Test web server detection logic
+            $mockServerSoftware = 'Apache/2.4.41 (Ubuntu)';
+            
+            // Simulate $_SERVER['SERVER_SOFTWARE']
+            $_SERVER['SERVER_SOFTWARE'] = $mockServerSoftware;
+            
+            $webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
+            
+            $this->assertEquals($mockServerSoftware, $webServer);
+            
+            // Test unknown server
+            unset($_SERVER['SERVER_SOFTWARE']);
+            $webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
+            
+            $this->assertEquals('Unknown', $webServer);
+        } finally {
+            // Restore original value
+            if ($originalServerSoftware !== null) {
+                $_SERVER['SERVER_SOFTWARE'] = $originalServerSoftware;
+            } else {
+                unset($_SERVER['SERVER_SOFTWARE']);
+            }
+        }
+    }
+
+    public function testRequirementsEndpoint()
+    {
+        // Test the actual requirements endpoint
+        $controller = new InstallController();
         
-        $webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
+        // Capture the output from the requirements method
+        ob_start();
+        $result = $controller->requirements();
+        $output = ob_get_clean();
         
-        $this->assertEquals($mockServerSoftware, $webServer);
+        // If output was echoed, use that; otherwise use the return value
+        if (!empty($output)) {
+            $response = json_decode($output, true);
+        } else {
+            $response = json_decode($result, true);
+        }
         
-        // Test unknown server
-        unset($_SERVER['SERVER_SOFTWARE']);
-        $webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
+        $this->assertNotNull($response, 'Response should be valid JSON');
+        $this->assertArrayHasKey('errorCode', $response);
+        $this->assertArrayHasKey('data', $response);
         
-        $this->assertEquals('Unknown', $webServer);
+        $data = $response['data'];
+        $this->assertArrayHasKey('webserver', $data);
+        $this->assertArrayHasKey('php', $data);
+        $this->assertArrayHasKey('all', $data);
+        $this->assertArrayHasKey('requirements', $data);
+        
+        $this->assertIsBool($data['webserver']);
+        $this->assertIsBool($data['php']);
+        $this->assertIsBool($data['all']);
+        $this->assertIsArray($data['requirements']);
     }
 }

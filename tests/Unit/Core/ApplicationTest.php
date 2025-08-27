@@ -13,15 +13,20 @@ use Mockery;
 class ApplicationTest extends TestCase
 {
     protected $app;
+    protected $serverBackup;
 
     protected function setUp(): void
     {
         parent::setUp();
+        // Save original $_SERVER state
+        $this->serverBackup = $_SERVER;
         $this->app = new Application();
     }
 
     protected function tearDown(): void
     {
+        // Restore original $_SERVER state
+        $_SERVER = $this->serverBackup;
         Mockery::close();
         parent::tearDown();
     }

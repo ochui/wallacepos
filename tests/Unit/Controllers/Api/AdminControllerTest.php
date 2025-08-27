@@ -48,7 +48,6 @@ class AdminControllerTest extends TestCase
     public function testSetupDeviceWithAuthentication()
     {
         $mockDeviceData = ['name' => 'New Device', 'locationid' => 1];
-        $mockResult = ['id' => 1, 'name' => 'New Device', 'status' => 'active'];
 
         // Mock authentication checks
         $this->mockAuth->shouldReceive('isLoggedIn')
@@ -64,36 +63,35 @@ class AdminControllerTest extends TestCase
             ->once()
             ->andReturn(true);
 
+        // Mock getRequestData to return our test data
         $this->adminController->shouldReceive('getRequestData')
             ->once()
             ->andReturn((object)$mockDeviceData);
 
-        $this->adminController->shouldReceive('setupDevice')
+        // Mock PosSetup to avoid external dependencies
+        $mockPosSetup = Mockery::mock('overload:App\Controllers\Pos\PosSetup');
+        $mockPosSetup->shouldReceive('__construct')
             ->once()
-            ->andReturnUsing(function() use ($mockResult) {
-                $reflection = new \ReflectionClass($this->adminController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->adminController);
-                $result['data'] = $mockResult;
-                $resultProperty->setValue($this->adminController, $result);
-                return $this->adminController->returnResult();
+            ->with((object)$mockDeviceData);
+        $mockPosSetup->shouldReceive('setupDevice')
+            ->once()
+            ->andReturnUsing(function($result) {
+                $result['data'] = ['id' => 1, 'name' => 'New Device', 'status' => 'active'];
+                return $result;
             });
 
-        $this->adminController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockResult) {
-                $reflection = new \ReflectionClass($this->adminController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->adminController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockResult, $result['data']);
-                return json_encode($result);
-            });
+        // Capture output since returnResult() uses echo and die()
+        ob_start();
+        try {
+            $this->adminController->setupDevice();
+        } catch (\Exception $e) {
+            // die() or exit() was called, which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->adminController->setupDevice();
+        $response = json_decode($output, true);
+        $this->assertNotNull($response);
+        $this->assertEquals('OK', $response['errorCode']);
     }
 
     public function testSetupDeviceWithoutAuthentication()
@@ -102,34 +100,19 @@ class AdminControllerTest extends TestCase
             ->once()
             ->andReturn(false);
 
-        $this->adminController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->adminController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->adminController);
-                
-                $this->assertEquals('auth', $result['errorCode']);
-                $this->assertEquals('Access Denied!', $result['error']);
-                return json_encode($result);
-            });
+        // Capture output since returnResult() uses echo and die()
+        ob_start();
+        try {
+            $this->adminController->setupDevice();
+        } catch (\Exception $e) {
+            // die() or exit() was called, which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->adminController->shouldReceive('setupDevice')
-            ->once()
-            ->andReturnUsing(function() {
-                // Simulate checkAuthentication failure
-                $reflection = new \ReflectionClass($this->adminController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->adminController);
-                $result['errorCode'] = 'auth';
-                $result['error'] = 'Access Denied!';
-                $resultProperty->setValue($this->adminController, $result);
-                return $this->adminController->returnResult();
-            });
-
-        $this->adminController->setupDevice();
+        $response = json_decode($output, true);
+        $this->assertNotNull($response);
+        $this->assertEquals('auth', $response['errorCode']);
+        $this->assertEquals('Access Denied!', $response['error']);
     }
 
     public function testSetupDeviceWithInvalidCSRF()

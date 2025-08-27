@@ -47,8 +47,8 @@ class BusinessLogicTest extends TestCase
         }
         
         $expectedSubtotal = (2 * 10.99) + (1 * 15.50) + (3 * 5.25);
-        $this->assertEquals($expectedSubtotal, $subtotal);
-        $this->assertEquals(52.23, $subtotal);
+        $this->assertEqualsWithDelta($expectedSubtotal, $subtotal, 0.01);
+        $this->assertEqualsWithDelta(53.23, $subtotal, 0.01);
     }
 
     public function testDiscountCalculations()
@@ -116,14 +116,14 @@ class BusinessLogicTest extends TestCase
     public function testCurrencyFormatting()
     {
         // Test currency formatting
-        $amounts = [
-            1234.56 => '1234.56',
-            1000 => '1000.00',
-            0.5 => '0.50',
-            999.999 => '1000.00' // Should round up
+        $testCases = [
+            [1234.56, '1234.56'],
+            [1000, '1000.00'],
+            [0.5, '0.50'],
+            [999.999, '1000.00'] // Should round up
         ];
         
-        foreach ($amounts as $amount => $expected) {
+        foreach ($testCases as [$amount, $expected]) {
             $formatted = number_format((float)$amount, 2, '.', '');
             $this->assertEquals($expected, $formatted);
         }
@@ -190,7 +190,7 @@ class BusinessLogicTest extends TestCase
         // Test reference generation
         $timestamp = 1640995200; // 2022-01-01 00:00:00
         $deviceId = 5;
-        $saleRef = 'SALE' . date('Ymd', $timestamp) . str_pad($deviceId, 2, '0', STR_PAD_LEFT) . str_pad($number, 4, '0', STR_PAD_LEFT);
+        $saleRef = 'SALE' . gmdate('Ymd', $timestamp) . str_pad($deviceId, 2, '0', STR_PAD_LEFT) . str_pad($number, 4, '0', STR_PAD_LEFT);
         
         $this->assertEquals('SALE20220101050123', $saleRef);
     }

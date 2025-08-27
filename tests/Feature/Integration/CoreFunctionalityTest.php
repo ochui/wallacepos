@@ -12,11 +12,21 @@ use App\Core\Application;
 class CoreFunctionalityTest extends TestCase
 {
     protected $app;
+    protected $originalServer;
 
     protected function setUp(): void
     {
         parent::setUp();
+        // Save original $_SERVER state
+        $this->originalServer = $_SERVER;
         $this->app = new Application();
+    }
+
+    protected function tearDown(): void
+    {
+        // Restore original $_SERVER state
+        $_SERVER = $this->originalServer;
+        parent::tearDown();
     }
 
     public function testApplicationCanBeInstantiated()

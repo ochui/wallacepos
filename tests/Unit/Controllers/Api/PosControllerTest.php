@@ -54,7 +54,16 @@ class PosControllerTest extends TestCase
             'locationname' => 'Main Store'
         ];
 
-        $mockPosSetup = Mockery::mock(PosSetup::class);
+        // Mock getRequestData to return device id
+        $this->posController->shouldReceive('getRequestData')
+            ->once()
+            ->andReturn(['deviceid' => 1]);
+
+        // Mock PosSetup constructor and method
+        $mockPosSetup = Mockery::mock('overload:App\Controllers\Pos\PosSetup');
+        $mockPosSetup->shouldReceive('__construct')
+            ->once()
+            ->with(['deviceid' => 1]);
         $mockPosSetup->shouldReceive('getDeviceRecord')
             ->once()
             ->andReturnUsing(function($result) use ($mockDeviceData) {
@@ -62,40 +71,19 @@ class PosControllerTest extends TestCase
                 return $result;
             });
 
-        // Mock the getRequestData method
-        $this->posController->shouldReceive('getRequestData')
-            ->once()
-            ->andReturn(['deviceid' => 1]);
+        // Capture output since returnResult() uses echo and die()
+        ob_start();
+        try {
+            $this->posController->getConfig();
+        } catch (\Exception $e) {
+            // die() or exit() was called, which is expected
+        }
+        $output = ob_get_clean();
 
-        // Mock PosSetup constructor
-        $this->posController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockDeviceData) {
-                $reflection = new \ReflectionClass($this->posController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->posController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockDeviceData, $result['data']);
-                return json_encode($result);
-            });
-
-        // Temporarily override the constructor call
-        $originalMethod = 'getConfig';
-        $this->posController->shouldReceive($originalMethod)
-            ->once()
-            ->andReturnUsing(function() use ($mockDeviceData) {
-                $reflection = new \ReflectionClass($this->posController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->posController);
-                $result['data'] = $mockDeviceData;
-                $resultProperty->setValue($this->posController, $result);
-                return $this->posController->returnResult();
-            });
-
-        $this->posController->getConfig();
+        $response = json_decode($output, true);
+        $this->assertNotNull($response);
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals($mockDeviceData, $response['data']);
     }
 
     public function testGetItems()

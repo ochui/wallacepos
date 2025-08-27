@@ -3,287 +3,231 @@
 namespace Tests\Unit\Validation;
 
 use PHPUnit\Framework\TestCase;
+use App\Utility\JsonValidate;
 
 /**
  * Unit tests for input validation and data integrity
- * Tests validation rules used throughout the FreePOS system
+ * Tests the real JsonValidate validation class used throughout FreePOS
  */
 class ValidationRulesTest extends TestCase
 {
-    public function testItemValidation()
+    public function testJsonValidateBasicValidation()
     {
-        // Test valid item data
-        $validItem = [
-            'code' => 'ITEM001',
+        // Test valid data with JsonValidate
+        $validData = (object)[
             'name' => 'Valid Item Name',
-            'price' => '29.99',
-            'cost' => '15.00',
-            'categoryid' => 1,
-            'supplierid' => 1,
-            'description' => 'A valid item description'
+            'email' => 'test@example.com',
+            'price' => '29.99'
         ];
         
-        $this->assertTrue($this->validateItem($validItem));
+        $schema = '{"name":"", "email":"@", "price":"1"}';
+        $validator = new JsonValidate($validData, $schema);
         
-        // Test invalid item data
-        $invalidItems = [
-            ['code' => '', 'name' => 'No Code', 'price' => '10.00'], // Missing code
-            ['code' => 'ITEM002', 'name' => '', 'price' => '10.00'], // Missing name
-            ['code' => 'ITEM003', 'name' => 'Negative Price', 'price' => '-5.00'], // Negative price
-            ['code' => 'ITEM004', 'name' => 'Invalid Price', 'price' => 'abc'], // Non-numeric price
-        ];
-        
-        foreach ($invalidItems as $item) {
-            $this->assertFalse($this->validateItem($item));
-        }
+        $result = $validator->validate();
+        $this->assertTrue($result);
     }
 
-    public function testCustomerValidation()
+    public function testJsonValidateEmailValidation()
     {
-        // Test valid customer data
-        $validCustomer = [
+        // Test email validation
+        $validEmailData = (object)['email' => 'test@example.com'];
+        $invalidEmailData = (object)['email' => 'invalid-email'];
+        
+        $emailSchema = '{"email":"@"}';
+        
+        $validValidator = new JsonValidate($validEmailData, $emailSchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $invalidValidator = new JsonValidate($invalidEmailData, $emailSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('must be a valid email address', $result);
+    }
+
+    public function testJsonValidateNumericValidation()
+    {
+        // Test numeric validation
+        $validNumericData = (object)['price' => '29.99', 'quantity' => '5'];
+        $invalidNumericData = (object)['price' => 'abc', 'quantity' => '5'];
+        
+        $numericSchema = '{"price":"1", "quantity":"1"}';
+        
+        $validValidator = new JsonValidate($validNumericData, $numericSchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $invalidValidator = new JsonValidate($invalidNumericData, $numericSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('must be numeric', $result);
+    }
+
+    public function testJsonValidateRequiredFields()
+    {
+        // Test required field validation
+        $completeData = (object)['name' => 'Test', 'code' => 'ITEM001'];
+        $incompleteData = (object)['name' => 'Test']; // Missing code
+        
+        $requiredSchema = '{"name":"", "code":""}';
+        
+        $completeValidator = new JsonValidate($completeData, $requiredSchema);
+        $this->assertTrue($completeValidator->validate());
+        
+        $incompleteValidator = new JsonValidate($incompleteData, $requiredSchema);
+        $result = $incompleteValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('code must be specified', $result);
+    }
+
+    public function testJsonValidateBlankFields()
+    {
+        // Test blank field validation
+        $validData = (object)['name' => 'Valid Name'];
+        $blankData = (object)['name' => ''];
+        
+        $blankSchema = '{"name":""}';
+        
+        $validValidator = new JsonValidate($validData, $blankSchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $blankValidator = new JsonValidate($blankData, $blankSchema);
+        $result = $blankValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('must not be blank', $result);
+    }
+
+    public function testJsonValidateArrayValidation()
+    {
+        // Test array validation
+        $validArrayData = (object)['items' => [1, 2, 3]];
+        $invalidArrayData = (object)['items' => []];
+        $notArrayData = (object)['items' => 'not array'];
+        
+        $arraySchema = '{"items":"["}';
+        
+        $validValidator = new JsonValidate($validArrayData, $arraySchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $invalidValidator = new JsonValidate($invalidArrayData, $arraySchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('must be an array with at least one value', $result);
+        
+        $notArrayValidator = new JsonValidate($notArrayData, $arraySchema);
+        $result = $notArrayValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('must be an array with at least one value', $result);
+    }
+
+    public function testJsonValidateObjectValidation()
+    {
+        // Test object validation
+        $validObjectData = (object)['config' => (object)['setting' => 'value']];
+        $invalidObjectData = (object)['config' => 'not object'];
+        
+        $objectSchema = '{"config":"{"}';
+        
+        $validValidator = new JsonValidate($validObjectData, $objectSchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $invalidValidator = new JsonValidate($invalidObjectData, $objectSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('must be a json object', $result);
+    }
+
+    public function testJsonValidateOptionalNumericFields()
+    {
+        // Test optional numeric validation (-1 allows empty or numeric)
+        $validOptionalData = (object)['optional_number' => '123'];
+        $validEmptyData = (object)['optional_number' => ''];
+        $invalidOptionalData = (object)['optional_number' => 'abc'];
+        
+        $optionalSchema = '{"optional_number":"-1"}';
+        
+        $validValidator = new JsonValidate($validOptionalData, $optionalSchema);
+        $this->assertTrue($validValidator->validate());
+        
+        $validEmptyValidator = new JsonValidate($validEmptyData, $optionalSchema);
+        $this->assertTrue($validEmptyValidator->validate());
+        
+        $invalidValidator = new JsonValidate($invalidOptionalData, $optionalSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('must be numeric', $result);
+    }
+
+    public function testCustomerRegistrationValidation()
+    {
+        // Test real customer registration validation schema (similar to CustomerAccess.php)
+        $validCustomerData = (object)[
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'phone' => '+1234567890',
-            'address' => '123 Main Street'
+            'address' => '123 Main St',
+            'suburb' => 'Downtown',
+            'postcode' => '12345',
+            'state' => 'CA',
+            'country' => 'USA',
+            'pass' => 'securepass123',
+            'captcha' => 'abc123'
         ];
         
-        $this->assertTrue($this->validateCustomer($validCustomer));
+        // Schema from CustomerAccess.php register method
+        $customerSchema = '{"name":"", "email":"@", "address":"", "suburb":"", "postcode":"", "state":"", "country":"", "pass":"", "captcha":""}';
         
-        // Test invalid customer data
-        $invalidCustomers = [
-            ['name' => '', 'email' => 'test@example.com'], // Missing name
-            ['name' => 'Jane Doe', 'email' => 'invalid-email'], // Invalid email
-            ['name' => 'Bob Smith', 'email' => 'bob@example.com', 'phone' => '123'], // Invalid phone
+        $validator = new JsonValidate($validCustomerData, $customerSchema);
+        $result = $validator->validate();
+        $this->assertTrue($result);
+        
+        // Test invalid email
+        $invalidEmailCustomer = clone $validCustomerData;
+        $invalidEmailCustomer->email = 'invalid-email';
+        
+        $invalidValidator = new JsonValidate($invalidEmailCustomer, $customerSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('must be a valid email address', $result);
+    }
+
+    public function testPasswordResetValidation()
+    {
+        // Test password reset validation schema (from CustomerAccess.php)
+        $validResetData = (object)[
+            'email' => 'test@example.com',
+            'captcha' => 'abc123'
         ];
         
-        foreach ($invalidCustomers as $customer) {
-            $this->assertFalse($this->validateCustomer($customer));
-        }
+        $resetSchema = '{"email":"@","captcha":""}';
+        
+        $validator = new JsonValidate($validResetData, $resetSchema);
+        $result = $validator->validate();
+        $this->assertTrue($result);
+        
+        // Test missing captcha
+        $missingCaptchaData = (object)['email' => 'test@example.com'];
+        
+        $invalidValidator = new JsonValidate($missingCaptchaData, $resetSchema);
+        $result = $invalidValidator->validate();
+        $this->assertNotTrue($result);
+        $this->assertStringContainsString('captcha must be specified', $result);
     }
 
-    public function testSaleValidation()
+    public function testRealJSONValidation()
     {
-        // Test valid sale data
-        $validSale = [
-            'items' => [
-                ['id' => 1, 'qty' => 2, 'price' => '10.99'],
-                ['id' => 2, 'qty' => 1, 'price' => '15.50']
-            ],
-            'total' => '37.48',
-            'payment_method' => 'cash',
-            'customer_id' => 1
-        ];
+        // Test actual JSON validation (not the custom helper method)
+        $validJSON = '{"name":"test","value":123}';
+        $invalidJSON = '{"name":"test",}'; // Trailing comma makes it invalid
         
-        $this->assertTrue($this->validateSale($validSale));
+        // Test json_decode directly
+        $validDecoded = json_decode($validJSON);
+        $this->assertNotNull($validDecoded);
+        $this->assertEquals(JSON_ERROR_NONE, json_last_error());
         
-        // Test invalid sale data
-        $invalidSales = [
-            ['items' => [], 'total' => '0.00'], // No items
-            ['items' => [['id' => 1, 'qty' => 0, 'price' => '10.00']], 'total' => '0.00'], // Zero quantity
-            ['items' => [['id' => 1, 'qty' => 1, 'price' => '-5.00']], 'total' => '-5.00'], // Negative price
-            ['items' => [['id' => 1, 'qty' => 1, 'price' => '10.00']], 'total' => ''], // Missing total
-        ];
-        
-        foreach ($invalidSales as $sale) {
-            $this->assertFalse($this->validateSale($sale));
-        }
-    }
-
-    public function testUserValidation()
-    {
-        // Test valid user data
-        $validUser = [
-            'username' => 'testuser',
-            'password' => 'SecurePassword123!',
-            'email' => 'user@example.com',
-            'role' => 'cashier',
-            'displayname' => 'Test User'
-        ];
-        
-        $this->assertTrue($this->validateUser($validUser));
-        
-        // Test invalid user data
-        $invalidUsers = [
-            ['username' => '', 'password' => 'password', 'email' => 'test@example.com'], // Missing username
-            ['username' => 'user', 'password' => '123', 'email' => 'test@example.com'], // Weak password
-            ['username' => 'user', 'password' => 'password', 'email' => 'invalid'], // Invalid email
-            ['username' => 'user', 'password' => 'password', 'email' => 'test@example.com', 'role' => 'invalid'], // Invalid role
-        ];
-        
-        foreach ($invalidUsers as $user) {
-            $this->assertFalse($this->validateUser($user));
-        }
-    }
-
-    public function testPasswordStrength()
-    {
-        $strongPasswords = [
-            'SecurePass123!',
-            'MyP@ssw0rd2024',
-            'ComplexP@ss#123'
-        ];
-        
-        foreach ($strongPasswords as $password) {
-            $this->assertTrue($this->isStrongPassword($password));
-        }
-        
-        $weakPasswords = [
-            'password',
-            '123456',
-            'abc',
-            'PASSWORD',
-            'password123'
-        ];
-        
-        foreach ($weakPasswords as $password) {
-            $this->assertFalse($this->isStrongPassword($password));
-        }
-    }
-
-    public function testNumericValidation()
-    {
-        $validNumbers = ['123', '123.45', '0', '0.01', '999999.99'];
-        $invalidNumbers = ['abc', '12.34.56', '', 'NaN', 'Infinity'];
-        
-        foreach ($validNumbers as $number) {
-            $this->assertTrue(is_numeric($number));
-        }
-        
-        foreach ($invalidNumbers as $number) {
-            $this->assertFalse(is_numeric($number));
-        }
-    }
-
-    public function testCodeFormatValidation()
-    {
-        // Test item code format (e.g., ITEM001, PROD123)
-        $validCodes = ['ITEM001', 'PROD123', 'ABC999', 'TEST001'];
-        $invalidCodes = ['', 'item001', '123ITEM', 'ITEM-001', 'IT EM001'];
-        
-        foreach ($validCodes as $code) {
-            $this->assertTrue($this->isValidItemCode($code));
-        }
-        
-        foreach ($invalidCodes as $code) {
-            $this->assertFalse($this->isValidItemCode($code));
-        }
-    }
-
-    public function testDateRangeValidation()
-    {
-        $today = date('Y-m-d');
-        $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $tomorrow = date('Y-m-d', strtotime('+1 day'));
-        
-        // Test valid date ranges
-        $this->assertTrue($this->isValidDateRange($yesterday, $today));
-        $this->assertTrue($this->isValidDateRange($today, $tomorrow));
-        
-        // Test invalid date ranges (end before start)
-        $this->assertFalse($this->isValidDateRange($today, $yesterday));
-        $this->assertFalse($this->isValidDateRange($tomorrow, $today));
-    }
-
-    public function testPermissionStringValidation()
-    {
-        $validPermissions = ['users/add', 'items/edit', 'sales/void', 'reports/view'];
-        $invalidPermissions = ['users', 'users/', '/add', 'users/add/extra', ''];
-        
-        foreach ($validPermissions as $permission) {
-            $this->assertTrue($this->isValidPermission($permission));
-        }
-        
-        foreach ($invalidPermissions as $permission) {
-            $this->assertFalse($this->isValidPermission($permission));
-        }
-    }
-
-    public function testJSONValidation()
-    {
-        $validJSON = ['{"name":"test"}', '[]', '{"items":[{"id":1,"qty":2}]}'];
-        $invalidJSON = ['{name:"test"}', '{"name":}', '{]', 'not json'];
-        
-        foreach ($validJSON as $json) {
-            $this->assertTrue($this->isValidJSON($json));
-        }
-        
-        foreach ($invalidJSON as $json) {
-            $this->assertFalse($this->isValidJSON($json));
-        }
-    }
-
-    // Helper validation methods
-
-    private function validateItem($item)
-    {
-        return !empty($item['code']) && 
-               !empty($item['name']) && 
-               isset($item['price']) && 
-               is_numeric($item['price']) && 
-               (float)$item['price'] >= 0;
-    }
-
-    private function validateCustomer($customer)
-    {
-        return !empty($customer['name']) &&
-               (!isset($customer['email']) || filter_var($customer['email'], FILTER_VALIDATE_EMAIL)) &&
-               (!isset($customer['phone']) || strlen($customer['phone']) >= 10);
-    }
-
-    private function validateSale($sale)
-    {
-        if (empty($sale['items']) || !is_array($sale['items'])) {
-            return false;
-        }
-        
-        foreach ($sale['items'] as $item) {
-            if (!isset($item['qty']) || $item['qty'] <= 0 ||
-                !isset($item['price']) || !is_numeric($item['price']) || (float)$item['price'] < 0) {
-                return false;
-            }
-        }
-        
-        return isset($sale['total']) && is_numeric($sale['total']) && (float)$sale['total'] >= 0;
-    }
-
-    private function validateUser($user)
-    {
-        $validRoles = ['admin', 'manager', 'cashier', 'customer'];
-        
-        return !empty($user['username']) &&
-               !empty($user['password']) && $this->isStrongPassword($user['password']) &&
-               (!isset($user['email']) || filter_var($user['email'], FILTER_VALIDATE_EMAIL)) &&
-               (!isset($user['role']) || in_array($user['role'], $validRoles));
-    }
-
-    private function isStrongPassword($password)
-    {
-        return strlen($password) >= 8 &&
-               preg_match('/[A-Z]/', $password) &&
-               preg_match('/[a-z]/', $password) &&
-               preg_match('/[0-9]/', $password) &&
-               preg_match('/[^A-Za-z0-9]/', $password);
-    }
-
-    private function isValidItemCode($code)
-    {
-        return preg_match('/^[A-Z]{2,10}[0-9]{3,6}$/', $code);
-    }
-
-    private function isValidDateRange($startDate, $endDate)
-    {
-        return strtotime($startDate) <= strtotime($endDate);
-    }
-
-    private function isValidPermission($permission)
-    {
-        return preg_match('/^[a-z]+\/[a-z]+$/', $permission);
-    }
-
-    private function isValidJSON($json)
-    {
-        json_decode($json);
-        return json_last_error() === JSON_ERROR_NONE;
+        $invalidDecoded = json_decode($invalidJSON);
+        $this->assertNull($invalidDecoded);
+        $this->assertNotEquals(JSON_ERROR_NONE, json_last_error());
     }
 }
