@@ -20,7 +20,7 @@
             <directory suffix=".php">./app</directory>
         </include>
         <exclude>
-            <directory>./app/Utility/TestData.php</directory>
+            <file>./app/Utility/TestData.php</file>
         </exclude>
     </source>
     <coverage>
