@@ -69,17 +69,35 @@ class DbConfig
         if (self::$_loadConfig)
             $this->getConf();
 
-        $dsn = self::$_dsnPrefix . ':host=' . self::$_hostname . ';port=' . self::$_port . ';dbname=' . self::$_database;
+        // Build DSN based on configuration
+        if (self::$_dsnPrefix === 'sqlite') {
+            // SQLite connection
+            if (self::$_database === ':memory:') {
+                $dsn = 'sqlite::memory:';
+            } else {
+                $dsn = 'sqlite:' . self::$_database;
+            }
+        } else {
+            // MySQL connection
+            $dsn = self::$_dsnPrefix . ':host=' . self::$_hostname . ';port=' . self::$_port . ';dbname=' . self::$_database;
+        }
 
         try {
             if (!$this->_db = new PDO($dsn, self::$_username, self::$_password)) {
                 throw new \Exception('Failed to connect to database');
             }
 
-            $this->_db->query("SET time_zone = '+00:00'"); //Set timezone to GMT, previous statement didn't work (Africa/Lagos), and GMT preserved daylight savings.
-            //var_dump($this->_db->query("SELECT now()")->fetchAll());exit;
-            //var_dump($this->_db->query("SELECT @@session.time_zone, @@global.time_zone")->fetchAll(PDO::FETCH_ASSOC));exit;
+            // Set timezone for MySQL only
+            if (self::$_dsnPrefix !== 'sqlite') {
+                $this->_db->query("SET time_zone = '+00:00'"); //Set timezone to GMT, previous statement didn't work (Africa/Lagos), and GMT preserved daylight savings.
+            }
+            
             $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
+            // Enable foreign keys for SQLite
+            if (self::$_dsnPrefix === 'sqlite') {
+                $this->_db->exec('PRAGMA foreign_keys = ON;');
+            }
         } catch (PDOException $e) {
             error_log('Failed to connect to database: ' . $e->getMessage());
             throw new \Exception('Failed to connect to database: ' . $e->getMessage(), 0, $e);
@@ -94,14 +112,35 @@ class DbConfig
     {
         // Try to load .env file for local development
         $envPath = base_path();
-        if (!file_exists($envPath . '/.env')) {
-            throw new \Exception('Missing .env file');
+        $envFile = '.env';
+        
+        // Check for testing environment
+        if (defined('PHPUNIT_RUNNING') || (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing')) {
+            $envFile = '.env.testing';
+        }
+        
+        if (!file_exists($envPath . '/' . $envFile)) {
+            throw new \Exception('Missing ' . $envFile . ' file');
         }
 
-        $dotenv = Dotenv::createImmutable($envPath);
+        $dotenv = Dotenv::createImmutable($envPath, $envFile);
         $dotenv->load();
 
-        if (($url = getenv("DATABASE_URL")) !== false) {
+        // Check for custom DSN first (for SQLite support)
+        if (!empty($_ENV['DATABASE_DSN'])) {
+            $dsn = $_ENV['DATABASE_DSN'];
+            if (strpos($dsn, 'sqlite:') === 0) {
+                self::$_dsnPrefix = 'sqlite';
+                self::$_database = str_replace('sqlite:', '', $dsn);
+                self::$_username = '';
+                self::$_password = '';
+                self::$_hostname = '';
+                self::$_port = '';
+            } else {
+                // Parse other DSN formats if needed
+                throw new \Exception('Unsupported DSN format: ' . $dsn);
+            }
+        } else if (($url = getenv("DATABASE_URL")) !== false) {
             $url = parse_url($url);
             self::$_username = $url['user'];
             self::$_password = $url['pass'];

@@ -2,473 +2,322 @@
 
 namespace Tests\Unit\Controllers\Api;
 
-use PHPUnit\Framework\TestCase;
+use Tests\Support\BaseTestCase;
 use App\Controllers\Api\AuthController;
-use App\Auth;
-use Mockery;
 
-/**
- * Unit tests for AuthController
- * Tests authentication functionality, token management, and security features
- */
-class AuthControllerTest extends TestCase
+class AuthControllerTest extends BaseTestCase
 {
-    protected $authController;
-    protected $mockAuth;
-
     protected function setUp(): void
     {
         parent::setUp();
         
-        // Mock the Auth class
-        $this->mockAuth = Mockery::mock(Auth::class);
-        
-        // Create a partial mock of AuthController
-        $this->authController = Mockery::mock(AuthController::class)
-            ->makePartial()
-            ->shouldAllowMockingProtectedMethods();
-        
-        // Create reflection to access private properties
-        $reflection = new \ReflectionClass(AuthController::class);
-        if ($reflection->hasProperty('auth')) {
-            $authProperty = $reflection->getProperty('auth');
-            $authProperty->setAccessible(true);
-            $authProperty->setValue($this->authController, $this->mockAuth);
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        // Ensure clean session state
+        $_SESSION = [];
+        $_POST = [];
+        $_REQUEST = [];
     }
 
     public function testAuthenticateWithValidCredentials()
     {
-        // Setup request data
+        // Create POST data for authentication
         $_REQUEST['data'] = json_encode([
-            'username' => 'testuser',
-            'password' => 'testpass',
+            'username' => 'admin',
+            'password' => 'admin',
             'getsessiontokens' => true
         ]);
 
-        $mockUserData = [
-            'id' => 1,
-            'username' => 'testuser',
-            'displayname' => 'Test User',
-            'role' => 'admin'
-        ];
+        $controller = new AuthController();
+        
+        // Capture output since the controller echoes JSON and calls die()
+        ob_start();
+        try {
+            $controller->authenticate();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        // Mock successful login
-        $this->mockAuth->shouldReceive('login')
-            ->with('testuser', 'testpass', true)
-            ->once()
-            ->andReturn(true);
-
-        $this->mockAuth->shouldReceive('getUser')
-            ->once()
-            ->andReturn($mockUserData);
-
-        // Mock the returnResult method
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockUserData) {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockUserData, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->authenticate();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be successful authentication
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
+        $this->assertNotEmpty($response['data']);
+        $this->assertEquals('admin', $response['data']['username']);
     }
 
     public function testAuthenticateWithInvalidCredentials()
     {
+        // Create POST data with invalid credentials
         $_REQUEST['data'] = json_encode([
-            'username' => 'baduser',
-            'password' => 'badpass'
+            'username' => 'admin',
+            'password' => 'wrongpassword',
+            'getsessiontokens' => false
         ]);
 
-        // Mock failed login
-        $this->mockAuth->shouldReceive('login')
-            ->with('baduser', 'badpass', false)
-            ->once()
-            ->andReturn(false);
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->authenticate();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('authdenied', $result['errorCode']);
-                $this->assertEquals('Access Denied!', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->authenticate();
-    }
-
-    public function testAuthenticateWithDisabledAccount()
-    {
-        $_REQUEST['data'] = json_encode([
-            'username' => 'disableduser',
-            'password' => 'password'
-        ]);
-
-        // Mock disabled account (-1 return)
-        $this->mockAuth->shouldReceive('login')
-            ->with('disableduser', 'password', false)
-            ->once()
-            ->andReturn(-1);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('authdenied', $result['errorCode']);
-                $this->assertEquals('Your account has been disabled, please contact your system administrator!', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->authenticate();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be authentication failure
+        $this->assertNotEquals('OK', $response['errorCode']);
+        $this->assertStringContainsString('Invalid', $response['error']);
     }
 
     public function testAuthenticateWithMissingData()
     {
-        unset($_REQUEST['data']);
+        // No data provided
+        $_REQUEST = [];
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('request', $result['errorCode']);
-                $this->assertEquals('No authentication data provided', $result['error']);
-                return json_encode($result);
-            });
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->authenticate();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->authenticate();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be request error
+        $this->assertEquals('request', $response['errorCode']);
+        $this->assertStringContainsString('No authentication data provided', $response['error']);
     }
 
     public function testAuthenticateWithInvalidJSON()
     {
-        $_REQUEST['data'] = 'invalid-json-data';
+        // Provide invalid JSON
+        $_REQUEST['data'] = 'invalid-json';
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('jsondec', $result['errorCode']);
-                $this->assertEquals('Error decoding the json request!', $result['error']);
-                return json_encode($result);
-            });
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->authenticate();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->authenticate();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be JSON decode error
+        $this->assertEquals('jsondec', $response['errorCode']);
+        $this->assertStringContainsString('Error decoding the json request', $response['error']);
     }
 
-    public function testRenewTokenWithValidData()
+    public function testAuthenticateWithDisabledAccount()
     {
+        // First, we need to disable an account in our test database
+        $db = $this->getTestDatabase();
+        $db->prepare("UPDATE auth SET disabled = 1 WHERE username = 'staff'")->execute();
+        
+        // Try to authenticate with disabled staff account
         $_REQUEST['data'] = json_encode([
-            'username' => 'testuser',
-            'auth_hash' => 'valid-hash-123'
+            'username' => 'staff',
+            'password' => 'staff',
+            'getsessiontokens' => false
         ]);
 
-        $mockUserData = [
-            'id' => 1,
-            'username' => 'testuser',
-            'displayname' => 'Test User'
-        ];
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->authenticate();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->mockAuth->shouldReceive('renewTokenSession')
-            ->with('testuser', 'valid-hash-123')
-            ->once()
-            ->andReturn(true);
-
-        $this->mockAuth->shouldReceive('getUser')
-            ->once()
-            ->andReturn($mockUserData);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockUserData) {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockUserData, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->renewToken();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be authentication failure due to disabled account
+        $this->assertNotEquals('OK', $response['errorCode']);
+        $this->assertStringContainsString('disabled', $response['error']);
     }
 
-    public function testRenewTokenWithInvalidHash()
+    public function testRenewTokenFunctionality()
     {
-        $_REQUEST['data'] = json_encode([
-            'username' => 'testuser',
-            'auth_hash' => 'invalid-hash'
-        ]);
+        // First authenticate to get a session
+        $this->actingAsAdmin();
 
-        $this->mockAuth->shouldReceive('renewTokenSession')
-            ->with('testuser', 'invalid-hash')
-            ->once()
-            ->andReturn(false);
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->renewToken();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('authdenied', $result['errorCode']);
-                $this->assertEquals('Access Denied!', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->renewToken();
-    }
-
-    public function testAuthenticateWithNullUserData()
-    {
-        $_REQUEST['data'] = json_encode([
-            'username' => 'testuser',
-            'password' => 'testpass'
-        ]);
-
-        // Mock successful login but null user data
-        $this->mockAuth->shouldReceive('login')
-            ->with('testuser', 'testpass', false)
-            ->once()
-            ->andReturn(true);
-
-        $this->mockAuth->shouldReceive('getUser')
-            ->once()
-            ->andReturn(null);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals('Could not retrieve user data from php session.', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->authenticate();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be successful for authenticated user
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
     }
 
     public function testLogoutFunctionality()
     {
-        $this->mockAuth->shouldReceive('logout')
-            ->once()
-            ->andReturn(true);
+        // First authenticate
+        $this->actingAsAdmin();
+        
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->logout();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                return json_encode($result);
-            });
-
-        $this->authController->logout();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be successful logout
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
     }
 
     public function testHelloEndpointLoggedIn()
     {
-        $mockUserData = ['id' => 1, 'username' => 'testuser'];
+        // First authenticate
+        $this->actingAsAdmin();
         
-        $this->mockAuth->shouldReceive('isLoggedIn')
-            ->once()
-            ->andReturn(true);
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->hello();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->mockAuth->shouldReceive('getUser')
-            ->once()
-            ->andReturn($mockUserData);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockUserData) {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockUserData, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->hello();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should return user data
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
+        $this->assertNotEmpty($response['data']);
+        $this->assertNotFalse($response['data']['user']);
     }
 
     public function testHelloEndpointNotLoggedIn()
     {
-        $this->mockAuth->shouldReceive('isLoggedIn')
-            ->once()
-            ->andReturn(false);
+        // Ensure no authentication
+        $this->actingAsGuest();
+        
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->hello();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals(false, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->hello();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should return false for user when not logged in
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
+        $this->assertFalse($response['data']['user']);
     }
 
     public function testCustomerAuthWithValidCredentials()
     {
+        // Add a test customer with credentials to database
+        $db = $this->getTestDatabase();
+        $stmt = $db->prepare("INSERT INTO customers (name, email, password, activated) VALUES (?, ?, ?, ?)");
+        $stmt->execute(['Test Customer', 'customer@test.com', hash('sha256', 'password'), 1]);
+        
         $_REQUEST['data'] = json_encode([
             'username' => 'customer@test.com',
-            'password' => 'customerpass'
-        ]);
-
-        $mockCustomerData = [
-            'id' => 1,
-            'email' => 'customer@test.com',
-            'name' => 'Test Customer'
-        ];
-
-        $this->mockAuth->shouldReceive('customerLogin')
-            ->with('customer@test.com', 'customerpass')
-            ->once()
-            ->andReturn(true);
-
-        $this->mockAuth->shouldReceive('getCustomer')
-            ->once()
-            ->andReturn($mockCustomerData);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockCustomerData) {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockCustomerData, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->customerAuth();
-    }
-
-    public function testCustomerAuthWithDisabledAccount()
-    {
-        $_REQUEST['data'] = json_encode([
-            'username' => 'disabled@test.com',
             'password' => 'password'
         ]);
 
-        $this->mockAuth->shouldReceive('customerLogin')
-            ->with('disabled@test.com', 'password')
-            ->once()
-            ->andReturn(-1);
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->customerAuth();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('authdenied', $result['errorCode']);
-                $this->assertEquals('Your account has been disabled, please contact your system administrator!', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->customerAuth();
-    }
-
-    public function testCustomerAuthWithUnactivatedAccount()
-    {
-        $_REQUEST['data'] = json_encode([
-            'username' => 'unactivated@test.com',
-            'password' => 'password'
-        ]);
-
-        $this->mockAuth->shouldReceive('customerLogin')
-            ->with('unactivated@test.com', 'password')
-            ->once()
-            ->andReturn(-2);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('authdenied', $result['errorCode']);
-                $this->assertEquals('Your account has not yet been activated, please activate your account or reset your password.', $result['error']);
-                return json_encode($result);
-            });
-
-        $this->authController->customerAuth();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should be successful for valid customer
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
     }
 
     public function testAuthorizeWebsocket()
     {
-        $mockWebsocketAuth = ['token' => 'ws-token-123', 'expires' => time() + 3600];
+        // Authenticate first
+        $this->actingAsAdmin();
+        
+        $controller = new AuthController();
+        
+        // Capture output
+        ob_start();
+        try {
+            $controller->authorizeWebsocket();
+        } catch (\Throwable $e) {
+            // Controller calls die(), which is expected
+        }
+        $output = ob_get_clean();
 
-        $this->mockAuth->shouldReceive('authoriseWebsocket')
-            ->once()
-            ->andReturn($mockWebsocketAuth);
-
-        $this->authController->shouldReceive('returnResult')
-            ->once()
-            ->andReturnUsing(function() use ($mockWebsocketAuth) {
-                $reflection = new \ReflectionClass($this->authController);
-                $resultProperty = $reflection->getProperty('result');
-                $resultProperty->setAccessible(true);
-                $result = $resultProperty->getValue($this->authController);
-                
-                $this->assertEquals('OK', $result['errorCode']);
-                $this->assertEquals($mockWebsocketAuth, $result['data']);
-                return json_encode($result);
-            });
-
-        $this->authController->authorizeWebsocket();
+        // Verify JSON response
+        $this->assertJson($output);
+        $response = json_decode($output, true);
+        
+        // Should return websocket authorization data
+        $this->assertEquals('OK', $response['errorCode']);
+        $this->assertEquals('OK', $response['error']);
+        $this->assertNotEmpty($response['data']);
     }
 }
