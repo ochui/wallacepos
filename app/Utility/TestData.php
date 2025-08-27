@@ -267,7 +267,7 @@ class TestData
     private function purgeRecords()
     {
         $dbMdl = new DbConfig();
-        $sql = file_get_contents(base_path("library/installer/schemas/install.sql"));
+        $sql = file_get_contents(base_path("database/schemas/install.sql"));
         if ($sql != false) {
             $dbMdl->_db->exec("TRUNCATE TABLE sales; ALTER TABLE sales AUTO_INCREMENT = 1;");
             $dbMdl->_db->exec("TRUNCATE TABLE sale_items; ALTER TABLE sale_items AUTO_INCREMENT = 1;");
