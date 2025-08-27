@@ -36,5 +36,27 @@ if (!function_exists('storage_path')) {
 // Set timezone for consistent test results
 date_default_timezone_set('UTC');
 
+// Set testing environment flag
+$_ENV['TESTING'] = true;
+putenv('TESTING=true');
+
+// Initialize session for testing
+if (!session_id()) {
+    session_start();
+}
+
+// Set up clean test environment
+$_SERVER = array_merge($_SERVER, [
+    'REQUEST_METHOD' => 'GET',
+    'REQUEST_URI' => '/test',
+    'HTTP_HOST' => 'localhost',
+    'SERVER_NAME' => 'localhost',
+    'SCRIPT_NAME' => '/index.php',
+    'QUERY_STRING' => '',
+    'DOCUMENT_ROOT' => base_path('public'),
+    'CONTENT_TYPE' => 'application/json',
+    'HTTP_ACCEPT' => 'application/json',
+]);
+
 // Start output buffering to prevent unwanted output during tests
 ob_start();
