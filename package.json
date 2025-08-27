@@ -1,0 +1,34 @@
+{
+  "name": "freepos",
+  "version": "1.0.0",
+  "description": "An intuitive & modern web based POS system for retail businesses",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage-watch": "jest --coverage --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@testing-library/jest-dom": "^6.4.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/tests/JavaScript/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "public/assets/js/pos/**/*.js",
+      "!public/assets/js/pos/**/*.min.js",
+      "!public/assets/js/jquery*.js",
+      "!public/assets/js/bootstrap*.js"
+    ],
+    "coverageDirectory": "coverage/javascript",
+    "coverageReporters": ["html", "text", "lcov"],
+    "setupFilesAfterEnv": ["<rootDir>/tests/JavaScript/setup.js"]
+  },
+  "keywords": ["pos", "point-of-sale", "retail", "business"],
+  "author": "FreePOS Team",
+  "license": "MIT"
+}

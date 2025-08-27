@@ -48,10 +48,6 @@ class TestData
     {
         $basePath = base_path();
         $storagePath = storage_path();
-
-        exec("rm -r " . $storagePath . "/*");
-        exec("cp -rp " . $basePath . "storage-template/* " . $storagePath);
-        exec("chmod -R 777 " . $storagePath);
     }
 
     public function generate($numtransactions, $type = 'sale')
@@ -267,30 +263,57 @@ class TestData
     private function purgeRecords()
     {
         $dbMdl = new DbConfig();
-        $sql = file_get_contents(base_path("library/installer/schemas/install.sql"));
-        if ($sql != false) {
-            $dbMdl->_db->exec("TRUNCATE TABLE sales; ALTER TABLE sales AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE sale_items; ALTER TABLE sale_items AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE sale_payments; ALTER TABLE sale_payments AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE sale_voids; ALTER TABLE sale_voids AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE sale_history; ALTER TABLE sale_history AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE stored_items; ALTER TABLE stored_items AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE stored_suppliers; ALTER TABLE stored_suppliers AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE stored_categories; ALTER TABLE stored_categories AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE devices; ALTER TABLE devices AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE device_map; ALTER TABLE device_map AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE locations; ALTER TABLE locations AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE customers; ALTER TABLE customers AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE customer_contacts; ALTER TABLE customer_contacts AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE auth; ALTER TABLE auth AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE config; ALTER TABLE config AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE tax_rules; ALTER TABLE tax_rules AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE tax_items; ALTER TABLE tax_items AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE stock_levels; ALTER TABLE stock_levels AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec("TRUNCATE TABLE stock_history; ALTER TABLE stock_history AUTO_INCREMENT = 1;");
-            $dbMdl->_db->exec($sql);
+        
+        // Check if we're using SQLite
+        $isSqlite = strpos($dbMdl->_db->getAttribute(\PDO::ATTR_DRIVER_NAME), 'sqlite') !== false;
+        
+        if ($isSqlite) {
+            // For SQLite, use DELETE statements instead of TRUNCATE
+            $tables = [
+                'sales', 'sale_items', 'sale_payments', 'sale_voids', 'sale_history',
+                'stored_items', 'stored_suppliers', 'stored_categories', 'devices', 
+                'device_map', 'locations', 'customers', 'customer_contacts', 'auth', 
+                'config', 'tax_rules', 'tax_items', 'stock_levels', 'stock_history'
+            ];
+            
+            foreach ($tables as $table) {
+                try {
+                    $dbMdl->_db->exec("DELETE FROM {$table}");
+                } catch (\Exception $e) {
+                    // Table might not exist, continue
+                }
+            }
+            
+            // Create schema using SQLite converter
+            $sqliteSchema = \App\Utility\SqliteSchemaConverter::getSqliteSchema();
+            $dbMdl->_db->exec($sqliteSchema);
         } else {
-            die("Could not import sql.");
+            // MySQL - use original TRUNCATE statements
+            $sql = file_get_contents(base_path("database/schemas/install.sql"));
+            if ($sql != false) {
+                $dbMdl->_db->exec("TRUNCATE TABLE sales; ALTER TABLE sales AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE sale_items; ALTER TABLE sale_items AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE sale_payments; ALTER TABLE sale_payments AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE sale_voids; ALTER TABLE sale_voids AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE sale_history; ALTER TABLE sale_history AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE stored_items; ALTER TABLE stored_items AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE stored_suppliers; ALTER TABLE stored_suppliers AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE stored_categories; ALTER TABLE stored_categories AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE devices; ALTER TABLE devices AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE device_map; ALTER TABLE device_map AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE locations; ALTER TABLE locations AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE customers; ALTER TABLE customers AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE customer_contacts; ALTER TABLE customer_contacts AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE auth; ALTER TABLE auth AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE config; ALTER TABLE config AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE tax_rules; ALTER TABLE tax_rules AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE tax_items; ALTER TABLE tax_items AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE stock_levels; ALTER TABLE stock_levels AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec("TRUNCATE TABLE stock_history; ALTER TABLE stock_history AUTO_INCREMENT = 1;");
+                $dbMdl->_db->exec($sql);
+            } else {
+                die("Could not import sql.");
+            }
         }
     }
 
