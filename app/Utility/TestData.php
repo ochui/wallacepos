@@ -48,10 +48,6 @@ class TestData
     {
         $basePath = base_path();
         $storagePath = storage_path();
-
-        exec("rm -r " . $storagePath . "/*");
-        exec("cp -rp " . $basePath . "storage-template/* " . $storagePath);
-        exec("chmod -R 777 " . $storagePath);
     }
 
     public function generate($numtransactions, $type = 'sale')
